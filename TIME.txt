@@ -1,0 +1,5 @@
+2018-02-20	2.3	Basic scene graph
+2018-02-21	1.9	QR-decomposition to get matrix parameters
+
+
+- vim:ts=8
