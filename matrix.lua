@@ -41,8 +41,8 @@ M.xM = function(m, n, out)
 	out = out or {}
 	out.ux = m_ux * n_ux + m_uy * n_vx -- + 0 * n_x
 	out.uy = m_ux * n_uy + m_uy * n_vy -- + 0 * n_y
-	out.ux = m_vx * n_ux + m_vy * n_vx -- + 0 * n_x
-	out.uy = m_vx * n_uy + m_vy * n_vy -- + 0 * n_y
+	out.vx = m_vx * n_ux + m_vy * n_vx -- + 0 * n_x
+	out.vy = m_vx * n_uy + m_vy * n_vy -- + 0 * n_y
 	out.x =   m_x * n_ux +  m_y * n_vx + n_x
 	out.y =   m_x * n_uy +  m_y * n_vy + n_y
 	return out
@@ -67,15 +67,13 @@ end
 M.parameters = function(m)
 	-- Return values: angle, scale, skew
 	-- Note that origin can be read directly from matrix.
-	local th, sx, sy, kx, ky = m.x, m.y, 0, 0, 0, 0, 0
+	local th, sx, sy, kx, ky = 0, 0, 0, 0, 0
 
 	local tiny = 0.00001
 	local u2 = m.ux * m.ux  +  m.uy * m.uy
 	if u2 < tiny then
 		local v2 = m.vx * m.vx  +  m.vy * m.vy
-		if v2 < tiny then
-			th, sx, sy, ky = 0, 0, 0, 0
-		else
+		if v2 >= tiny then
 			th = math.atan2(-m.vx, m.vy)
 			sy = math.sqrt(v2)
 		end

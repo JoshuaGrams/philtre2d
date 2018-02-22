@@ -1,5 +1,9 @@
-2018-02-20	2.3	Basic scene graph
-2018-02-21	1.9	QR-decomposition to get matrix parameters
+2018-02-20	 2.3	Basic scene graph
+2018-02-21	 1.9	QR-decomposition to get matrix parameters
+2018-02-21	 1.2	Begin draw order.
+2018-02-22	 0.7	Debug draw order.
+----------	----
+----------	 6.1
 
 
 - vim:ts=8

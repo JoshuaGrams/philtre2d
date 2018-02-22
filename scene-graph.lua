@@ -25,7 +25,7 @@ end
 -- Add local transform to `old` world transform.
 local function coords(old, obj)
 	local m = M.matrix(obj.p.x, obj.p.y, obj.angle, obj.sx, obj.sy)
-	m = M.xM(old, m, m)
+	m = M.xM(m, old, m)
 	return m
 end
 
@@ -34,23 +34,28 @@ local function init(graph, m, parent)
 	parent = parent or nil
 	for _,o in ipairs(graph) do
 		o.parent = parent
-		o._to_world, o._to_local = m, nil
+		local n = o.p and coords(m, o) or m
+		o._to_world, o._to_local = n, nil
 		if o.children then
-			local n = o.p and coords(m, o) or m
 			init(o.children, n, o)
 		end
 		if o.init then o:init() end
 	end
 end
 
-local function update(graph, dt, m)
+local function update(graph, dt, draw_order, m)
 	m = m or M.identity
 	for _,o in ipairs(graph) do
 		o._to_world, o._to_local = m, nil
 		if o.update then o:update(dt) end
+		if o.p then
+			o._to_world, o._to_local = coords(m, o), nil
+		end
+		if draw_order and o.draw then
+			draw_order:add(o)
+		end
 		if o.children then
-			local n = o.p and coords(m, o) or m
-			update(o.children, dt, m)
+			update(o.children, dt, draw_order, o._to_world)
 		end
 	end
 end
