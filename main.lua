@@ -36,7 +36,7 @@ end
 
 function love.update(dt)
 	flux.update(dt)
-	draw_order:reset()
+	draw_order:clear()
 	G.update(scene, dt, draw_order)
 end
 
