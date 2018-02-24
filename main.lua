@@ -11,7 +11,7 @@ function love.load()
 	local green = { 30, 200, 25 }
 
 	draw_order = DrawList.new('default')
-	draw_order:add_layer(-1, "bg")
+	draw_order:add_layer(1, "bg")
 
 	scene = {
 		mod(Box.new(300, 200, 30, 30, red), {

@@ -85,7 +85,9 @@ local function depths(self)
 	end
 	for i=n+1,order.n do order[i] = nil end
 	order.n = n
-	table.sort(order)
+	-- sort descending so greatest depths get drawn first
+	-- (and lesser depths get drawn on top).
+	table.sort(order, function(a,b) return a > b end)
 	return order
 end
 
