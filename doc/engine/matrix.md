@@ -1,17 +1,18 @@
 Matrix
 ======
 
-A matrix `m` stores a 2D transformation as three vectors: the
-new x-vector (`m.ux`, `m.uy`), the new y-vector (`m.vx`,
-`m.vy`), and the new origin (`m.x`, `m.y`).  To transform a
-vector `(x, y)`, we start at the new origin, move `x` units
-along the `u` vector, then `y` units along the `v` vector.
+A matrix `m` stores a 2D affine transformation (basically a new
+coordinate system) as three vectors: the origin (`m.x`, `m.y`),
+the new x-vector (`m.ux`, `m.uy`), and the new y-vector (`m.vx`,
+`m.vy`).  To transform a vector `(x, y)`, we start at the new
+origin, move `x` units along the `u` vector, then `y` units
+along the `v` vector.
 
 But if you want to transform a vector that represents a
 direction, you want to leave out the origin.  So we pretend that
-every vector has a third value (`w`) which tells "how much" of
-the origin to include (defaults to 1, that is, all of it).  You
-can transform a direction vector by passing 0 for `w`.
+every vector has a third value (`w`) which tells how much of the
+origin to include (defaults to 1, that is, all of it).  You can
+transform a direction vector by passing 0 for `w`.
 
 To combine two matrix transforms, we use the first matrix to
 transform all three vectors of the second.  But the `u` and `v`
@@ -46,12 +47,12 @@ A table (`M`) containing the following:
   performs `v*m` so that transformations occur from left to
   right (the order in which you read english text).
 
-* `M.xM(m, n, out={})` - Combine two transformations `m` and `n`,
-  putting the result in `out` (if you pass a table) or a new
-  table.  Note that I have chosen to represent vectors as row
-  vectors (multiplying `v*m` with the vector on the left), so
-  when combining two matrices, `m` will happen first and `n`
-  second.
+* `M.xM(m, n, out={})` - Combine two transformations `m` and
+  `n`, putting the result in `out` (if you pass a table) or
+  creating a new table.  Note that I have chosen to represent
+  vectors as row vectors (multiplying `v*m` with the vector on
+  the left), so when combining two transformations, `m` will
+  happen first and `n` second.
 
 * `M.invert(m, out={})` - Compute the inverse transform (the one
   that undoes the effects of `m`, putting it it `out` or

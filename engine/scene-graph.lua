@@ -1,14 +1,3 @@
--- A scene graph is simply a sequence (table) of objects, each of
--- which may have a bunch of optional properties:
---
--- * children = {obj1, obj2, ...}
--- * p = {x=0, y=0}   -- position
--- * angle = 0        -- radians
--- * sx, sy = 1, nil  -- scale (uniformly if sy is nil)
---
--- When updating, each object's `_to_world` property is set to
--- the appropriate matrix.
-
 local M = require('engine.matrix')
 
 -- Note that `props` override values already on `obj`.  This is

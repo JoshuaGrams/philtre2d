@@ -1,23 +1,3 @@
--- Supports named layers and depths.  Objects may have a `layer`
--- property giving a layer name, or a `depth` property (greater
--- depths are farther into the screen).
---
--- Named layers must be added prior to use:
---
--- * order:add_layer(depth, name)
---
--- * order:remove_layer(name)
---
--- Within a layer, objects are drawn in the order they are
--- added.  Each frame, you will want to clear the order, add
--- objects, and then draw the whole thing:
---
--- * order:clear()
---
--- * order:add(object)
---
--- * order:draw()
-
 local M = require('engine.matrix')
 
 local function add_layer(self, depth, name)
