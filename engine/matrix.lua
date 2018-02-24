@@ -50,7 +50,7 @@ end
 
 M.invert = function(m, out)
 	local d = m.ux * m.vy - m.uy * m.vx  -- 2x2 determinant
-	if math.abs(d) < 0.001 then return false end
+	if math.abs(d) < 0.0001 then return false end
 
 	out = out or {}
 	local m_ux = m.ux
