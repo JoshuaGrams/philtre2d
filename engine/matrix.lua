@@ -10,7 +10,7 @@ M.identity = {
 -- scaling, rotating, then translating.
 M.matrix = function(x, y, radians, sx, sy, kx, ky, m)
 	sx, kx = sx or 1, kx or 0
-	sy, ky = sy or sx, ky or kx
+	sy, ky = sy or sx, ky or 0
 	radians = radians or 0
 	local cos, sin = math.cos(radians), math.sin(radians)
 	local sy_kx, sx_ky = sy*kx, sx*ky
