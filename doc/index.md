@@ -4,7 +4,7 @@ Philtre 2D
 Engine
 ------
 
-* [Scene Graph](engine/scene-graph.md) - Handles object
+* [Scene Tree](engine/scene-tree.md) - Handles object
   collections and transforms.
 
 * [Draw Order](engine/draw-order.md) - Cooperates with the scene
