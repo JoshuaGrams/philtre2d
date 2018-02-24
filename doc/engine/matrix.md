@@ -10,8 +10,8 @@ along the `u` vector, then `y` units along the `v` vector.
 But if you want to transform a vector that represents a
 direction, you want to leave out the origin.  So we pretend that
 every vector has a third value (`w`) which tells "how much" of
-the origin to add (defaults to 1, that is, all of it).  You can
-transform a direction vector by passing 0 for `w`.
+the origin to include (defaults to 1, that is, all of it).  You
+can transform a direction vector by passing 0 for `w`.
 
 To combine two matrix transforms, we use the first matrix to
 transform all three vectors of the second.  But the `u` and `v`
@@ -27,19 +27,24 @@ Contents
 
 A table (`M`) containing the following:
 
-* `M.identity` - the do-nothing transform.  Note that this is just
-  a single table, so be careful not to modify it.
+* `M.identity` - the do-nothing transform.  Note that this is
+  just a single table, so be careful not to modify it.
 
-* `M.matrix(x, y, radians, x_scale, y_scale, x_skew, y_skew, m)` -
-  Create a new transformation matrix.  Since the order matters,
-  this is the equivalent of skewing, scaling, rotating, then
-  translating.  All parameters except `x` and `y` are optional.
-  If you pass in an existing table `m`, it will set the matrix
-  properties on that instead of creating a new table.
+* `M.matrix(x, y, radians=0, x_scale=1, y_scale=x_scale,
+  x_skew=0, y_skew=0, m={})` - Create a new transformation
+  matrix.  Since the order matters, this is the equivalent of
+  skewing, scaling, rotating, then translating.  All parameters
+  except `x` and `y` are optional.  If you pass in an existing
+  table `m`, it will set the matrix properties on that instead
+  of creating a new table.
 
 * `M.x(m, x, y, w=1)` - Use the matrix `m` to transform a
   vector.  `w` is optional and defaults to 1, but if you want to
-  transform a direction vector, you can pass 0.
+  transform a direction vector, you can pass 0.  If you're
+  familiar with the math, you may like to know that this is
+  backwards: it actually treats '(x, y, w)' as a row vector and
+  performs `v*m` so that transformations occur from left to
+  right (the order in which you read english text).
 
 * `M.xM(m, n, out={})` - Combine two transformations `m` and `n`,
   putting the result in `out` (if you pass a table) or a new
@@ -48,7 +53,7 @@ A table (`M`) containing the following:
   when combining two matrices, `m` will happen first and `n`
   second.
 
-* `M.invert(m, out)` - Compute the inverse transform (the one
+* `M.invert(m, out={})` - Compute the inverse transform (the one
   that undoes the effects of `m`, putting it it `out` or
   creating a new table.  Note that not all transformations are
   invertible (for instance, if you scale the x-axis by zero,
@@ -58,6 +63,5 @@ A table (`M`) containing the following:
 
 * `M.parameters(m) -> radians, x_scale, y_scale, x_skew, y_skew` -
   Compute the angle, scale, and skew represented by the matrix
-  `m`.  Note that since a matrix consists of three vectors (the
-  new x-vector, the new y-vector, and the new origin), you can
-  read the translation (origin) directly from `m.x` and `m.y`.
+  `m`.  Note that the matrix always contains the translation
+  (origin) so you can get it directly from `m.x` and `m.y`.
