@@ -11,6 +11,16 @@
 
 local M = require('engine.matrix')
 
+-- Note that `props` override values already on `obj`.  This is
+-- deliberate, so we can insert a file into a bigger scene and
+-- then customize it.
+local function mod(obj, props)
+	for name,prop in pairs(props) do
+		obj[name] = prop
+	end
+	return obj
+end
+
 local function to_world(obj, x, y, w)
 	return M.x(obj._to_world, x, y, w)
 end
@@ -81,7 +91,7 @@ local function draw(graph)
 end
 
 local G = {
-	config = config,
+	mod = mod,
 	to_world = to_world,  to_local = to_local,
 	init = init,  update = update,  draw = draw,
 }
