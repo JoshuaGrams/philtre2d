@@ -17,9 +17,6 @@
 -- * order:add(object)
 --
 -- * order:draw()
---
--- TODO - Hrm.  Should I keep the order and just add/remove
--- objects?  Most of it will be static.
 
 local M = require('matrix')
 
