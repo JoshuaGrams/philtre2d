@@ -29,6 +29,9 @@ function love.load()
 			}
 		})
 	}
+	flux.to(scene[1], 2, {sx=2}):oncomplete(function()
+		flux.to(scene[1], 2, {sx=1})
+	end)
 
 	G.init(scene)
 end
