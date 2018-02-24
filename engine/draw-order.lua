@@ -49,9 +49,10 @@ end
 
 local function object_layer(self, object)
 	local layer
-	if object.depth then
-		layer = self.depth[object.depth] or add_layer(self, object.depth)
-	elseif object.layer then
+	local t = type(object.layer)
+	if t == 'number' then
+		layer = self.depth[object.layer] or add_layer(self, object.layer)
+	elseif t == 'string' then
 		layer = self.named[object.layer]
 		if not layer then
 			error('No such layer "' .. object.layer .. '".')
