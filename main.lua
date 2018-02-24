@@ -1,35 +1,38 @@
-local G = require('scene-graph')
-local DrawList = require('draw-order')
+-- Example thingy
+
+local G = require('engine.scene-graph')
+local DrawList = require('engine.draw-order')
 local Box = require('box')
-local flux = require('flux')
+local flux = require('lib.flux')
 
 function love.load()
 	local red = { 180, 23, 20 }
 	local green = { 30, 200, 25 }
 
 	draw_order = DrawList.new('default')
+	draw_order:add_layer(-1, "bg")
 
-	scene = {
-		Box.new(300, 200, 30, 30, red),
-		Box.new(120, 300, 30, 30, green)
-	}
-
-	scene[1].v.x = 60
-	scene[1].v.y = 20
-	scene[1].angular = math.pi
-	scene[1].sx = 1
-	flux.to(scene[1], 2, { sx = 2 }):oncomplete(function()
-		flux.to(scene[1], 2, { sx = 1 })
-	end)
-
-	scene[1].children = {
+	local red_box = Box.new(300, 200, 30, 30, red)
+	red_box.children = {
 		Box.new(20, -25, 8, 8, red),
 	}
-	scene[1].children[1].angle = math.pi/6
-	scene[2].children = {
+	red_box.children[1].angle = math.pi/6
+	red_box.v.x = 60
+	red_box.v.y = 20
+	red_box.angular = math.pi
+	red_box.sx = 1
+	flux.to(red_box, 2, { sx = 2 }):oncomplete(function()
+		flux.to(red_box, 2, { sx = 1 })
+	end)
+
+	local green_box = Box.new(500, 300, 30, 30, green)
+	green_box.children = {
 		Box.new(8, -25, 8, 8, green)
 	}
-	scene[2].children[1].angle = -math.pi/6
+	green_box.layer = 'bg'
+	green_box.children[1].angle = -math.pi/6
+
+	scene = { red_box, green_box }
 
 	G.init(scene)
 end

@@ -3,8 +3,9 @@
 2018-02-21	 1.2	Begin draw order.
 2018-02-22	 0.7	Debug draw order.
 2018-02-23	 1.1	Draw order has both names and depths.
+2018-02-24	 0.4	Add engine/ and lib/ directories, put children in parent's layer if unspecified.
 ----------	----
-----------	 7.2
+----------	 7.6
 
 
 - vim:ts=8

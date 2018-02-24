@@ -9,7 +9,7 @@
 -- When updating, each object's `_to_world` property is set to
 -- the appropriate matrix.
 
-local M = require('matrix')
+local M = require('engine.matrix')
 
 local function to_world(obj, x, y, w)
 	return M.x(obj._to_world, x, y, w)
@@ -52,10 +52,14 @@ local function update(graph, dt, draw_order, m)
 			o._to_world, o._to_local = coords(m, o), nil
 		end
 		if draw_order and o.draw then
+			draw_order:save_current_layer()
 			draw_order:add(o)
 		end
 		if o.children then
 			update(o.children, dt, draw_order, o._to_world)
+		end
+		if draw_order and o.draw then
+			draw_order:restore_current_layer()
 		end
 	end
 end

@@ -18,7 +18,7 @@
 --
 -- * order:draw()
 
-local M = require('matrix')
+local M = require('engine.matrix')
 
 local function add_layer(self, depth, name)
 	local layer = { name = name, depth = depth, n = 0 }
@@ -57,15 +57,24 @@ local function object_layer(self, object)
 			error('No such layer "' .. object.layer .. '".')
 		end
 	else
-		layer = self.named[self.default_layer]
+		layer = self.current_layer
 	end
 	return layer
 end
 
 local function add(self, object)
 	local layer = object_layer(self, object)
+	self.current_layer = layer
 	layer.n = layer.n + 1
 	layer[layer.n] = object
+end
+
+local function save_current_layer(self)
+	table.insert(self.saved_layers, self.current_layer)
+end
+
+local function restore_current_layer(self)
+	self.current_layer = table.remove(self.saved_layers)
 end
 
 local function depths(self)
@@ -107,6 +116,8 @@ local methods = {
 	remove_layer = remove_layer,
 	clear = clear,
 	add = add,
+	save_current_layer = save_current_layer,
+	restore_current_layer = restore_current_layer,
 	draw = draw
 }
 local class = { __index = methods }
@@ -116,10 +127,12 @@ local function new(default_name, default_depth)
 	default_depth = default_depth or 0
 	local draw_order = setmetatable({
 		default_layer = default_name,
+		saved_layers = {},
 		named = {}, depth = {},
 		order = { n = 0 }
 	}, class)
 	add_layer(draw_order, default_depth, default_name)
+	draw_order.current_layer = draw_order.named[default_name]
 	return draw_order
 end
 
