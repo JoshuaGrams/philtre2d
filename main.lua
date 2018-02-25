@@ -1,6 +1,6 @@
 -- Example thingy
 
-local G = require('engine.scene-graph')
+local G = require('engine.scene-tree')
 local mod = G.mod
 local DrawList = require('engine.draw-order')
 local Box = require('box')

@@ -1,9 +1,11 @@
-2018-02-20	 2.3	Basic scene graph
-2018-02-21	 1.9	QR-decomposition to get matrix parameters
-2018-02-21	 1.2	Begin draw order.
-2018-02-22	 0.7	Debug draw order.
-2018-02-23	 1.1	Draw order has both names and depths.
-2018-02-24	 0.4	Add engine/ and lib/ directories, put children in parent's layer if unspecified.
+2018-02-20	 2.3	Josh	Basic scene graph
+2018-02-21	 1.9	Josh	QR-decomposition to get matrix parameters
+2018-02-21	 1.2	Josh	Begin draw order.
+2018-02-22	 0.7	Josh	Debug draw order.
+2018-02-23	 1.1	Josh	Draw order has both names and depths.
+2018-02-24	 0.4	Josh	Add engine/ and lib/ directories, put children in parent's layer if unspecified.
+2018-02-24	 0.9	Josh	Start doc/ directory.
+2018-02-25	 0.2	Josh	Stupid-simple path handling.
 ----------	----
 ----------	 7.6
 

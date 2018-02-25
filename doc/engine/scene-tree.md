@@ -48,9 +48,10 @@ A table (`T`) containing the following:
 
 -----
 
-* `init(tree)` - Initialize a scene graph.  Currently this sets
-  the `parent`, `_to_world`, and `_to_local` properties on each
-  object
+* `init(tree) -> objects_by_path` - Initialize a scene graph.
+  Currently this sets the `parent`, `path`, `_to_world`, and
+  `_to_local` properties on each object.  It returns a table
+  indexing all objects by their paths.
 
 * `update(tree, dt, draw_order)` - update all objects.  If
   `draw_order` is given, adds all objects with a `draw` method
@@ -63,9 +64,15 @@ A table (`T`) containing the following:
 Todo
 ----
 
-* Obect paths.  I think we'll use the terminology `path`
-  (string) and `id` ("hashed" path).  Probably also `name` for
-  the local part of the path?
+* `add_child`/`remove_child` - `add_child` needs to do the stuff
+  that `init` currently does.
+
+* Object paths.  I currently have a stupid-simple implementation
+  that uses either `object.name` or the index as its local path.
+  So...this should work, but you have to be careful not to use
+  `table.remove` or you'll re-number the remaning children.
+  Which isn't a problem immediately, but could cause a new child
+  to be given the same path as an existing one.
 
 * Remove pure collections (those with children but no transform)
   on init.  They will only be accessible through their path.
