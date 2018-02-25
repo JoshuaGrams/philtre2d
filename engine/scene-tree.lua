@@ -33,8 +33,8 @@ local function init_child(child, parent, index, paths, m)
 	child.parent = parent
 
 	local path = parent and parent.path or ''
-	local name = child.name or tostring(index)
-	child.path = path .. '/' .. name
+	child.name = child.name or tostring(index)
+	child.path = path .. '/' .. child.name
 
 	m = m or M.identity
 	local n = child.p and coords(m, child) or m

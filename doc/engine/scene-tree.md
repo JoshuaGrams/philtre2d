@@ -60,19 +60,22 @@ A table (`T`) containing the following:
 
 * `draw(tree)` - Draw all objects, in tree order.
 
+* `add_child(child, parent, paths)` - Add and initialize a new
+  child object (and all of its children, if any).
+
+* `remove_child(object, paths)` - Remove `object` from its
+  parent and from the path dictionary.
+
 
 Todo
 ----
 
-* `add_child`/`remove_child` - `add_child` needs to do the stuff
-  that `init` currently does.
-
-* Object paths.  I currently have a stupid-simple implementation
-  that uses either `object.name` or the index as its local path.
-  So...this should work, but you have to be careful not to use
-  `table.remove` or you'll re-number the remaning children.
-  Which isn't a problem immediately, but could cause a new child
-  to be given the same path as an existing one.
+* Do we want to do something fancier with object paths?  Right
+  now I'm just storing the string (where the object name is its
+  `name` property or its index within its parent).  I don't
+  know if there's a good way to hash paths in Lua that would be
+  any faster than just storing the string.  So this should be
+  good enough for now.
 
 * Remove pure collections (those with children but no transform)
   on init.  They will only be accessible through their path.
