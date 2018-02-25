@@ -28,18 +28,31 @@ local function coords(old, obj)
 	return m
 end
 
-local function init(graph, m, parent)
+local init
+local function init_child(child, parent, index, paths, m)
+	child.parent = parent
+
+	local path = parent and parent.path or ''
+	local name = child.name or tostring(index)
+	child.path = path .. '/' .. name
+
+	m = m or M.identity
+	local n = child.p and coords(m, child) or m
+	if child.children then
+		init(child.children, n, child, paths)
+	end
+	if child.init then child:init() end
+end
+
+init = function (graph, m, parent, paths)
 	m = m or M.identity
 	parent = parent or nil
-	for _,o in ipairs(graph) do
-		o.parent = parent
-		local n = o.p and coords(m, o) or m
-		o._to_world, o._to_local = n, nil
-		if o.children then
-			init(o.children, n, o)
-		end
-		if o.init then o:init() end
+	paths = paths or {}
+	local path = parent and parent.path or ''
+	for i,o in ipairs(graph) do
+		init_child(o, parent, i, paths, m)
 	end
+	return paths
 end
 
 local function update(graph, dt, draw_order, m)
@@ -77,6 +90,29 @@ local function draw(graph)
 		end
 		if o.p then love.graphics.pop() end
 	end
+end
+
+-- This sets all the transforms, which seems like a waste,
+-- because we're probably calling this from `update` which will
+-- immediately do it all over again.  But an object's `init`
+-- method may refer to them, so they need to be set now.
+local function add_child(child, parent, paths)
+	if not parent then error("Must have a parent") end
+	if not parent.children then parent.children = {} end
+	local i = #parent.children
+	table.insert(parent.children, i, child)
+	init_child(child, parent, i, paths, parent._to_world)
+end
+
+local function remove_child(child, paths)
+	local parent = child.parent
+	for i,c in ipairs(parent.children) do
+		if c == child then
+			parent.children = nil
+			break
+		end
+	end
+	paths[child.path] = nil
 end
 
 local G = {

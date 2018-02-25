@@ -33,7 +33,7 @@ function love.load()
 		flux.to(scene[1], 2, {sx=1})
 	end)
 
-	G.init(scene)
+	paths = G.init(scene)
 end
 
 function love.update(dt)

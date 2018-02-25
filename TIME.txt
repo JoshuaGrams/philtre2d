@@ -5,7 +5,7 @@
 2018-02-23	 1.1	Josh	Draw order has both names and depths.
 2018-02-24	 0.4	Josh	Add engine/ and lib/ directories, put children in parent's layer if unspecified.
 2018-02-24	 0.9	Josh	Start doc/ directory.
-2018-02-25	 0.2	Josh	Stupid-simple path handling.
+2018-02-25	 0.6	Josh	Stupid-simple path handling, add/remove_child (both untested).
 ----------	----
 ----------	 7.6
 
