@@ -115,10 +115,10 @@ local function remove_child(child, paths)
 	paths[child.path] = nil
 end
 
-local G = {
+local T = {
 	mod = mod,
 	to_world = to_world,  to_local = to_local,
 	init = init,  update = update,  draw = draw,
 }
 
-return G
+return T

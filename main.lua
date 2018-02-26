@@ -1,8 +1,7 @@
 -- Example thingy
 
-local G = require('engine.scene-tree')
-local mod = G.mod
-local DrawList = require('engine.draw-order')
+require('engine.all')
+
 local Box = require('box')
 local flux = require('lib.flux')
 
@@ -10,7 +9,7 @@ function love.load()
 	local red = { 180, 23, 20 }
 	local green = { 30, 200, 25 }
 
-	draw_order = DrawList.new('default')
+	draw_order = DrawOrder.new('default')
 	draw_order:add_layer(1, "bg")
 
 	scene = {
@@ -33,13 +32,13 @@ function love.load()
 		flux.to(scene[1], 2, {sx=1})
 	end)
 
-	paths = G.init(scene)
+	paths = T.init(scene)
 end
 
 function love.update(dt)
 	flux.update(dt)
 	draw_order:clear()
-	G.update(scene, dt, draw_order)
+	T.update(scene, dt, draw_order)
 end
 
 function love.draw()
