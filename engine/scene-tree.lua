@@ -23,7 +23,7 @@ end
 
 -- Add local transform to `old` world transform.
 local function coords(old, obj)
-	local m = M.matrix(obj.p.x, obj.p.y, obj.angle, obj.sx, obj.sy)
+	local m = M.matrix(obj.pos.x, obj.pos.y, obj.angle, obj.sx, obj.sy)
 	m = M.xM(m, old, m)
 	return m
 end
@@ -37,7 +37,7 @@ local function init_child(child, parent, index, paths, m)
 	child.path = path .. '/' .. child.name
 
 	m = m or M.identity
-	local n = child.p and coords(m, child) or m
+	local n = child.pos and coords(m, child) or m
 	if child.children then
 		init(child.children, n, child, paths)
 	end
@@ -60,7 +60,7 @@ local function update(graph, dt, draw_order, m)
 	for _,o in ipairs(graph) do
 		o._to_world, o._to_local = m, nil
 		if o.update then o:update(dt) end
-		if o.p then
+		if o.pos then
 			o._to_world, o._to_local = coords(m, o), nil
 		end
 		if draw_order and o.draw then
@@ -78,9 +78,9 @@ end
 
 local function draw(graph)
 	for _,o in ipairs(graph) do
-		if o.p then
+		if o.pos then
 			love.graphics.push()
-			love.graphics.translate(o.p.x, o.p.y)
+			love.graphics.translate(o.pos.x, o.pos.y)
 			love.graphics.scale(o.sx or 1, o.sy)
 			love.graphics.rotate(o.angle or 0)
 		end
@@ -88,7 +88,7 @@ local function draw(graph)
 		if o.children then
 			draw(o.children)
 		end
-		if o.p then love.graphics.pop() end
+		if o.pos then love.graphics.pop() end
 	end
 end
 
