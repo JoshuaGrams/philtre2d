@@ -5,7 +5,7 @@ end
 local function update(self, dt)
 	self.pos.x = self.pos.x + dt * self.v.x
 	self.pos.y = self.pos.y + dt * self.v.y
-	self.angle = wrapAngle(self.angle + dt * self.angular)
+	self.angle = wrapAngle(self.angle + dt * self.vAngle)
 end
 
 local function draw(self)
@@ -20,7 +20,7 @@ local function new(x, y, w, h, color)
 	return setmetatable({
 		pos = { x = x or 0, y = y or 0},
 		v = { x = 0, y = 0 },
-		angle = 0, angular = 0,
+		angle = 0, vAngle = 0,
 		w = w or 10, h = h or 10,
 		color = color or { 128, 128, 128 }
 	}, class)

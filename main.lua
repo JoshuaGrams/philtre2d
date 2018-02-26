@@ -19,7 +19,7 @@ function love.load()
 				mod(Box.new(20, -25, 8, 8, red), {angle = math.pi/6})
 			},
 			v = { x = 60, y = 20 },
-			angular = math.pi,
+			vAngle = math.pi,
 			sx = 1
 		}),
 		mod(Box.new(500, 300, 30, 30, green), {
