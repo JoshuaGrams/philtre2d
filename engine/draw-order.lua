@@ -23,6 +23,10 @@ end
 
 local function clear(self)
 	for depth,layer in pairs(self.depth) do
+		if layer.n == 0 and not layer.name then
+			-- Wasn't used last frame and doesn't have a name.
+			self.depth[depth] = nil
+		end
 		layer.n = 0
 	end
 end

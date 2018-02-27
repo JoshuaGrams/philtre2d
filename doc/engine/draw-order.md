@@ -1,9 +1,9 @@
 Draw Order
 ==========
 
-Handles lists of objects by layer/depth.  Supports both depths
-(I recommend you use integers, though currently any numbers
-should work) and named layers.
+Handles lists of objects by layer/depth.  Supports both named
+layers and depths.  I recommend that you use integer depths,
+though currently it should accept any number.
 
 Create a draw order with:
 
