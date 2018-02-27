@@ -10,8 +10,9 @@
 2018-02-26	 1.2	Josh	Scene tree is now an object.
 2018-02-26	 0.2	Josh	Update scene tree docs, draw method uses draw_order if present.
 2018-02-27	 0.5	Josh	Little stuff, mostly doc fixes.
+2018-02-27	 0.6	Josh	Evaluate/debug my old history code, document and include it.
 ----------	----
-----------	11.2
+----------	11.8
 
 
 - vim:ts=8
