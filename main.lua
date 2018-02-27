@@ -12,7 +12,7 @@ function love.load()
 	draw_order = DrawOrder.new('default')
 	draw_order:add_layer(1, "bg")
 
-	scene = {
+	scene = T.new(draw_order, {
 		mod(Box.new(300, 200, 30, 30, red), {
 			children = {
 				mod(Box.new(20, -25, 8, 8, red), {angle = math.pi/6})
@@ -27,18 +27,17 @@ function love.load()
 				mod(Box.new(8, -25, 8, 8, green), {angle=-math.pi/6})
 			}
 		})
-	}
-	flux.to(scene[1], 2, {sx=2}):oncomplete(function()
-		flux.to(scene[1], 2, {sx=1})
-	end)
+	})
 
-	paths = T.init(scene)
+	flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
+		flux.to(scene.children[1], 2, {sx=1})
+	end)
 end
 
 function love.update(dt)
 	flux.update(dt)
 	draw_order:clear()
-	T.update(scene, dt, draw_order)
+	scene:update(dt)
 end
 
 function love.draw()

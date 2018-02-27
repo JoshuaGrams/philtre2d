@@ -21,43 +21,38 @@ local function to_local(obj, x, y, w)
 	return M.x(obj._to_local, x, y, w)
 end
 
--- Add local transform to `old` world transform.
-local function coords(old, obj)
+-- Add local transform to `parent` world transform.
+local function coords(parent, obj)
 	local m = M.matrix(obj.pos.x, obj.pos.y, obj.angle, obj.sx, obj.sy)
-	m = M.xM(m, old, m)
-	return m
+	return M.xM(m, parent,  m)
 end
 
-local init
-local function init_child(child, parent, index, paths, m)
-	child.parent = parent
+local function init_child(self, obj, parent, index)
+	obj.name = obj.name or tostring(index)
+	obj.path = parent.path .. '/' .. obj.name
+	self.paths[obj.path] = obj
 
-	local path = parent and parent.path or ''
-	child.name = child.name or tostring(index)
-	child.path = path .. '/' .. child.name
-
-	m = m or M.identity
-	local n = child.pos and coords(m, child) or m
-	if child.children then
-		init(child.children, n, child, paths)
+	-- Skip nodes with no transform.  Since we do this every
+	-- step, our grandparent is guaranteed to have a transform.
+	if not parent.pos then
+		parent = parent.parent
+		table.insert(parent.children, obj)
 	end
-	if child.init then child:init() end
-end
+	obj.parent = parent
 
-init = function (graph, m, parent, paths)
-	m = m or M.identity
-	parent = parent or nil
-	paths = paths or {}
-	local path = parent and parent.path or ''
-	for i,o in ipairs(graph) do
-		init_child(o, parent, i, paths, m)
+	local m = parent._to_world
+	local n = obj.pos and coords(m, obj) or m
+	obj._to_world, obj._to_local = n, nil
+	if obj.children then
+		for i,o in ipairs(obj.children) do
+			init_child(self, o, obj, i)
+		end
 	end
-	return paths
+	if obj.init then obj:init() end
 end
 
-local function update(graph, dt, draw_order, m)
-	m = m or M.identity
-	for _,o in ipairs(graph) do
+local function _update(objects, dt, draw_order, m)
+	for _,o in ipairs(objects) do
 		o._to_world, o._to_local = m, nil
 		if o.update then o:update(dt) end
 		if o.pos then
@@ -68,7 +63,7 @@ local function update(graph, dt, draw_order, m)
 			draw_order:add(o)
 		end
 		if o.children then
-			update(o.children, dt, draw_order, o._to_world)
+			_update(o.children, dt, draw_order, o._to_world)
 		end
 		if draw_order and o.draw then
 			draw_order:restore_current_layer()
@@ -76,8 +71,12 @@ local function update(graph, dt, draw_order, m)
 	end
 end
 
-local function draw(graph)
-	for _,o in ipairs(graph) do
+local function update(self, dt)
+	_update(self.children, dt, self.draw_order, self._to_world)
+end
+
+local function _draw(objects)
+	for _,o in ipairs(objects) do
 		if o.pos then
 			love.graphics.push()
 			love.graphics.translate(o.pos.x, o.pos.y)
@@ -92,33 +91,58 @@ local function draw(graph)
 	end
 end
 
+local function draw(self)
+	_draw(self.children)
+end
+
 -- This sets all the transforms, which seems like a waste,
 -- because we're probably calling this from `update` which will
 -- immediately do it all over again.  But an object's `init`
 -- method may refer to them, so they need to be set now.
-local function add_child(child, parent, paths)
-	if not parent then error("Must have a parent") end
+local function add(self, obj, parent)
+	parent = parent or self
 	if not parent.children then parent.children = {} end
-	local i = #parent.children
-	table.insert(parent.children, i, child)
-	init_child(child, parent, i, paths, parent._to_world)
+	local i = 1 + #parent.children
+	table.insert(parent.children, i, obj)
+	init_child(self, obj, parent, i)
 end
 
-local function remove_child(child, paths)
-	local parent = child.parent
+local function remove(self, obj)
+	local parent = obj.parent
 	for i,c in ipairs(parent.children) do
-		if c == child then
+		if c == obj then
 			parent.children = nil
 			break
 		end
 	end
-	paths[child.path] = nil
+	self.paths[obj.path] = nil
+end
+
+local methods = {
+	add = add, remove = remove,
+	update = update, draw = draw
+}
+local class = { __index = methods }
+
+local function new(draw_order, rootObjects)
+	local tree = setmetatable({
+		_to_world = M.identity, _to_local = M.identity,
+		pos = {x=0, y=0},
+		children = rootObjects,
+		draw_order = draw_order,
+		path = '', paths = {},
+	}, class)
+	for i,o in ipairs(tree.children) do
+		init_child(tree, o, tree, i)
+	end
+	return tree
 end
 
 local T = {
 	mod = mod,
+	new = new, methods = methods, class = class,
 	to_world = to_world,  to_local = to_local,
-	init = init,  update = update,  draw = draw,
+	add_child = add_child, remove_child = remove_child
 }
 
 return T
