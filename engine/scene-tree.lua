@@ -72,6 +72,7 @@ local function _update(objects, dt, draw_order, m)
 end
 
 local function update(self, dt)
+	if self.draw_order then  draw_order:clear()  end
 	_update(self.children, dt, self.draw_order, self._to_world)
 end
 
@@ -85,14 +86,18 @@ local function _draw(objects)
 		end
 		if o.draw then o:draw() end
 		if o.children then
-			draw(o.children)
+			_draw(o.children)
 		end
 		if o.pos then love.graphics.pop() end
 	end
 end
 
 local function draw(self)
-	_draw(self.children)
+	if self.draw_order then
+		draw_order:draw()
+	else
+		_draw(self.children)
+	end
 end
 
 -- This sets all the transforms, which seems like a waste,
@@ -128,11 +133,11 @@ local methods = {
 }
 local class = { __index = methods }
 
-local function new(draw_order, rootObjects)
+local function new(draw_order, root_objects)
 	local tree = setmetatable({
 		_to_world = M.identity, _to_local = M.identity,
 		pos = {x=0, y=0},
-		children = rootObjects,
+		children = root_objects,
 		draw_order = draw_order,
 		path = '', paths = {},
 	}, class)

@@ -46,6 +46,28 @@ A table (`T`) containing the following:
 * `to_local(obj, x, y, w) -> x2, y2` - Transform a world vector
   into local coordinates.
 
+* `new(draw_order, root_objects) -> tree` - Create a new scene
+  tree object.  The parameters should possibly be switched
+  since `draw_order` is optional, but it's much more visible
+  when it comes *before* the huge scene tree data table.
+
+
+A scene tree object has the following methods:
+
+* `add(object, parent=nil)` - Add an object to the tree.  If no
+  parent is given, add it at the root level.
+
+* `remove(object)` - Remove an object from the tree.
+
+* `get(path) -> object or nil` - Look up an object by its path.
+
+* `update(dt)` - Traverse the tree, updating all objects with
+  the given time delta.
+
+* `draw()` - Draw all objects in the tree by calling `draw` on
+  the `draw_order` (if present) or by traversing the tree (which
+  draws in strict tree order and doesn't support layers).
+
 -----
 
 * `init(tree) -> objects_by_path` - Initialize a scene graph.

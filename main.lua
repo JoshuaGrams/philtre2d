@@ -48,10 +48,9 @@ end
 
 function love.update(dt)
 	flux.update(dt)
-	draw_order:clear()
 	scene:update(dt)
 end
 
 function love.draw()
-	draw_order:draw()
+	scene:draw()
 end
