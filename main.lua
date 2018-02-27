@@ -54,3 +54,9 @@ end
 function love.draw()
 	scene:draw()
 end
+
+function love.keypressed(k, s)
+	if k == 'escape' then
+		love.event.quit()
+	end
+end
