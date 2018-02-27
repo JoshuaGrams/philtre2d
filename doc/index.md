@@ -15,3 +15,11 @@ Engine
 * [Matrix](engine/matrix.md) - Transformations (rotate, scale,
   skew, translate) represented as 3x3 matrices (2D homogeneous
   coordinates).
+
+
+Todo
+----
+
+* Automated tests.
+
+* Start on editor.

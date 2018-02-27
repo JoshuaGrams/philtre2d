@@ -1,10 +1,6 @@
 Scene Tree
 ==========
 
-Right now I'm just using nested sequences to represent a scene
-tree.  These tables have no special metatable and thus no object
-methods.
-
 Each object in a tree may have the following optional
 properties:
 
@@ -34,6 +30,10 @@ Contents
 
 A table (`T`) containing the following:
 
+* `new(draw_order, root_objects) -> tree` - Create a new scene
+  tree object.  Sets `parent`, `path`, `_to_world`, and
+  `_to_local` properties on each object.
+
 * `mod(object, properties) -> object` - copy key/value pairs
   from `properties` onto `object`, overriding any that may
   already exist.  This is a convenience function to help build
@@ -46,11 +46,7 @@ A table (`T`) containing the following:
 * `to_local(obj, x, y, w) -> x2, y2` - Transform a world vector
   into local coordinates.
 
-* `new(draw_order, root_objects) -> tree` - Create a new scene
-  tree object.  The parameters should possibly be switched
-  since `draw_order` is optional, but it's much more visible
-  when it comes *before* the huge scene tree data table.
-
+-----
 
 A scene tree object has the following methods:
 
@@ -64,16 +60,11 @@ A scene tree object has the following methods:
 * `update(dt)` - Traverse the tree, updating all objects with
   the given time delta.
 
-* `draw()` - Draw all objects in the tree by calling `draw` on
-  the `draw_order` (if present) or by traversing the tree (which
+* `draw()` - Draw all objects in the tree by calling out to the
+  `draw_order` if present, or by traversing the tree (which
   draws in strict tree order and doesn't support layers).
 
 -----
-
-* `init(tree) -> objects_by_path` - Initialize a scene graph.
-  Currently this sets the `parent`, `path`, `_to_world`, and
-  `_to_local` properties on each object.  It returns a table
-  indexing all objects by their paths.
 
 * `update(tree, dt, draw_order)` - update all objects.  If
   `draw_order` is given, adds all objects with a `draw` method
@@ -82,22 +73,13 @@ A scene tree object has the following methods:
 
 * `draw(tree)` - Draw all objects, in tree order.
 
-* `add_child(child, parent, paths)` - Add and initialize a new
-  child object (and all of its children, if any).
-
-* `remove_child(object, paths)` - Remove `object` from its
-  parent and from the path dictionary.
-
 
 Todo
 ----
 
-* Do we want to do something fancier with object paths?  Right
-  now I'm just storing the string (where the object name is its
-  `name` property or its index within its parent).  I don't
-  know if there's a good way to hash paths in Lua that would be
-  any faster than just storing the string.  So this should be
-  good enough for now.
+* Automated tests
 
-* Remove pure collections (those with children but no transform)
-  on init.  They will only be accessible through their path.
+Otherwise I think this is ok for now.  We probably need to use
+it a bunch and find out where the holes and weak points are.
+And I imagine it's slow, but I'll worry about that later, once
+everything else mostly works.
