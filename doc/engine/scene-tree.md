@@ -1,22 +1,28 @@
 Scene Tree
 ==========
 
+A scene tree tracks objects and collections and manages
+transforms and local coordinates for child objects.
+
 Each object in a tree may have the following optional
 properties:
 
 * `layer` - Name string or integer depth (distance into the
   screen).  See [Draw Order](draw-order.md) for details.
 
-* `children` - Another sequence containing child objects.
+* `children` - a sequence of child objects.
 
-* `p` - Table `{x=number, y=number}` giving the object's
+* `pos` - Table `{x=number, y=number}` giving the object's
   position (in coordinates relative to its parent).
 
 * `angle`, `sx`, `sy`, `kx`, `ky` - rotation, scale, skew.
 
 The scene tree functions add a few more:
 
-* `parent` - the object's parent within the scene tree.
+* `parent` - the object's parent within the scene tree.  This is
+  actually the nearest ancestor with a transform.  Collections
+  with no transform are removed from the tree and can only be
+  accessed by their path.
 
 * `_to_world` - the local-to-world transformation.
 
@@ -76,6 +82,18 @@ A scene tree object has the following methods:
 
 Todo
 ----
+
+* Manipulating pure collections.  If you want to move it, should
+  we add a transform and re-parent all its children?  What if it
+  has a layer and you change that?  Or what if you disable or
+  hide it?  Hmm.  Maybe game objects need to be objects as well.
+  But then we need inheritance, because we'll want them to be
+  other types of object?  Or can we use composition for that?  I
+  don't want to think about that yet.  Bah.  Maybe it's fine
+  that pure collections are just an edit-time thing.  My main
+  objections to Defold were that game objects couldn't have
+  children and that you couldn't ask about the children of a
+  collection, and I have already fixed both of those things.
 
 * Automated tests
 

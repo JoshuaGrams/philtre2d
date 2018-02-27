@@ -9,8 +9,9 @@
 2018-02-26	 0.2	Josh	Rename obj.p to obj.pos, add engine.all module.
 2018-02-26	 1.2	Josh	Scene tree is now an object.
 2018-02-26	 0.2	Josh	Update scene tree docs, draw method uses draw_order if present.
+2018-02-27	 0.5	Josh	Little stuff, mostly doc fixes.
 ----------	----
-----------	10.7
+----------	11.2
 
 
 - vim:ts=8
