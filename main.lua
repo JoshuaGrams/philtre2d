@@ -14,6 +14,7 @@ function love.load()
 
 	scene = T.new(draw_order, {
 		mod(Box.new(300, 200, 30, 30, red), {
+			name = 'red-box',
 			children = {
 				mod(Box.new(20, -25, 8, 8, red), {angle = math.pi/6})
 			},
@@ -22,12 +23,23 @@ function love.load()
 			sx = 1
 		}),
 		mod(Box.new(500, 300, 30, 30, green), {
+			name = 'green-box',
 			layer = 'bg',
 			children = {
 				mod(Box.new(8, -25, 8, 8, green), {angle=-math.pi/6})
 			}
 		})
 	})
+
+	if scene:get('/red-box') ~= scene.children[1] then
+		print('/red-box:', scene:get('/red-box'), scene.children[1])
+		error('Getting red box')
+	end
+
+	if scene:get('/green-box') ~= scene.children[2] then
+		print('/green-box:', scene:get('/green-box'), scene.children[1])
+		error('Getting green box')
+	end
 
 	flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
 		flux.to(scene.children[1], 2, {sx=1})

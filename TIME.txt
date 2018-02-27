@@ -7,9 +7,9 @@
 2018-02-24	 0.9	Josh	Start doc/ directory.
 2018-02-25	 0.6	Josh	Stupid-simple path handling, add/remove_child (both untested).
 2018-02-26	 0.2	Josh	Rename obj.p to obj.pos, add engine.all module.
-2018-02-26	 1.1	Josh	Scene tree is now an object.
+2018-02-26	 1.2	Josh	Scene tree is now an object.
 ----------	----
-----------	 9.3
+----------	10.5
 
 
 - vim:ts=8

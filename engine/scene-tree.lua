@@ -118,8 +118,12 @@ local function remove(self, obj)
 	self.paths[obj.path] = nil
 end
 
+local function get(self, path)
+	return self.paths[path]
+end
+
 local methods = {
-	add = add, remove = remove,
+	add = add, remove = remove, get = get,
 	update = update, draw = draw
 }
 local class = { __index = methods }
@@ -141,8 +145,7 @@ end
 local T = {
 	mod = mod,
 	new = new, methods = methods, class = class,
-	to_world = to_world,  to_local = to_local,
-	add_child = add_child, remove_child = remove_child
+	to_world = to_world,  to_local = to_local
 }
 
 return T
