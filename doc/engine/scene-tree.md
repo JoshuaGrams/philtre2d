@@ -46,6 +46,12 @@ A table (`T`) containing the following:
   scene trees by making it easy to add or modify any properties
   that the scene tree may need while constructing the tables.
 
+* `object(x, y, angle, xScale, yScale, xSkew, ySkew) -> table` -
+  create a table with all the transform parameters, providing
+  sensible defaults for any arguments which are not given.  This
+  function doesn't set a metatable, so you can do whatever you
+  like with the result.
+
 * `to_world(obj, x, y, w) -> x2, y2` - Transform a local vector
   into world coordinates.
 

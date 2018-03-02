@@ -11,8 +11,9 @@
 2018-02-26	 0.2	Josh	Update scene tree docs, draw method uses draw_order if present.
 2018-02-27	 0.5	Josh	Little stuff, mostly doc fixes.
 2018-02-27	 0.6	Josh	Evaluate/debug my old history code, document and include it.
+2018-03-02	 0.4	Josh	Sprite object, `object` function (transform properties).
 ----------	----
-----------	11.8
+----------	12.2
 
 
 - vim:ts=8

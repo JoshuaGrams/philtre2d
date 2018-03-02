@@ -28,6 +28,11 @@ function love.load()
 			children = {
 				mod(Box.new(8, -25, 8, 8, green), {angle=-math.pi/6})
 			}
+		}),
+		mod(Sprite.new('yellow-blob.png', 'center', 'center', 100, 100), {
+			update = function(self, dt)
+				self.angle = self.angle - dt * 4*math.pi
+			end
 		})
 	})
 

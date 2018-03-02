@@ -10,6 +10,18 @@ local function mod(obj, props)
 	return obj
 end
 
+-- Create a table with all the transform properties.
+local function object(x, y, angle, sx, sy, kx, ky)
+	return {
+		pos = { x = x or 0, y = y or 0 },
+		angle = angle or 0,
+		sx = sx or 1,
+		sy = sy or sx or 1,
+		kx = kx or 0,
+		ky = ky or 0
+	}
+end
+
 local function to_world(obj, x, y, w)
 	return M.x(obj._to_world, x, y, w)
 end
@@ -147,8 +159,9 @@ local function new(draw_order, root_objects)
 	return tree
 end
 
+
 local T = {
-	mod = mod,
+	mod = mod,  object = object,
 	new = new, methods = methods, class = class,
 	to_world = to_world,  to_local = to_local
 }
