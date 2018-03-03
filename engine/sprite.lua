@@ -13,8 +13,13 @@ local origins = {
 	left = 0, center = 0.5, right = 1
 }
 
-local function new(filename, ox, oy, x, y, angle, sx, sy, kx, ky)
-	local img = love.graphics.newImage(filename)
+local function new(image, ox, oy, x, y, angle, sx, sy, kx, ky)
+	local img
+	if type(image) == 'string' then
+		img = love.graphics.newImage(image)
+	elseif image.type and image:type() == 'Image' then
+		img = image
+	end
 	if img then
 		local sprite = T.object(x, y, angle, sx, sy, kx, ky)
 		sprite.img = img
