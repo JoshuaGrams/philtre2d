@@ -16,6 +16,13 @@ Engine
   skew, translate) represented as 3x3 matrices (2D homogeneous
   coordinates).
 
+Objects
+-------
+
+* [Body](engine/body.md) - Physics body object.
+
+* Sprite - Object containing an image.
+
 
 Todo
 ----
