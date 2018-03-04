@@ -57,7 +57,7 @@ local function init(self)
 	self.body = love.physics.newBody(self.world, self.pos.x, self.pos.y, self.type)
 	if self.bodyData then
 		for k, v in pairs(self.bodyData) do
-			if body_set_funcs[k] then self.body[body_set_funcs[k]](self.body, v) print(k) end
+			if body_set_funcs[k] then self.body[body_set_funcs[k]](self.body, v) end
 		end
 	end
 
