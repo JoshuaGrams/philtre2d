@@ -3,20 +3,29 @@
 require('engine.all')
 
 local Box = require('box')
+local Body = require('engine.body')
 local flux = require('lib.flux')
 
 function love.load()
+	world = love.physics.newWorld(0, 500, true)
+
+	--local ball = Body.new(world, 'dynamic', 300, 300, 'circle', 50)
+
 	local red = { 180, 23, 20 }
 	local green = { 30, 200, 25 }
 
 	draw_order = DrawOrder.new('default')
 	draw_order:add_layer(1, "bg")
 
+	local img_yellow_blob = love.graphics.newImage('yellow-blob.png')
+
 	scene = T.new(draw_order, {
 		mod(Box.new(300, 200, 30, 30, red), {
 			name = 'red-box',
 			children = {
-				mod(Box.new(20, -25, 8, 8, red), {angle = math.pi/6})
+				mod(Box.new(20, -25, 8, 8, red), {name = "first red child", angle = math.pi/6}),
+				mod(Box.new(20, 25, 18, 4, red), {name = "red arm", angle = math.pi}),
+				mod(Box.new(-20, 0, 18, 4, red), {name= "red spinny thing", angle = math.pi, vAngle = -3})
 			},
 			v = { x = 60, y = 20 },
 			vAngle = math.pi,
@@ -29,11 +38,20 @@ function love.load()
 				mod(Box.new(8, -25, 8, 8, green), {angle=-math.pi/6})
 			}
 		}),
-		mod(Sprite.new('yellow-blob.png', 'center', 'center', 100, 100), {
+		mod(Sprite.new(img_yellow_blob, 'center', 'center', 100, 100), {
 			update = function(self, dt)
 				self.angle = self.angle - dt * 4*math.pi
 			end
-		})
+		}),
+		mod(Body.new(world, 'dynamic', 200, 100, 'circle', 50), {
+			name = 'physics body',
+			children = {
+				mod(Sprite.new(img_yellow_blob, 'center', 'center', 15, 0, math.pi/6), {name='physics body child'})
+			},
+		}),
+		Body.new(world, 'static', 450, 500, 'rectangle', 600, 50),
+		Body.new(world, 'dynamic', 500, 100, 'polygon', -100, 10, -100, 100, 0, 150, 200, 50, 30, -100),
+		Body.new(world, 'dynamic', 320, 100, 'polygon', -30, 12, 0, 45, 25, 50, 60, 15, 9, -50)
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then
@@ -53,6 +71,7 @@ end
 
 function love.update(dt)
 	flux.update(dt)
+	world:update(dt)
 	scene:update(dt)
 end
 
