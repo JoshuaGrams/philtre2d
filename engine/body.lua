@@ -66,6 +66,7 @@ local function init(self)
 		-- s[1] = shape type, s[2] = shape specs
 		local shape = shape_constructors[s[1]](unpack(s[2]))
 		local f = love.physics.newFixture(self.body, shape, s.density)
+		f:setUserData(self.path)
 		for k, v in pairs(s) do
 			if fixture_set_funcs[k] then
 				if k == 'groups' or k == 'masks' then
