@@ -31,11 +31,15 @@ function love.load()
 			vAngle = math.pi,
 			sx = 1
 		}),
-		mod(Box.new(500, 300, 30, 30, green), {
+		mod(Box.new(250, 100, 30, 30, green), {
+			angle = 0.5,
 			name = 'green-box',
 			layer = 'bg',
 			children = {
-				mod(Box.new(8, -25, 8, 8, green), {angle=-math.pi/6})
+				mod(Box.new(8, -25, 8, 8, green), {
+					angle=-math.pi/6,
+					children = {Body.new(world, 'dynamic', 50, 100, 'polygon', -30, 12, 0, 45, 25, 50, 60, 15, 9, -50)}
+				}),
 			}
 		}),
 		mod(Sprite.new(img_yellow_blob, 'center', 'center', 100, 100), {
@@ -51,7 +55,6 @@ function love.load()
 		}),
 		Body.new(world, 'static', 450, 500, 'rectangle', 600, 50),
 		Body.new(world, 'dynamic', 500, 100, 'polygon', -100, 10, -100, 100, 0, 150, 200, 50, 30, -100),
-		Body.new(world, 'dynamic', 320, 100, 'polygon', -30, 12, 0, 45, 25, 50, 60, 15, 9, -50)
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then

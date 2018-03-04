@@ -35,6 +35,7 @@ end
 
 -- Add local transform to `parent` world transform.
 local function coords(parent, obj)
+	if obj.absolute_coords then parent = M.identity end
 	local m = M.matrix(obj.pos.x, obj.pos.y, obj.angle, obj.sx, obj.sy)
 	return M.xM(m, parent,  m)
 end

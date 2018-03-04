@@ -1,6 +1,8 @@
 local T = require('engine.scene-tree')
+local M = require('engine.matrix')
 
 local function draw(self)
+	-- for each fixture...
 	if self.shapeType == 'circle' then
 		love.graphics.circle('line', 0, 0, self.radius, 32)
 	elseif self.shapeType == 'rectangle' then
@@ -13,11 +15,27 @@ local function draw(self)
 end
 
 local function update(self, dt)
-	self.pos.x, self.pos.y = self.body:getPosition()
-	self.angle = self.body:getAngle()
+	if self.type == 'kinematic' then
+		self.body:setPosition(T.to_world(self.parent, self.pos.x, self.pos.y))
+		local th = M.parameters(self._to_world)
+		self.body:setAngle(th)
+	else
+		self.pos.x, self.pos.y = self.body:getPosition()
+		self.angle = self.body:getAngle() -- (self.parent and self.parent.angle or 0)
+	end
 end
 
-local methods = { update = update, draw = draw }
+local function init(self)
+	if self.type ~= 'kinematic' then
+		self.absolute_coords = true
+		self.pos.x, self.pos.y = T.to_world(self.parent, self.pos.x, self.pos.y)
+	end
+	self.body = love.physics.newBody(self.world, self.pos.x, self.pos.y, self.type)
+	self.f = love.physics.newFixture(self.body, self.s)
+	self.world = nil
+end
+
+local methods = { update = update, draw = draw, init = init }
 local class = { __index = methods }
 
 local shapes = {
@@ -28,17 +46,19 @@ local shapes = {
 	chain = love.physics.newChainShape, -- loop, points OR loop, x1, y1, x2, y2 ... no vert limit
 }
 
-local function new(world, type, x, y, shape, ...) -- {...} is shape data
+local function new(world, type, x, y, shapeData, ...)
 	local body = T.object(x, y, 0)
-	body.body = love.physics.newBody(world, x, y, type)
-	body.shapeType = shape
-	body.s = shapes[shape](...)
+	body.world = world
+	body.type = type
+	body.shapeType = shapeData
+	body.s = shapes[shapeData](...)
 	local shape_args = {...}
-	if shape == 'circle' then body.radius = shape_args[1]
-	elseif shape == 'rectangle' then body.width = shape_args[1];  body.height = shape_args[2]
+	if shapeData == 'circle' then body.radius = shape_args[1]
+	elseif shapeData == 'rectangle' then body.width = shape_args[1];  body.height = shape_args[2]
 	else body.points = shape_args -- polygon, edge, chain
 	end
-	body.f = love.physics.newFixture(body.body, body.s)
+
+
 	return setmetatable(body, class)
 end
 
