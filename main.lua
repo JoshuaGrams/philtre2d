@@ -6,10 +6,23 @@ local Box = require('box')
 local Body = require('engine.body')
 local flux = require('lib.flux')
 
+local function beginContact(a, b, hit)
+	local a_path, b_path = a:getUserData(), b:getUserData()
+	local a_obj, b_obj = scene:get(a_path), scene:get(b_path)
+	if a_obj.beginContact then a_obj:beginContact(a, b, hit) end
+	if b_obj.beginContact then b_obj:beginContact(b, a, hit) end
+end
+
+local function endContact(a, b, hit)
+	local a_path, b_path = a:getUserData(), b:getUserData()
+	local a_obj, b_obj = scene:get(a_path), scene:get(b_path)
+	if a_obj.endContact then a_obj:endContact(a, b, hit) end
+	if b_obj.endContact then b_obj:endContact(b, a, hit) end
+end
+
 function love.load()
 	world = love.physics.newWorld(0, 500, true)
-
-	--local ball = Body.new(world, 'dynamic', 300, 300, 'circle', 50)
+	world:setCallbacks(beginContact, endContact)
 
 	local red = { 180, 23, 20 }
 	local green = { 30, 200, 25 }
@@ -55,7 +68,7 @@ function love.load()
 				mod(Sprite.new(img_yellow_blob, 'center', 'center', 15, 0, math.pi/6), {name='physics body child'})
 			},
 		}),
-		Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} })
+		mod(Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} }), {name = "ground"})
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then
