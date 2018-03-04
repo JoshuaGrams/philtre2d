@@ -25,7 +25,10 @@ function love.load()
 			children = {
 				mod(Box.new(20, -25, 8, 8, red), {name = "first red child", angle = math.pi/6}),
 				mod(Box.new(20, 25, 18, 4, red), {name = "red arm", angle = math.pi}),
-				mod(Box.new(-20, 0, 18, 4, red), {name= "red spinny thing", angle = math.pi, vAngle = -3})
+				mod(Box.new(-20, 0, 18, 4, red), {name= "red spinny thing", angle = math.pi, vAngle = -3}),
+				mod(Body.new(world, 'kinematic', -20, -10, {{'circle', {25}}}),
+					{children = {Sprite.new(img_yellow_blob, 'center', 'center', 10, 0, 0, 0.25)}
+				})
 			},
 			v = { x = 60, y = 20 },
 			vAngle = math.pi,

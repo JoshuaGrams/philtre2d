@@ -16,8 +16,9 @@ end
 local function update(self, dt)
 	if self.type == 'kinematic' then
 		self.body:setPosition(T.to_world(self.parent, self.pos.x, self.pos.y))
-		local th = M.parameters(self._to_world)
+		local th, sx, sy = M.parameters(self._to_world)
 		self.body:setAngle(th)
+		self.sx, self.sy = 1/sx, 1/sy
 	else
 		self.pos.x, self.pos.y = self.body:getPosition()
 		self.angle = self.body:getAngle()
