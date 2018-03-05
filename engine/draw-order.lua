@@ -93,6 +93,11 @@ local function draw(self)
 				love.graphics.shear(m.kx, m.ky)
 			end
 			object:draw()
+			if object.script then
+				for _,script in ipairs(object.script) do
+					if script.draw then script.draw(object) end
+				end
+			end
 		end
 	end
 	love.graphics.pop()

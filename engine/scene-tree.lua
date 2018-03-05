@@ -52,6 +52,21 @@ local function init_child(self, obj, parent, index)
 		table.insert(parent.children, obj)
 	end
 	obj.parent = parent
+	-- TODO - Oh, man.  That doesn't remove the parent from its
+	-- parent's children array, so all children of nodes with
+	-- no transform will be processed twice.  Plus, if we *do*
+	-- remove it from the tree completely, its update function
+	-- won't be called.  Is that a problem?  It doesn't have a
+	-- transform, so presumably we don't want to draw it, but
+	-- we might want to update it somehow?  Or are they just a
+	-- load-time thing?
+	--
+	-- And if we do remove it, then either it will potentially
+	-- screw up future paths (by renumbering existing objects so
+	-- the last number could be re-used) or screw up looping
+	-- over the children.  So we might have to rewrite this to
+	-- work from the top down, removing the pure collection
+	-- before any later siblings are initialized.  Bleh.
 
 	local m = parent._to_world
 	local n = obj.pos and coords(m, obj) or m
@@ -62,11 +77,23 @@ local function init_child(self, obj, parent, index)
 		end
 	end
 	if obj.init then obj:init() end
+	-- Convert script to list of scripts, call init on all of them.
+	if obj.script then
+		if not obj.script[1] then obj.script = { obj.script } end
+		for _,script in ipairs(obj.script) do
+			if script.init then script.init(obj) end
+		end
+	end
 end
 
 local function _update(objects, dt, draw_order, m)
 	for _,o in ipairs(objects) do
 		o._to_world, o._to_local = m, nil
+		if o.script then
+			for _,script in ipairs(o.script) do
+				if script.update then script.update(o, dt) end
+			end
+		end
 		if o.update then o:update(dt) end
 		if o.pos then
 			o._to_world, o._to_local = coords(m, o), nil
@@ -98,6 +125,11 @@ local function _draw(objects)
 			love.graphics.rotate(o.angle or 0)
 		end
 		if o.draw then o:draw() end
+		if o.script then
+			for _,script in ipairs(o.script) do
+				if script.draw then script.draw(o) end
+			end
+		end
 		if o.children then
 			_draw(o.children)
 		end

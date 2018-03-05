@@ -54,6 +54,16 @@ function love.load()
 			children = {
 				mod(Box.new(8, -25, 8, 8, green), {
 					angle=-math.pi/6,
+					script = {
+						init = function(self)
+							self.t, self.x0, self.y0 = 0, self.pos.x, self.pos.y
+						end,
+						update = function(self, dt)
+							self.t = (self.t + 10*dt) % (2*math.pi)
+							self.pos.x = self.x0 - 5*math.sin(self.t)
+							self.pos.y = self.y0 + 5*math.cos(self.t)
+						end
+					}
 				}),
 			}
 		}),
