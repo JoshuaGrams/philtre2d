@@ -106,12 +106,12 @@ function love.load()
 	gui_scene = T.new(nil, {
 		mod(gui_root_obj, {
 			children = {
-				mod(gui.new(img_rect_128x256, 'right', 'top', 0, 0, 0, 1, 1, 'right', 'top'), {
+				mod(gui.new(img_rect_128x256, 'right', 'top', -10, 10, 0, 1.5, 1.5, 'right', 'top'), {
 					children = {
 						gui.new(img_sq_64, 'right', 'center', 0, 0, 0, 0.8, 0.8, 'right', 'bottom')
 					}
 				}),
-				gui.new(img_sq_64, 'center', 'bottom', 0, 0, 0, 1, 1, 'center', 'bottom')
+				gui.new(img_sq_64, 'center', 'bottom', 0, -10, 0, 780/64, 0.5, 'center', 'bottom', 'stretch')
 			}
 		})
 	})
