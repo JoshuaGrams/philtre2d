@@ -2,7 +2,7 @@ local T = require('engine.scene-tree')
 
 local function draw(s)
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.draw(s.img, 0, 0, 0, 1, 1, s.ox, s.oy)
+	love.graphics.draw(s.img, -s.ox, -s.oy)
 end
 
 local methods = { draw = draw }
