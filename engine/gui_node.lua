@@ -52,7 +52,15 @@ local function init(s)
 	s.pos.x, s.pos.y = s.lpos.x + s.aposx, s.lpos.y + s.aposy
 end
 
-local methods = { init = init, parent_resized = parent_resized, draw = draw, update = update }
+local function hit_check(s, x, y)
+	local lx, ly = T.to_local(s, x, y)
+	lx, ly = lx + s.ox, ly + s.oy
+	if lx > 0 and lx < s.w and ly > 0 and ly < s.h then
+		return true
+	end
+end
+
+local methods = { init = init, parent_resized = parent_resized, draw = draw, update = update, hit_check = hit_check }
 local class = { __index = methods }
 
 local origins = {
