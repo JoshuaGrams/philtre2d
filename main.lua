@@ -4,6 +4,7 @@ require('engine.all')
 
 local Box = require('box')
 local Body = require('engine.body')
+local Camera = require('engine.lovercam')
 local flux = require('lib.flux')
 
 local function beginContact(a, b, hit)
@@ -78,7 +79,8 @@ function love.load()
 				mod(Sprite.new(img_yellow_blob, 'center', 'center', 15, 0, math.pi/6), {name='physics body child'})
 			},
 		}),
-		mod(Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} }), {name = "ground"})
+		mod(Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} }), {name = "ground"}),
+		Camera.new({x=400, y=300}, 0, 0.8)
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then
@@ -96,14 +98,21 @@ function love.load()
 	end)
 end
 
+function love.resize(w, h)
+	Camera.window_resized(w, h)
+end
+
 function love.update(dt)
 	flux.update(dt)
 	world:update(dt)
 	scene:update(dt)
+	Camera.update(dt)
 end
 
 function love.draw()
+	Camera.apply_transform()
 	scene:draw()
+	Camera.reset_transform()
 end
 
 function love.keypressed(k, s)

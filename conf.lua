@@ -4,4 +4,5 @@ function love.conf(t)
 	t.window.title = "Philtre2D Test Project"        -- The window title (string)
 	t.window.width = 800               -- The window width (number)
 	t.window.height = 600              -- The window height (number)
+	t.window.resizable = true
 end

@@ -81,12 +81,14 @@ local function draw(self)
 	local m = nil
 	for _,depth in ipairs(depths(self)) do
 		for _,object in ipairs(self.depth[depth]) do
+			local pushed
 			if m ~= object._to_world then
 				m = object._to_world
 				if not m.th then
 					m.th, m.sx, m.sy, m.kx, m.ky = M.parameters(m)
 				end
-				love.graphics.origin()
+				pushed = true
+				love.graphics.push()
 				love.graphics.translate(m.x, m.y)
 				love.graphics.rotate(m.th)
 				love.graphics.scale(m.sx, m.sy)
@@ -98,6 +100,7 @@ local function draw(self)
 					if script.draw then script.draw(object) end
 				end
 			end
+			if pushed then love.graphics.pop() end
 		end
 	end
 	love.graphics.pop()
