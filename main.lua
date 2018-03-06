@@ -5,6 +5,8 @@ require('engine.all')
 local Box = require('box')
 local Body = require('engine.body')
 local Camera = require('engine.lovercam')
+local gui_root = require('engine.gui_root')
+local gui = require('engine.gui')
 local flux = require('lib.flux')
 
 local function beginContact(a, b, hit)
@@ -32,6 +34,8 @@ function love.load()
 	draw_order:add_layer(1, "bg")
 
 	local img_yellow_blob = love.graphics.newImage('yellow-blob.png')
+	local img_sq_64 = love.graphics.newImage('square_64.png')
+	local img_rect_128x256 = love.graphics.newImage('rect_128x256.png')
 
 	scene = T.new(draw_order, {
 		mod(Box.new(300, 200, 30, 30, red), {
@@ -96,16 +100,33 @@ function love.load()
 	flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
 		flux.to(scene.children[1], 2, {sx=1})
 	end)
+
+	gui_root_obj = gui_root.new()
+
+	gui_scene = T.new(nil, {
+		mod(gui_root_obj, {
+			children = {
+				mod(gui.new(img_rect_128x256, 'right', 'top', 0, 0, 0, 1, 1, 'right', 'top'), {
+					children = {
+						gui.new(img_sq_64, 'right', 'center', 0, 0, 0, 0.8, 0.8, 'right', 'bottom')
+					}
+				}),
+				gui.new(img_sq_64, 'center', 'bottom', 0, 0, 0, 1, 1, 'center', 'bottom')
+			}
+		})
+	})
 end
 
 function love.resize(w, h)
 	Camera.window_resized(w, h)
+	gui_root_obj:window_resized(w, h)
 end
 
 function love.update(dt)
 	flux.update(dt)
 	world:update(dt)
 	scene:update(dt)
+	gui_scene:update(dt)
 	Camera.update(dt)
 end
 
@@ -113,6 +134,7 @@ function love.draw()
 	Camera.apply_transform()
 	scene:draw()
 	Camera.reset_transform()
+	gui_scene:draw()
 end
 
 function love.keypressed(k, s)
