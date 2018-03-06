@@ -4,7 +4,7 @@ local function window_resized(self, w, h)
 	self.w, self.h = w, h
 	if self.children then
 		for i, v in ipairs(self.children) do
-			if v.resize then v:resize(self.w, self.h, self.origw, self.origh) end
+			if v.parent_resized then v:parent_resized(self.w, self.h, self.origw, self.origh) end
 		end
 	end
 end

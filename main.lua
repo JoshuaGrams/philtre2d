@@ -115,6 +115,9 @@ function love.load()
 			}
 		})
 	})
+	flux.to(gui_scene.children[1].children[1].lpos, 1.5, {x=-200}):ease('cubicinout'):oncomplete(function()
+		flux.to(gui_scene.children[1].children[1].lpos, 1.5, {x=-10}):ease('cubicinout')
+	end)
 end
 
 function love.resize(w, h)

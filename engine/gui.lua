@@ -22,26 +22,31 @@ local scale_funcs = {
 	end,
 }
 
-local function resize(s, neww, newh, origw, origh)
-	--if origw and origh then
-		local sx, sy = scale_funcs[s.scale_mode](neww, newh, origw, origh)
-		s.sx, s.sy = s.origsx*sx, s.origsy*sy
-	--end
-	s.pos.x = s.lpos.x + neww*s.ax - s.parent.ox
-	s.pos.y = s.lpos.y + newh*s.ay - s.parent.oy
-	--if s.children then
-	--	for i, v in ipairs(s.children) do
-	--		if v.resize then v:resize(s.w, s.h) end
-	--	end
-	--end
+local function update_anchor_pos(s)
+	s.aposx = s.parent.w * s.ax - s.parent.ox
+	s.aposy = s.parent.h * s.ay - s.parent.oy
+end
+
+local function update(s, dt)
+	if s.lastx ~= s.lpos.x or s.lasty ~= s.lpos.y then
+		s.pos.x, s.pos.y = s.lpos.x + s.aposx, s.lpos.y + s.aposy
+	end
+	s.lastx, s.lasty = s.lpos.x, s.lpos.y
+end
+
+local function parent_resized(s, neww, newh, origw, origh)
+	local sx, sy = scale_funcs[s.scale_mode](neww, newh, origw, origh)
+	s.sx, s.sy = s.origsx*sx, s.origsy*sy
+	update_anchor_pos(s)
+	s.pos.x, s.pos.y = s.lpos.x + s.aposx, s.lpos.y + s.aposy
 end
 
 local function init(s)
-	s.pos.x = s.lpos.x + s.parent.w*s.ax - s.parent.ox
-	s.pos.y = s.lpos.y + s.parent.h*s.ay - s.parent.oy
+	update_anchor_pos(s)
+	s.pos.x, s.pos.y = s.lpos.x + s.aposx, s.lpos.y + s.aposy
 end
 
-local methods = { init = init, resize = resize, draw = draw }
+local methods = { init = init, parent_resized = parent_resized, draw = draw, update = update }
 local class = { __index = methods }
 
 local origins = {
