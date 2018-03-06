@@ -123,6 +123,7 @@ local function _draw(objects)
 			love.graphics.translate(o.pos.x, o.pos.y)
 			love.graphics.scale(o.sx or 1, o.sy)
 			love.graphics.rotate(o.angle or 0)
+			love.graphics.shear(o.kx, o.ky)
 		end
 		if o.draw then o:draw() end
 		if o.script then
