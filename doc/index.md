@@ -42,8 +42,9 @@ Todo
 * Input manager
 * Asset loader - should only load each asset once
     * Just use Cargo? (it loads things only when they are used)
-* Physics wrapper
-    * one call to init world & set callbacks
+* ~~Physics wrapper~~
+    * ~~one function to init world & set callbacks~~
+	* ~~holds physics callback handlers~~
 * Pausing
     * flag to stop update (but not draw) from continuing down the tree
     * pause/resume function call down the tree to stop sounds?

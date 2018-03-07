@@ -6,6 +6,7 @@ T = require('engine.scene-tree');
 mod = T.mod
 
 DrawOrder = require('engine.draw-order')
+physics = require('engine.physics')
 Sprite = require('engine.sprite')
 Body = require('engine.body')
 Camera = require('engine.lovercam')

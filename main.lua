@@ -5,23 +5,9 @@ require('engine.all')
 local Box = require('box')
 local flux = require('lib.flux')
 
-local function beginContact(a, b, hit)
-	local a_path, b_path = a:getUserData(), b:getUserData()
-	local a_obj, b_obj = scene:get(a_path), scene:get(b_path)
-	if a_obj.beginContact then a_obj:beginContact(a, b, hit) end
-	if b_obj.beginContact then b_obj:beginContact(b, a, hit) end
-end
-
-local function endContact(a, b, hit)
-	local a_path, b_path = a:getUserData(), b:getUserData()
-	local a_obj, b_obj = scene:get(a_path), scene:get(b_path)
-	if a_obj.endContact then a_obj:endContact(a, b, hit) end
-	if b_obj.endContact then b_obj:endContact(b, a, hit) end
-end
-
 function love.load()
-	world = love.physics.newWorld(0, 500, true)
-	world:setCallbacks(beginContact, endContact)
+	-- init physics world - disable pre- and post-solve callbacks
+	world = physics.init(0, 500, true, nil, false, false, true, true)
 
 	local red = { 180, 23, 20 }
 	local green = { 30, 200, 25 }
@@ -29,7 +15,7 @@ function love.load()
 	draw_order = DrawOrder.new('default')
 	draw_order:add_layer(1, "bg")
 
-	local img_yellow_blob = love.graphics.newImage('yellow-blob.png')
+	img_yellow_blob = love.graphics.newImage('yellow-blob.png')
 	local img_sq_64 = love.graphics.newImage('square_64.png')
 	local img_rect_128x256 = love.graphics.newImage('rect_128x256.png')
 
@@ -80,7 +66,7 @@ function love.load()
 			},
 		}),
 		mod(Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} }), {name = "ground"}),
-		Camera.new({x=400, y=300}, 0, 0.8)
+		Camera.new({x=300, y=300}, 0, 0.8)
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then
@@ -92,6 +78,8 @@ function love.load()
 		print('/green-box:', scene:get('/green-box'), scene.children[1])
 		error('Getting green box')
 	end
+
+	physics.set_scene(scene)
 
 	flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
 		flux.to(scene.children[1], 2, {sx=1})
@@ -111,9 +99,6 @@ function love.load()
 			}
 		})
 	})
-	flux.to(gui_scene.children[1].children[1].lpos, 1.5, {x=-200}):ease('cubicinout'):oncomplete(function()
-		flux.to(gui_scene.children[1].children[1].lpos, 1.5, {x=-10}):ease('cubicinout')
-	end)
 end
 
 function love.resize(w, h)
@@ -139,5 +124,20 @@ end
 function love.keypressed(k, s)
 	if k == 'escape' then
 		love.event.quit()
+	end
+end
+
+function love.mousepressed(x, y, button, isTouch)
+	if button == 1 then
+		x, y = Camera.screen_to_world(x, y)
+		scene:add(Sprite.new(img_yellow_blob, 'center', 'center', x, y))
+	elseif button == 2 then
+		local o = scene.children[1]--scene:get('/red-box')
+		if o then
+			print("removing: ", o.path)
+			scene:remove(o, true)
+		else
+			print("Object to remove not found")
+		end
 	end
 end
