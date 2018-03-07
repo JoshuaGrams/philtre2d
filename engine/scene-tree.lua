@@ -176,6 +176,7 @@ local function remove(self, obj, from_parent)
 		end
 	end
 	self.paths[obj.path] = nil
+	if obj.final then obj:final() end
 end
 
 local function get(self, path)

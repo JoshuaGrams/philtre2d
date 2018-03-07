@@ -83,7 +83,11 @@ local function init(self)
 	self.bodyData = nil
 end
 
-local methods = { update = update, draw = draw, init = init }
+local function final(self)
+	self.body:destroy()
+end
+
+local methods = { update = update, draw = draw, init = init, final = final }
 local class = { __index = methods }
 
 local function new(world, type, x, y, shapes, prop)
