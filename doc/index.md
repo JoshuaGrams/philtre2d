@@ -53,8 +53,8 @@ Todo
     * pre-allocate multiple voices (sources)
 * Text/'Label' object
 * Joint object (physics)
-* Add vec2 library?
-* Add missing math functions?
+* ~~Add vec2 library~~
+* ~~Add missing math functions~~
 * Sprite batching?
 * GUI 9-Patch object
 * GUI Stencils (for scroll boxes)
