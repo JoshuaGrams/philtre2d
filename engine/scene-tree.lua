@@ -176,9 +176,9 @@ local function remove(self, obj, from_parent)
 		end
 	end
 	if obj.final then obj:final() end
-	if o.script then
-		for _,script in ipairs(o.script) do
-			if script.final then script.final(o) end
+	if obj.script then
+		for _,script in ipairs(obj.script) do
+			if script.final then script.final(obj) end
 		end
 	end
 	self.paths[obj.path] = nil
