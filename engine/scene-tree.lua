@@ -158,12 +158,21 @@ local function add(self, obj, parent)
 	init_child(self, obj, parent, i)
 end
 
-local function remove(self, obj)
-	local parent = obj.parent
-	for i,c in ipairs(parent.children) do
-		if c == obj then
-			parent.children = nil
-			break
+local function remove(self, obj, from_parent)
+	if from_parent then -- remove obj from parent's child list
+		local parent = obj.parent
+		for i,c in ipairs(parent.children) do
+			if c == obj then
+				table.remove(parent.children, i)
+				break
+			end
+		end
+	end
+	-- delete all children down the tree
+	-- don't bother telling children to delete themselves from our child list
+	if obj.children then
+		for i=#obj.children, 1, -1 do
+			self:remove(obj.children[i], false)
 		end
 	end
 	self.paths[obj.path] = nil
