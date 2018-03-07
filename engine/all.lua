@@ -7,3 +7,7 @@ mod = T.mod
 
 DrawOrder = require('engine.draw-order')
 Sprite = require('engine.sprite')
+Body = require('engine.body')
+Camera = require('engine.lovercam')
+Gui_root = require('engine.gui_root')
+Gui_sprite = require('engine.gui_sprite')

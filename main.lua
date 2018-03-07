@@ -3,10 +3,6 @@
 require('engine.all')
 
 local Box = require('box')
-local Body = require('engine.body')
-local Camera = require('engine.lovercam')
-local gui_root = require('engine.gui_root')
-local gui_node = require('engine.gui_node')
 local flux = require('lib.flux')
 
 local function beginContact(a, b, hit)
@@ -101,17 +97,17 @@ function love.load()
 		flux.to(scene.children[1], 2, {sx=1})
 	end)
 
-	gui_root_obj = gui_root.new()
+	gui_root_obj = Gui_root.new()
 
 	gui_scene = T.new(nil, {
 		mod(gui_root_obj, {
 			children = {
-				mod(gui_node.new(img_rect_128x256, 'right', 'top', -10, 10, 0, 1.5, 1.5, 'right', 'top'), {
+				mod(Gui_sprite.new(img_rect_128x256, 'right', 'top', -10, 10, 0, 1.5, 1.5, 'right', 'top'), {
 					children = {
-						gui_node.new(img_sq_64, 'right', 'center', 0, 0, 0, 0.8, 0.8, 'right', 'bottom')
+						Gui_sprite.new(img_sq_64, 'right', 'center', 0, 0, 0, 0.8, 0.8, 'right', 'bottom')
 					}
 				}),
-				gui_node.new(img_sq_64, 'center', 'bottom', 0, -10, 0, 780/64, 0.5, 'center', 'bottom', 'stretch')
+				Gui_sprite.new(img_sq_64, 'center', 'bottom', 0, -10, 0, 780/64, 0.5, 'center', 'bottom', 'stretch')
 			}
 		})
 	})
