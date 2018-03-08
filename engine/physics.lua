@@ -2,6 +2,7 @@
 local scene -- scene-tree ref from user
 local paths = {}
 local obj = {}
+local coll_groups = {}
 
 local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
 	-- get object paths from fixtures' userData
@@ -59,4 +60,29 @@ local function set_scene(scene_tree)
 	scene = scene_tree
 end
 
-return { init = init, set_scene = set_scene }
+local function set_groups(...)
+	local g = {...}
+	for i, v in ipairs(g) do
+		if i > 16 then
+			error("physics.set_groups - Can't have more than 16 collision groups.")
+		elseif type(v) == 'string' then
+			coll_groups[v] = i
+		else
+			error('physics.set_groups - Invalid group name: ' .. v .. '. Group names must be strings.')
+		end
+	end
+end
+
+local function groups(...)
+	local g = {...}
+	for i, v in ipairs(g) do
+		local gi = coll_groups[v]
+		if not gi then
+			error('physics.groups - Group name "' .. v .. '" not recognized.')
+		end
+		g[i] = gi
+	end
+	return g
+end
+
+return { init = init, set_scene = set_scene, set_groups = set_groups, groups = groups }
