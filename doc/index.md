@@ -20,14 +20,15 @@ Objects
 -------
 
 * [Body](engine/body.md) - Physics body object.
-
+	* `Body.new(world, type, x, y, shapes, prop)`
 * Sprite - Object containing an image.
-
+	* `Sprite.new(image, ox, oy, x, y, angle, sx, sy, kx, ky)`
 * [Camera](https://github.com/rgrams/lovercam/blob/master/Readme.md) - Camera object (by Lovercam)
-
+	* `Camera.new(pos, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)`
 * GUI Sprite - Sprite with anchors and that scales when parent is resized.
-
+	* `Gui_sprite.new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, ky)`
 * GUI Root - Root 'window' object for GUI. Needs to get `love.resize` calls.
+	* `Gui_root.new()`
 
 
 Todo
