@@ -43,6 +43,10 @@ end
 local function init_child(self, obj, parent, index)
 	obj.name = obj.name or tostring(index)
 	obj.path = parent.path .. '/' .. obj.name
+	-- Check for objects with identical names on the same parent
+	if self.paths[obj.path] then
+		obj.path = obj.path .. index
+	end
 	self.paths[obj.path] = obj
 
 	-- Skip nodes with no transform.  Since we do this every
@@ -72,7 +76,7 @@ local function init_child(self, obj, parent, index)
 	local n = obj.pos and coords(m, obj) or m
 	obj._to_world, obj._to_local = n, nil
 	if obj.children then
-		for i,o in ipairs(obj.children) do
+		for i,o in pairs(obj.children) do
 			init_child(self, o, obj, i)
 		end
 	end
@@ -87,7 +91,7 @@ local function init_child(self, obj, parent, index)
 end
 
 local function _update(objects, dt, draw_order, m)
-	for _,o in ipairs(objects) do
+	for _,o in pairs(objects) do
 		o._to_world, o._to_local = m, nil
 		if o.script then
 			for _,script in ipairs(o.script) do
@@ -117,7 +121,7 @@ local function update(self, dt)
 end
 
 local function _draw(objects)
-	for _,o in ipairs(objects) do
+	for _,o in pairs(objects) do
 		if o.pos then
 			love.graphics.push()
 			love.graphics.translate(o.pos.x, o.pos.y)
@@ -154,16 +158,16 @@ local function add(self, obj, parent)
 	parent = parent or self
 	if not parent.children then parent.children = {} end
 	local i = 1 + #parent.children
-	table.insert(parent.children, i, obj)
+	parent.children[i] = obj
 	init_child(self, obj, parent, i)
 end
 
 local function remove(self, obj, from_parent)
 	if from_parent then -- remove obj from parent's child list
 		local parent = obj.parent
-		for i,c in ipairs(parent.children) do
+		for i,c in pairs(parent.children) do
 			if c == obj then
-				table.remove(parent.children, i)
+				parent.children[i] = nil
 				break
 			end
 		end
@@ -171,8 +175,8 @@ local function remove(self, obj, from_parent)
 	-- delete all children down the tree
 	-- don't bother telling children to delete themselves from our child list
 	if obj.children then
-		for i=#obj.children, 1, -1 do
-			self:remove(obj.children[i], false)
+		for i,c in pairs(obj.children) do
+			self:remove(c, false)
 		end
 	end
 	if obj.final then obj:final() end
@@ -202,7 +206,7 @@ local function new(draw_order, root_objects)
 		draw_order = draw_order,
 		path = '', paths = {},
 	}, class)
-	for i,o in ipairs(tree.children) do
+	for i,o in pairs(tree.children) do
 		init_child(tree, o, tree, i)
 	end
 	return tree

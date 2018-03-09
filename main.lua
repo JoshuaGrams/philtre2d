@@ -81,9 +81,9 @@ function love.load()
 
 	physics.set_scene(scene)
 
-	flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
-		flux.to(scene.children[1], 2, {sx=1})
-	end)
+	--flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
+	--	flux.to(scene.children[1], 2, {sx=1})
+	--end)
 
 	gui_root_obj = Gui_root.new()
 
@@ -130,9 +130,12 @@ end
 function love.mousepressed(x, y, button, isTouch)
 	if button == 1 then
 		x, y = Camera.screen_to_world(x, y)
-		scene:add(Sprite.new(img_yellow_blob, 'center', 'center', x, y))
+		scene:add(mod(Sprite.new(img_yellow_blob, 'center', 'center', x, y), {name='bob'}))
 	elseif button == 2 then
-		local o = scene.children[1]--scene:get('/red-box')
+		local o
+		for k, v in pairs(scene.children) do
+			if v then o = v break end
+		end
 		if o then
 			print("removing: ", o.path)
 			scene:remove(o, true)
