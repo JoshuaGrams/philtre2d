@@ -16,6 +16,9 @@ Engine
   skew, translate) represented as 3x3 matrices (2D homogeneous
   coordinates).
 
+* [Physics](engine/physics.md) - Holds the physics callback
+  handlers and manages named collision groups.
+
 Objects
 -------
 

@@ -24,7 +24,7 @@ _PARAMETERS_
 ```
 *
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', or 'chain'.
-	* Available properties are: 'sensor', 'groups'<kbd>list</kbd>, 'masks'<kbd>list</kbd>, 'friction', 'restitution',
+	* Available properties are: 'sensor', 'groups'<kbd>list</kbd>, 'masks'<kbd>list</kbd>, 'friction', and 'restitution',
 
 * __prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available properties are: 'angle', 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
