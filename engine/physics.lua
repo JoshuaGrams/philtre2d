@@ -1,10 +1,12 @@
 
 local scene -- scene-tree ref from user
+local fix = {}
 local paths = {}
 local obj = {}
 local coll_groups = {}
 
 local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
+	fix[1], fix[2] = a, b -- index fixtures so we can flip them
 	-- get object paths from fixtures' userData
 	paths[1], paths[2] = a:getUserData(), b:getUserData()
 	-- get objects from scene tree
@@ -13,10 +15,10 @@ local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
 	for i=1, 2 do
 		local o = obj[i]
 		if o then
-			if o[type] then o[type](o, a, b, hit, normImpulse, tanImpulse) end
+			if o[type] then o[type](o, fix[i], fix[3-i], obj[3-i], hit, normImpulse, tanImpulse) end
 			if o.script then
-				for i, script in ipairs(o.script) do
-					if script[type] then script[type](o, a, b, hit, normImpulse, tanImpulse) end
+				for _, script in ipairs(o.script) do
+					if script[type] then script[type](o, fix[i], fix[3-i], obj[3-i], hit, normImpulse, tanImpulse) end
 				end
 			end
 		else
