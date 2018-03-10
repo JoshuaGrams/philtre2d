@@ -93,12 +93,12 @@ end
 local function _update(objects, dt, draw_order, m)
 	for _,o in pairs(objects) do
 		o._to_world, o._to_local = m, nil
+		if o.update then o:update(dt) end
 		if o.script then
 			for _,script in ipairs(o.script) do
 				if script.update then script.update(o, dt) end
 			end
 		end
-		if o.update then o:update(dt) end
 		if o.pos then
 			o._to_world, o._to_local = coords(m, o), nil
 		end
@@ -162,8 +162,8 @@ local function add(self, obj, parent)
 	init_child(self, obj, parent, i)
 end
 
-local function remove(self, obj, from_parent)
-	if from_parent then -- remove obj from parent's child list
+local function remove(self, obj, not_from_parent)
+	if not not_from_parent then -- remove obj from parent's child list
 		local parent = obj.parent
 		for i,c in pairs(parent.children) do
 			if c == obj then
@@ -176,7 +176,7 @@ local function remove(self, obj, from_parent)
 	-- don't bother telling children to delete themselves from our child list
 	if obj.children then
 		for i,c in pairs(obj.children) do
-			self:remove(c, false)
+			self:remove(c, true)
 		end
 	end
 	if obj.final then obj:final() end
@@ -185,6 +185,11 @@ local function remove(self, obj, from_parent)
 			if script.final then script.final(obj) end
 		end
 	end
+	-- Ensure obj won't be drawn & children won't get another update.
+	-- final() functions will be the final callback.
+	obj.pos = false
+	obj.draw = false
+	obj.children = false
 	self.paths[obj.path] = nil
 end
 

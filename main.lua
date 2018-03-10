@@ -138,7 +138,7 @@ function love.mousepressed(x, y, button, isTouch)
 		end
 		if o then
 			print("removing: ", o.path)
-			scene:remove(o, true)
+			scene:remove(o)
 		else
 			print("Object to remove not found")
 		end
