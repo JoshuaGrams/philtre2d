@@ -241,7 +241,16 @@ end
 
 local function activate(self)
 	self.active = true
-	self.cur_cam = self
+	M.cur_cam = self
+end
+
+local function final(self)
+	for i, v in ipairs(cameras) do
+		if v == self then table.remove(cameras, i) end
+	end
+	if #cameras == 1 then M.cur_cam = cameras[1]
+	else M.cur_cam = fallback_cam
+	end
 end
 
 -- convenience function for moving camera
@@ -365,15 +374,14 @@ local function enforce_bounds(self)
 	end
 end
 
-function M.new(pos, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)
+function M.new(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)
 	local win_x, win_y = love.graphics.getDimensions()
 	scale_mode = scale_mode or "fixed area"
 
 	local n = {
 		-- User Settings:
 		active = not inactive,
-		pos = pos and vec2(pos.x, pos.y) or vec2(0, 0),
-		sx = 1, sy = 1, kx = 0, ky = 0,
+		pos = vec2(x or 0, y or 0),
 		angle = angle or 0,
 		zoom = 1,
 		scale_mode = scale_mode,
@@ -388,6 +396,7 @@ function M.new(pos, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactiv
 		screen_to_world = screen_to_world,
 		world_to_screen = world_to_screen,
 		activate = activate,
+		final = final,
 		pan = pan,
 		zoom_in = zoom_in,
 		update = update,
@@ -433,7 +442,12 @@ function M.new(pos, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactiv
 	return n
 end
 
-local fallback_cam = M.new(vec2(love.graphics.getDimensions())/2)
+local fallback_cam
+do
+	local x, y = love.graphics.getDimensions()
+	x, y = x/2, y/2
+	fallback_cam = M.new(x, y)
+end
 M.cur_cam = fallback_cam
 
 return M

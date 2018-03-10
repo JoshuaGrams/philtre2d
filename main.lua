@@ -66,7 +66,7 @@ function love.load()
 			},
 		}),
 		mod(Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} }), {name = "ground"}),
-		Camera.new({x=300, y=300}, 0, 0.8)
+		Camera.new(300, 300, 0, 0.8)
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then
