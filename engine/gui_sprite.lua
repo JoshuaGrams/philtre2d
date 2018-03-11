@@ -1,7 +1,7 @@
 local T = require('engine.scene-tree')
 
 local function draw(s)
-	love.graphics.setColor(255, 255, 255, 127)
+	love.graphics.setColor(s.color)
 	love.graphics.draw(s.img, -s.ox, -s.oy)
 end
 
@@ -82,6 +82,7 @@ local function new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, k
 	end
 	if img then
 		local gui = T.object(x, y, angle, sx, sy, kx, ky)
+		gui.color = {255, 255, 255, 255}
 		gui.origsx, gui.origsy = sx, sy
 		gui.scale_mode = scale_mode or 'fit'
 		gui.lpos = { x=x, y=y }

@@ -1,7 +1,7 @@
 local T = require('engine.scene-tree')
 
 local function draw(s)
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.setColor(s.color)
 	love.graphics.draw(s.img, -s.ox, -s.oy)
 end
 
@@ -23,6 +23,7 @@ local function new(image, ox, oy, x, y, angle, sx, sy, kx, ky)
 	if img then
 		local sprite = T.object(x, y, angle, sx, sy, kx, ky)
 		sprite.img = img
+		sprite.color = {255, 255, 255, 255}
 		local w, h = img:getDimensions()
 		if type(ox) == 'string' then  ox = w * origins[ox]  end
 		if type(oy) == 'string' then  oy = h * origins[oy]  end

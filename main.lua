@@ -91,11 +91,14 @@ function love.load()
 		mod(gui_root_obj, {
 			children = {
 				mod(Gui_sprite.new(img_rect_128x256, 'right', 'top', -10, 10, 0, 1.5, 1.5, 'right', 'top'), {
+					color = {255, 255, 255, 127},
 					children = {
 						Gui_sprite.new(img_sq_64, 'right', 'center', 0, 0, 0, 0.8, 0.8, 'right', 'bottom')
 					}
 				}),
-				Gui_sprite.new(img_sq_64, 'center', 'bottom', 0, -10, 0, 780/64, 0.5, 'center', 'bottom', 'stretch')
+				mod(Gui_sprite.new(img_sq_64, 'center', 'bottom', 0, -10, 0, 780/64, 0.5, 'center', 'bottom', 'stretch'), {
+					color = {255, 255, 255, 127}
+				})
 			}
 		})
 	})
