@@ -41,7 +41,7 @@ Todo
 
 * Start on editor.
 
-* Scene-tree - prevent path overlaps!
+* ~~Scene-tree - prevent path overlaps!~~
 * Scene-tree - set_parent()
 * Input manager
 * Asset loader - should only load each asset once
