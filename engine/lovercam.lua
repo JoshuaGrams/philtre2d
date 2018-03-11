@@ -193,8 +193,8 @@ local function update(self, dt)
 			self.shake_x = self.shake_x + sin(angle) * d
 			self.shake_y = self.shake_y + cos(angle) * d
 		elseif s.vec then -- is a recoil
-			self.shake_x = self.shake_x + vec.x * k
-			self.shake_y = self.shake_y + vec.y * k
+			self.shake_x = self.shake_x + s.vec.x * k
+			self.shake_y = self.shake_y + s.vec.y * k
 		end
 		s.t = s.t - dt
 		if s.t <= 0 then table.remove(self.shakes, i) end
