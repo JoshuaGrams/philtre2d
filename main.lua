@@ -52,6 +52,7 @@ function love.load()
 						end
 					}
 				}),
+				Text.new(0, 10, 0, 'Text Object')
 			}
 		}),
 		mod(Sprite.new(img_yellow_blob, 'center', 'center', 100, 100), {
