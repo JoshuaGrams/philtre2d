@@ -83,7 +83,7 @@ local function new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, k
 	if img then
 		local gui = T.object(x, y, angle, sx, sy, kx, ky)
 		gui.color = {255, 255, 255, 255}
-		gui.origsx, gui.origsy = sx, sy
+		gui.origsx, gui.origsy = gui.sx, gui.sy
 		gui.scale_mode = scale_mode or 'fit'
 		gui.lpos = { x=x, y=y }
 		gui.img = img
