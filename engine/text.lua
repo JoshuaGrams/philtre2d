@@ -3,7 +3,7 @@ local T = require('engine.scene-tree')
 local function draw(s)
 	love.graphics.setColor(s.color)
 	if s.font then love.graphics.setFont(s.font) end
-	love.graphics.printf(s.text, s.pos.x, s.pos.y, s.wrap_limit, s.align, s.angle, s.sx, s.sy, s.ox, s.oy, s.kx, s.ky)
+	love.graphics.printf(s.text, -s.ox, -s.oy, s.wrap_limit, s.align, s.angle, 1, 1, 0, 0, s.kx, s.ky)
 end
 
 local methods = { draw = draw }
@@ -20,7 +20,7 @@ local function new(x, y, angle, text, font, wrap_limit, align, sx, sy, ox, oy, k
 	local s = T.object(x, y, angle, sx, sy, kx, ky)
 	s.color = {255, 255, 255, 255}
 	s.wrap_limit = wrap_limit or 200
-	s.ox, s.oy = ox or s.wrap_limit/2, oy
+	s.ox, s.oy = ox or s.wrap_limit/2, oy or 0
 	s.font = font
 	s.text = text
 	s.align = aligns[align] and align or 'center'
