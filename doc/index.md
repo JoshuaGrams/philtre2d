@@ -28,10 +28,14 @@ Objects
 	* `Sprite.new(image, ox, oy, x, y, angle, sx, sy, kx, ky)`
 * [Camera](https://github.com/rgrams/lovercam/blob/master/Readme.md) - Camera object (by Lovercam)
 	* `Camera.new(pos, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)`
+* Text - Object for rendering text.
+	* `Text.new(x, y, angle, text, font, wrap_limit, align, sx, sy, ox, oy, kx, ky)`
 * GUI Sprite - Sprite with anchors and that scales when parent is resized.
 	* `Gui_sprite.new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, ky)`
 * GUI Root - Root 'window' object for GUI. Needs to get `love.resize` calls.
 	* `Gui_root.new()`
+* GUI Text - Text object with anchors and nice scaling
+	* `Gui_text.new(x, y, angle, text, font_file, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)`
 
 
 Todo
