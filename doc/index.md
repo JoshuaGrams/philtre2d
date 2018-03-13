@@ -56,7 +56,8 @@ Todo
     * stop input?
 * Sound object
     * pre-allocate multiple voices (sources)
-* Text/'Label' object
+* ~~Text/'Label' object - world and GUI versions~~
+	* ~~Scale GUI text nicely~~ (could use optimization?)
 * Joint object (physics)
 * ~~Add vec2 library~~
 * ~~Add missing math functions~~
