@@ -19,6 +19,8 @@ function love.load()
 	local img_sq_64 = love.graphics.newImage('square_64.png')
 	local img_rect_128x256 = love.graphics.newImage('rect_128x256.png')
 
+	local fnt_opensans_reg = 'assets/fonts/OpenSans-Regular.ttf'
+
 	scene = T.new(draw_order, {
 		mod(Box.new(300, 200, 30, 30, red), {
 			name = 'red-box',
@@ -52,7 +54,7 @@ function love.load()
 						end
 					}
 				}),
-				Text.new(0, 10, 0, 'Text Object')
+				Text.new(0, 20, 0, 'Text Object')
 			}
 		}),
 		mod(Sprite.new(img_yellow_blob, 'center', 'center', 100, 100), {
@@ -95,7 +97,7 @@ function love.load()
 					color = {255, 255, 255, 127},
 					children = {
 						Gui_sprite.new(img_sq_64, 'right', 'center', 0, 0, 0, 0.8, 0.8, 'right', 'bottom'),
-						Gui_text.new(0, 10, 0, 'Gui Text Object', nil, 100, nil, 1, 1, 'center', 'top')
+						Gui_text.new(0, 10, 0, 'Gui Text Object', fnt_opensans_reg, 16, 300, 'center', 1/1.5, 1/1.5, 'center', 'top')
 					}
 				}),
 				mod(Gui_sprite.new(img_sq_64, 'center', 'bottom', 0, -10, 0, 780/64, 0.5, 'center', 'bottom', 'stretch'), {

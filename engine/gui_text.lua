@@ -1,9 +1,38 @@
 local T = require('engine.scene-tree')
+local M = require('engine.matrix')
+
+local m = {}
+
+local function round(x)
+	local r = x % 1
+	return r >= 0.5 and (x - r + 1) or (x - r)
+end
 
 local function draw(s)
+	m = M.invert(s._to_world, m) -- to_local matrix
+	local r, sx, sy = M.parameters(m)
+	local wx, wy = T.to_world(s, 0, 0)
+	wx, wy = round(wx), round(wy) -- round world position
+
+	if s.font_file then -- can't scale fallback font
+		local fontScale = 1/math.max(sx, sy)
+		-- update font if scale has changed
+		if fontScale ~= s.font_scale then
+			s.font_scale = fontScale
+			s.font = love.graphics.newFont(s.font_file, s.font_size*s.font_scale)
+		end
+	end
+	-- render at world scale and rounded world position
+	love.graphics.push()
+	love.graphics.scale(sx, sy)
+	love.graphics.origin()
+	love.graphics.translate(wx, wy)
+
 	love.graphics.setColor(s.color)
 	if s.font then love.graphics.setFont(s.font) end
-	love.graphics.printf(s.text, -s.ox, -s.oy, s.wrap_limit, s.align, s.angle, s.sx, s.sy, 0, 0, s.kx, s.ky)
+	love.graphics.printf(s.text, -s.ox, -s.oy, s.wrap_limit, s.align, s.angle, 1, 1, 0, 0, s.kx, s.ky)
+
+	love.graphics.pop()
 end
 
 local scale_funcs = {
@@ -68,13 +97,16 @@ local function get_origin(ox, default)
 	return ox or default
 end
 
-local function new(x, y, angle, text, font, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)
+local function new(x, y, angle, text, font_file, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)
 	local s = T.object(x, y, angle, sx, sy, kx, ky)
 	s.color = {255, 255, 255, 255}
 	s.wrap_limit = wrap_limit or 200
 	s.ox, s.oy = ox or s.wrap_limit/2, oy or 0
 	s.text = text
-	s.font = font
+	s.font = font_file and love.graphics.newFont(font_file, font_size)
+	s.font_file = font_file
+	s.font_size = font_size
+	s.font_scale = 1
 	s.align = aligns[align] and align or 'center'
 	s.scale_mode = scale_mode or 'fit'
 	s.origsx, s.origsy = s.sx, s.sy
