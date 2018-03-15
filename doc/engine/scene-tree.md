@@ -69,6 +69,10 @@ A scene tree object has the following methods:
 
 * `get(path) -> object or nil` - Look up an object by its path.
 
+* `pause(object)` - Pauses the object and its children down the tree.
+
+* `unpause(object)` - Un-pauses the object and its children down the tree.
+
 * `update(dt)` - Traverse the tree, updating all objects with
   the given time delta.
 

@@ -92,15 +92,17 @@ end
 
 local function _update(objects, dt, draw_order, m)
 	for _,o in pairs(objects) do
-		o._to_world, o._to_local = m, nil
-		if o.update then o:update(dt) end
-		if o.script then
-			for _,script in ipairs(o.script) do
-				if script.update then script.update(o, dt) end
+		if not o.paused then
+			o._to_world, o._to_local = m, nil
+			if o.update then o:update(dt) end
+			if o.script then
+				for _,script in ipairs(o.script) do
+					if script.update then script.update(o, dt) end
+				end
 			end
-		end
-		if o.pos then
-			o._to_world, o._to_local = coords(m, o), nil
+			if o.pos then
+				o._to_world, o._to_local = coords(m, o), nil
+			end
 		end
 		if draw_order and o.draw then
 			draw_order:save_current_layer()
@@ -197,9 +199,28 @@ local function get(self, path)
 	return self.paths[path]
 end
 
+local function pause(self, obj)
+	obj.paused = true
+	if obj.children then
+		for i,c in pairs(obj.children) do
+			pause(self, c)
+		end
+	end
+end
+
+local function unpause(self, obj)
+	obj.paused = false
+	if obj.children then
+		for i,c in pairs(obj.children) do
+			unpause(self, c)
+		end
+	end
+end
+
 local methods = {
 	add = add, remove = remove, get = get,
-	update = update, draw = draw
+	update = update, draw = draw,
+	pause = pause, unpause = unpause
 }
 local class = { __index = methods }
 
