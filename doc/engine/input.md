@@ -101,7 +101,7 @@ To remove bindings you can use `Input.unbind(bindings)` or
 Todo
 ----
 
-* Test multiple bindings (both ways).
+* Test multiple logical inputs using a single physical input.
 
 * Test `to_logical` and `to_physical`.
 
