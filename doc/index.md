@@ -12,6 +12,9 @@ Engine
   drawing them in order of scene graph traversal isn't
   sufficient.
 
+* [Input](engine/input.md) - Bind physical axes and buttons to
+  form game input axes and buttons.
+
 * [Matrix](engine/matrix.md) - Transformations (rotate, scale,
   skew, translate) represented as 3x3 matrices (2D homogeneous
   coordinates).
