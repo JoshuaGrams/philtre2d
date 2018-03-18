@@ -82,6 +82,38 @@ function love.load()
 		error('Getting green box')
 	end
 
+	-- Input test.
+	Input.init()
+	Input.bind({
+		{'quit', 'button', 'key', 'x'},
+		{'x', 'axis_from_buttons', 'scancode', 'f', 'scancode', 's'},
+		{'y', 'axis_from_buttons', 'scancode', 'd', 'scancode', 'e'},
+		{'quit', 'button_from_axis', 'joystick1', 'triggerright'},
+		{'x', 'axis', 'joystick1', 'leftx'},
+		{'y', 'axis', 'joystick1', 'lefty'},
+	})
+	-- Move green box.
+	local green_box = scene:get('/green-box')
+	green_box.input = function(self, name, value, change)
+		local speed = 100
+		if name == 'x' then 
+			self.v.x = value * speed
+		elseif name == 'y' then
+			self.v.y = value * speed
+		end
+	end
+	Input.enable(green_box)
+	-- Quit with x and right trigger (not escape).
+	global_input = {
+		input = function(self, name, value, change)
+			if name == 'quit' then
+				love.event.quit()
+			end
+		end
+	}
+	Input.enable(global_input)
+
+
 	physics.set_scene(scene)
 
 	--flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
