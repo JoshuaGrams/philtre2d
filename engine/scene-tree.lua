@@ -48,6 +48,8 @@ local function init_child(self, obj, parent, index)
 		obj.path = obj.path .. index
 	end
 	self.paths[obj.path] = obj
+	-- Add reference to current scene-tree
+	obj.tree = self
 
 	-- Skip nodes with no transform.  Since we do this every
 	-- step, our grandparent is guaranteed to have a transform.

@@ -1,16 +1,17 @@
 
-local scene -- scene-tree ref from user
+local T = require('engine.scene-tree')
+
 local fix = {}
 local paths = {}
 local obj = {}
 local coll_groups = {}
 
-local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
+local function handleContact(s, type, a, b, hit, normImpulse, tanImpulse)
 	fix[1], fix[2] = a, b -- index fixtures so we can flip them
 	-- get object paths from fixtures' userData
 	paths[1], paths[2] = a:getUserData(), b:getUserData()
 	-- get objects from scene tree
-	obj[1], obj[2] = scene:get(paths[1]), scene:get(paths[2])
+	obj[1], obj[2] = s.tree:get(paths[1]), s.tree:get(paths[2])
 	-- pass the call to each object and any scripts it has
 	for i=1, 2 do
 		local o = obj[i]
@@ -27,40 +28,32 @@ local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
 	end
 end
 
-local function beginContact(a, b, hit)
-	handleContact('beginContact', a, b, hit)
+local function update(s, dt)
+	s.world:update(dt)
 end
 
-local function endContact(a, b, hit)
-	handleContact('endContact', a, b, hit)
+local methods = { update = update }
+local class = { __index = methods }
+
+local function make_callback(self, type)
+	local cb = function(a, b, hit, normImpulse, tangImpulse)
+		handleContact(self, type, a, b, hit, normImpulse, tangImpulse)
+	end
+	return cb
 end
 
-local function preSolve(a, b, hit)
-	handleContact('preSolve', a, b, hit)
-end
-
-local function postSolve(a, b, hit, normImpulse, tangImpulse)
-	handleContact('postSolve', a, b, hit, normImpulse, tangImpulse)
-end
-
-local function init(xg, yg, sleep, scene_tree, disableBegin, disableEnd, disablePre, disablePost)
-	scene = scene_tree
-	local world = love.physics.newWorld(xg, yg, sleep)
-	-- by default all callbacks are enabled
-	world:setCallbacks(
-		not disableBegin and beginContact or nil,
-		not disableEnd and endContact or nil,
-		not disablePre and preSolve or nil,
-		not disablePost and postSolve or nil
+local function new(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)
+	local s = T.object()
+	s.world = love.physics.newWorld(xg, yg, sleep)
+	s.world:setCallbacks(
+		not disableBegin and make_callback(s, 'beginContact') or nil,
+		not disableEnd and make_callback(s, 'endContact') or nil,
+		not disablePre and make_callback(s, 'preSolve') or nil,
+		not disablePost and make_callback(s, 'postSolve') or nil
 	)
-	return world
+	return setmetatable(s, class)
 end
 
--- if init world is called before scene-tree is created (it probably is),
--- call this afterward to update our scene-tree reference
-local function set_scene(scene_tree)
-	scene = scene_tree
-end
 
 local function set_groups(...)
 	local g = {...}
@@ -87,4 +80,4 @@ local function groups(...)
 	return g
 end
 
-return { init = init, set_scene = set_scene, set_groups = set_groups, groups = groups }
+return { new = new, set_groups = set_groups, groups = groups }

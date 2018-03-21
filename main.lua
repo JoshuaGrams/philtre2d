@@ -7,7 +7,8 @@ local flux = require('lib.flux')
 
 function love.load()
 	-- init physics world - disable pre- and post-solve callbacks
-	world = physics.init(0, 500, true, nil, false, false, true, true)
+	local phys_obj = physics.new(0, 500, true, false, false, true, true)
+	world = phys_obj.world
 
 	local red = { 180, 23, 20 }
 	local green = { 30, 200, 25 }
@@ -69,7 +70,8 @@ function love.load()
 			},
 		}),
 		mod(Body.new(world, 'static', 400, 550, { {'rectangle', {600, 50}} }), {name = "ground"}),
-		Camera.new(300, 300, 0, 0.8)
+		Camera.new(300, 300, 0, 0.8),
+		phys_obj
 	})
 
 	if scene:get('/red-box') ~= scene.children[1] then
@@ -113,12 +115,9 @@ function love.load()
 	}
 	Input.enable(global_input)
 
-
-	physics.set_scene(scene)
-
-	--flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
-	--	flux.to(scene.children[1], 2, {sx=1})
-	--end)
+	flux.to(scene.children[1], 2, {sx=2}):oncomplete(function()
+		flux.to(scene.children[1], 2, {sx=1})
+	end)
 
 	gui_root_obj = Gui_root.new()
 
@@ -147,7 +146,6 @@ end
 
 function love.update(dt)
 	flux.update(dt)
-	world:update(dt)
 	scene:update(dt)
 	gui_scene:update(dt)
 	Camera.update(dt)
