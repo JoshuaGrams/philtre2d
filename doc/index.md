@@ -51,16 +51,15 @@ Todo
 * ~~Scene-tree - prevent path overlaps!~~
 * Scene-tree - set_parent()
 * Input manager
-* Asset loader - should only load each asset once
-    * Just use Cargo? (it loads things only when they are used)
+* ~~Asset loader~~ - _Just use Cargo._
 * ~~Physics wrapper~~
     * ~~one function to init world & set callbacks~~
 	* ~~holds physics callback handlers~~
-* Pausing
-    * flag to stop update (but not draw) from continuing down the tree
-    * pause/resume function call down the tree to stop sounds?
-        * One recursive call rather than pause/resume functions on every single object?
-    * stop input?
+* ~~Pausing~~
+    * ~~flag to stop update (but not draw) from continuing down the tree~~
+    * ~~pause/unpause function call down the tree to stop sounds.~~
+        * ~~One recursive call rather than pause/resume functions on every single object.~~
+    * stop input? - just enable/disable on pause/unpause yourself?
 * Sound object
     * pre-allocate multiple voices (sources)
 * ~~Text/'Label' object - world and GUI versions~~
@@ -71,6 +70,6 @@ Todo
 * Sprite batching?
 * GUI 9-Patch object
 * GUI Stencils (for scroll boxes)
-    * `love.graphics.setStencil()`
+    * `love.graphics.stencil(), .setStencilTest()`
     * Need a callback after children have drawn to reset stencil
-* Emitter object...
+* Emitter object.
