@@ -203,6 +203,12 @@ end
 
 local function pause(self, obj)
 	obj.paused = true
+	if obj.pause then obj:pause() end
+	if obj.script then
+		for _,script in ipairs(obj.script) do
+			if script.pause then script.pause(obj) end
+		end
+	end
 	if obj.children then
 		for i,c in pairs(obj.children) do
 			pause(self, c)
@@ -212,6 +218,12 @@ end
 
 local function unpause(self, obj)
 	obj.paused = false
+	if obj.unpause then obj:unpause() end
+	if obj.script then
+		for _,script in ipairs(obj.script) do
+			if script.unpause then script.unpause(obj) end
+		end
+	end
 	if obj.children then
 		for i,c in pairs(obj.children) do
 			unpause(self, c)
