@@ -233,6 +233,14 @@ function callbacks.keyreleased(k, s)
 	phy(0, 'scancode', s)
 end
 
+function callbacks.mousepressed(x, y, button)
+	phy(1, 'mouse', button)
+end
+
+function callbacks.mousereleased(x, y, button)
+	phy(0, 'mouse', button)
+end
+
 local function joy(j) return 'joystick' .. tostring(j:getID()) end
 local function jb(j, b) return joy(j), 'button' .. tostring(b) end
 local function ja(j, a) return joy(j), 'axis' .. tostring(a) end
