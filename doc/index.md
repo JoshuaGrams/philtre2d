@@ -19,9 +19,6 @@ Engine
   skew, translate) represented as 3x3 matrices (2D homogeneous
   coordinates).
 
-* [Physics](engine/physics.md) - Holds the physics callback
-  handlers and manages named collision groups.
-
 Objects
 -------
 
@@ -39,7 +36,8 @@ Objects
 	* `Gui_root.new()`
 * GUI Text - Text object with anchors and nice scaling
 	* `Gui_text.new(x, y, angle, text, font_file, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)`
-
+* [Physics](engine/physics.md) - Pauseable physics root object with its own world and callback handling.
+	* `physics.new(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 
 Todo
 ----

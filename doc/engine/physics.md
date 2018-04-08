@@ -1,32 +1,25 @@
 Physics
 =======
 
-Holds the physics callback handlers and manages named collision groups.
+Constructs new physics root objects with physics worlds and callback handling, and manages global named collision groups.
 
 Module functions
 ----------------
 
-### physics.init(xg, yg, sleep, scene_tree, disableBegin, disableEnd, disablePre, disablePost)
-Creates a physics world and sets its callbacks. By default all callbacks are enabled.
+### physics.new(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)
+Creates a new object for passing updates to the physics world as part of the scene-tree. Each object has its own physics world and sets its callbacks. By default all callbacks are enabled. Access the physics world via `obj.world`.
 
 _PARAMETERS_
 * __xg__ <kbd>number</kbd> - X gravity.
 * __yg__ <kbd>number</kbd> - Y gravity.
 * __sleep__ <kbd>bool</kbd> - Whether the bodies in this world are allowed to sleep.
-* __scene_tree__ <kbd>table</kbd> - The scene-tree that the physics objects will be in.
 * __disableBegin__ <kbd>bool</kbd> - Pass `true` to disable beginContact callbacks.
 * __disableEnd__ <kbd>bool</kbd> - Pass `true` to disable endContact callbacks.
 * __disablePre__ <kbd>bool</kbd> - Pass `true` to disable preSolve callbacks.
 * __disablePost__ <kbd>bool</kbd> - Pass `true` to disable postSolve callbacks.
 
 _RETURNS_
-* __world__ <kbd>World</kbd> - The new physics world.
-
-### physics.set_scene(scene_tree)
-Sets the scene-tree that the physics callbacks will use to find objects.
-
-_PARAMETERS_
-* __scene_tree__ <kbd>table</kbd> - The scene-tree object.
+* __physics object__ <kbd>table</kbd> - The new physics object.
 
 ### physics.set_groups(...)
 Saves a table mapping string names to physics category indices (1-16). Pass in up to 16 different strings (as individual arguments).
