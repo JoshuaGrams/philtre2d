@@ -20,6 +20,8 @@ M.cur_cam = nil -- set to fallback_cam at end of module
 local cameras = {}
 M.default_shake_falloff = "linear"
 M.default_recoil_falloff = "quadratic"
+M.shake_rot_mult = 0.001
+M.default_shake_freq = 10
 
 -- localize stuff
 local min = math.min
@@ -150,8 +152,8 @@ function M.update_current(dt)
 end
 
 -- convert these names into functions applied to the current camera
-local F = {	"apply_transform", "reset_transform", "pan", "screen_to_world",
-	"world_to_screen", "zoom_in", "shake", "recoil", "stop_shaking", "follow", "unfollow", "set_bounds" }
+local F = {	"apply_transform", "reset_transform", "pan", "screen_to_world",	"world_to_screen",
+	"zoom_in", "shake", "perlin_shake", "recoil", "stop_shaking", "follow", "unfollow", "set_bounds" }
 
 for i, func in ipairs(F) do -- calling functions on the module passes the call to the current camera
 	M[func] = function(...) return M.cur_cam[func](M.cur_cam, ...) end
@@ -183,19 +185,29 @@ local function update(self, dt)
 	self:enforce_bounds()
 
 	-- update shakes & recoils
-	self.shake_x, self.shake_y = 0, 0
+	self.shake_x, self.shake_y, self.shake_a = 0, 0, 0
 	for i=#self.shakes,1,-1 do -- iterate backwards because I may remove elements
 		local s = self.shakes[i]
 		local k = s.falloff(s.t/s.dur) -- falloff multiplier based on percent finished
-		if s.dist then -- is a shake
+		local x, y, a = 0, 0, 0
+		if s.freq then -- is a perlin shake
+			x = (love.math.noise(s.seed, s.t*s.freq) - 0.5)*2
+			y = (love.math.noise(s.seed+1, s.t*s.freq) - 0.5)*2
+			a = (love.math.noise(s.seed+2, s.t*s.freq) - 0.5)*2
+			local d = s.dist * k
+			x = x * d;  y = y * d
+			a = a * d * M.shake_rot_mult
+		elseif s.dist then -- is a shake
 			local d = rand() * s.dist * k
 			local angle = rand() * TWO_PI
-			self.shake_x = self.shake_x + sin(angle) * d
-			self.shake_y = self.shake_y + cos(angle) * d
+			x = sin(angle) * d;  y = cos(angle) * d
+			a = (rand()-0.5)*2 * s.dist * k * M.shake_rot_mult
 		elseif s.vec then -- is a recoil
-			self.shake_x = self.shake_x + s.vec.x * k
-			self.shake_y = self.shake_y + s.vec.y * k
+			x = s.vec.x * k;  y = s.vec.y * k
 		end
+		self.shake_x = self.shake_x + x
+		self.shake_y = self.shake_y + y
+		self.shake_a = self.shake_a + a
 		s.t = s.t - dt
 		if s.t <= 0 then table.remove(self.shakes, i) end
 	end
@@ -207,7 +219,7 @@ local function apply_transform(self)
 	-- center view on camera - offset by half window res
 	love.graphics.translate(self.half_win.x, self.half_win.y)
 	-- view rot and translate are negative because we're really transforming the world
-	love.graphics.rotate(-self.angle)
+	love.graphics.rotate(-self.angle - self.shake_a)
 	love.graphics.scale(self.zoom, self.zoom)
 	love.graphics.translate(-self.pos.x - self.shake_x, -self.pos.y - self.shake_y)
 
@@ -267,8 +279,15 @@ local function zoom_in(self, z)
 end
 
 local function shake(self, intensity, dur, falloff)
-	falloff = falloff or M.default_shake_falloff
-	table.insert(self.shakes, {dist=intensity, t=dur, dur=dur, falloff=falloff_funcs[falloff]})
+	falloff = falloff_funcs[falloff or M.default_shake_falloff]
+	table.insert(self.shakes, {dist=intensity, t=dur, dur=dur, falloff=falloff})
+end
+
+local function perlin_shake(self, intensity, dur, freq, falloff)
+	falloff = falloff_funcs[falloff or M.default_shake_falloff]
+	freq = freq or M.default_perlin_shake_freq
+	local seed = rand()*1000
+	table.insert(self.shakes, {dist=intensity, t=dur, dur=dur, freq=freq, seed=seed, falloff=falloff})
 end
 
 local function recoil(self, vec, dur, falloff)
@@ -401,6 +420,7 @@ function M.new(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inacti
 		zoom_in = zoom_in,
 		update = update,
 		shake = shake,
+		perlin_shake = perlin_shake,
 		shakes = {},
 		recoil = recoil,
 		stop_shaking = stop_shaking,
