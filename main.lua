@@ -95,7 +95,7 @@ local function setEndpointConstraint(curve, n, constraint)
 	local e = endpointIndex(n)
 	local p, ep, q = curve[e-1], curve[e], curve[e+1]
 	-- Save old values
-	local ret = { curve, e, ep.constraint, {unpack(p)}, {unpack(q)} }
+	local ret = { curve, e, ep.constraint or false, {unpack(p)}, {unpack(q)} }
 
 	-- Offset of each point.
 	local px, py = p[1] - ep[1], p[2] - ep[2]
@@ -108,7 +108,8 @@ local function setEndpointConstraint(curve, n, constraint)
 	local d2 = dx*dx + dy*dy
 	if d2 < 0.001 then
 		if p2 < 0.001 then
-			if q2 < 0.001 then return  -- everything is zero.
+			-- Everything is zero, which fits any constraint.
+			if q2 < 0.001 then return unpack(ret)
 			else dx, dy, d2 = qx, qy, q2 end
 		else dx, dy, d2 = px, py, p2 end
 	end
@@ -131,7 +132,7 @@ local function undoConstraint(curve, e, c, cp1, cp2)
 	local p, ep, q = curve[e-1], curve[e], curve[e+1]
 	p[1], p[2] = unpack(cp1)
 	ep.constraint = c
-	q[1], q[2] = unpack(cp1, cp2)
+	q[1], q[2] = unpack(cp2)
 end
 
 local function toggleConstraint(curve, n)
