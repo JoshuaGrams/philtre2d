@@ -57,6 +57,26 @@ local function moveBezierPoint(curve, n, x, y)
 	return curve, n, undoX, undoY
 end
 
+local function endpointIndex(n)
+	return 1 + 3 * math.floor(n / 3)
+end
+
+local function deleteBezierPoint(curve, n)
+	n = endpointIndex(n)
+	local a, b = math.max(n-1, 1), math.min(n+1, #curve)
+	if a == 1 then b = math.min(b+1, #curve)
+	elseif b == #curve then a = math.max(a-1, 1) end
+	local deleted = {unpack(curve, a, b)}
+	for i=0,b-a do table.remove(curve, a) end
+	return curve, a, deleted
+end
+
+local function insertBezierPoint(curve, n, points)
+	for i,p in ipairs(points) do
+		table.insert(curve, n+(i-1), p)
+	end
+end
+
 local function nearestPoint(curve, x, y)
 	local q = {x, y}
 	local nearest, dist2 = false, math.huge
@@ -82,6 +102,7 @@ function love.load()
 	edits:command('extendBezier', extendBezier, retractBezier)
 	edits:command('retractBezier', retractBezier, extendBezierWith)
 	edits:command('moveBezierPoint', moveBezierPoint, moveBezierPoint, moveBezierPoint)
+	edits:command('deleteBezierPoint', deleteBezierPoint, insertBezierPoint)
 
 	love.graphics.setLineWidth(3)
 end
@@ -149,7 +170,11 @@ function love.mousepressed(x, y, b)
 			edits:perform('extendBezier', curve, x, y)
 		end
 	elseif b == 2 then
-		edits:perform('retractBezier', curve)
+		if curve.highlight then
+			edits:perform('deleteBezierPoint', curve, n)
+		else
+			edits:perform('retractBezier', curve)
+		end
 	end
 end
 
@@ -169,6 +194,11 @@ function love.keypressed(k, s)
 			edits:redo()
 		end
 	else
-		if k == 'escape' then love.event.quit() end
+		if k == 'escape' then love.event.quit()
+		elseif k == 'delete' or k == 'backspace' then
+			if curve.highlight then
+				edits:perform('deleteBezierPoint', curve, curve.highlight)
+			end
+		end
 	end
 end
