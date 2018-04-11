@@ -45,6 +45,13 @@ local function extendBezier(curve, x, y)
 	return curve
 end
 
+local function retractBezier(curve)
+	local cp1 = table.remove(curve)
+	local cp2 = table.remove(curve)
+	local ep = table.remove(curve)
+	return curve, cp1, cp2, ep
+end
+
 local function moveControlPoints(curve, n, dx, dy)
 	if n < #curve then
 		local cp = curve[n+1]
