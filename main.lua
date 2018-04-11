@@ -26,6 +26,14 @@ end
 ----------------------------------------------------------------
 -- Curve commands.
 
+local function isEndpoint(n)
+	return n % 3 == 1
+end
+
+local function endpointIndex(n)
+	return 1 + 3 * math.floor(n / 3)
+end
+
 local function extendBezier(curve, x, y)
 	local endpoint = {x, y}
 	if #curve > 0 then
@@ -37,15 +45,28 @@ local function extendBezier(curve, x, y)
 	return curve
 end
 
+local function moveControlPoints(curve, n, dx, dy)
+	if n < #curve then
+		local cp = curve[n+1]
+		cp[1] = cp[1] + dx
+		cp[2] = cp[2] + dy
+	end
+	if n > 1 then
+		local cp = curve[n-1]
+		cp[1] = cp[1] + dx
+		cp[2] = cp[2] + dy
+	end
+end
+
 local function moveBezierPoint(curve, n, x, y)
 	local p = curve[n]
 	local undoX, undoY = p[1], p[2]
 	p[1], p[2] = x, y
+	if isEndpoint(n) then
+		local dx, dy = x - undoX, y - undoY
+		moveControlPoints(curve, n, dx, dy)
+	end
 	return curve, n, undoX, undoY
-end
-
-local function endpointIndex(n)
-	return 1 + 3 * math.floor(n / 3)
 end
 
 local function deleteBezierPoint(curve, n)
