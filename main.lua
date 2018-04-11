@@ -37,19 +37,6 @@ local function extendBezier(curve, x, y)
 	return curve
 end
 
-local function retractBezier(curve)
-	local cp1 = table.remove(curve)
-	local cp2 = table.remove(curve)
-	local ep = table.remove(curve)
-	return curve, cp1, cp2, ep
-end
-
-local function extendBezierWith(curve, cp1, cp2, ep)
-	table.insert(curve, cp1)
-	table.insert(curve, cp2)
-	table.insert(curve, ep)
-end
-
 local function moveBezierPoint(curve, n, x, y)
 	local p = curve[n]
 	local undoX, undoY = p[1], p[2]
@@ -100,7 +87,6 @@ function love.load()
 	dragging = false
 	edits = History.new()
 	edits:command('extendBezier', extendBezier, retractBezier)
-	edits:command('retractBezier', retractBezier, extendBezierWith)
 	edits:command('moveBezierPoint', moveBezierPoint, moveBezierPoint, moveBezierPoint)
 	edits:command('deleteBezierPoint', deleteBezierPoint, insertBezierPoint)
 
@@ -168,12 +154,6 @@ function love.mousepressed(x, y, b)
 			edits:perform('moveBezierPoint', curve, n, x, y)
 		else
 			edits:perform('extendBezier', curve, x, y)
-		end
-	elseif b == 2 then
-		if curve.highlight then
-			edits:perform('deleteBezierPoint', curve, n)
-		else
-			edits:perform('retractBezier', curve)
 		end
 	end
 end
