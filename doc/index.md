@@ -35,7 +35,7 @@ Objects
 * GUI Root - Root 'window' object for GUI. Needs to get `love.resize` calls.
 	* `Gui_root.new()`
 * GUI Text - Text object with anchors and nice scaling
-	* `Gui_text.new(x, y, angle, text, font_file, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)`
+	* `Gui_text.new(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)`
 * [Physics](engine/physics.md) - Pauseable physics root object with its own world and callback handling.
 	* `physics.new(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 

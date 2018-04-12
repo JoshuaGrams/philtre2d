@@ -14,12 +14,15 @@ local function draw(s)
 	local wx, wy = T.to_world(s, 0, 0)
 	wx, wy = round(wx), round(wy) -- round world position
 
-	if s.font_file then -- can't scale fallback font
-		local fontScale = 1/math.max(sx, sy)
-		-- update font if scale has changed
-		if fontScale ~= s.font_scale then
-			s.font_scale = fontScale
-			s.font = love.graphics.newFont(s.font_file, s.font_size*s.font_scale)
+	local fontScale = 1/math.max(sx, sy)
+	-- update font if scale has changed
+	if fontScale ~= s.font_scale then
+		s.font_scale = fontScale
+		local size = s.font_size * s.font_scale
+		if s.font_filename then
+			s.font = love.graphics.newFont(s.font_filename, size)
+		else
+			s.font = love.graphics.newFont(size)
 		end
 	end
 	-- render at world scale and rounded world position
@@ -100,14 +103,18 @@ local function get_origin(ox, default)
 	return ox or default
 end
 
-local function new(x, y, angle, text, font_file, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)
+local function new(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)
 	local s = T.object(x, y, angle, sx, sy, kx, ky)
 	s.color = {255, 255, 255, 255}
 	s.wrap_limit = wrap_limit or 200
 	s.ox, s.oy = ox or s.wrap_limit/2, oy or 0
 	s.text = text
-	s.font = font_file and love.graphics.newFont(font_file, font_size)
-	s.font_file = font_file
+	if type(font_filename) == 'string' then
+		s.font_filename = font_filename
+		s.font = love.graphics.newFont(font_filename, font_size)
+	else
+		s.font = love.graphics.newFont(font_size)
+	end
 	s.font_size = font_size
 	s.font_scale = 1
 	s.align = aligns[align] and align or 'center'
