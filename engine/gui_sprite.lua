@@ -42,8 +42,11 @@ end
 
 local function parent_resized(s, neww, newh, origw, origh)
 	local sx, sy = scale_funcs[s.scale_mode](neww, newh, origw, origh)
+	local ox, oy = s.sx, s.sy -- old sx, sy
 	s.sx, s.sy = s.origsx*sx, s.origsy*sy
 	update_anchor_pos(s)
+	-- must also scale local pos
+	s.lpos.x = s.lpos.x / ox * s.sx;  s.lpos.y = s.lpos.y / oy * s.sy
 	s.pos.x, s.pos.y = s.lpos.x + s.aposx, s.lpos.y + s.aposy
 end
 
