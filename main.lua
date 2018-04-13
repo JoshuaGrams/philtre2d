@@ -92,39 +92,10 @@ local function moveOtherControlPoint(curve, n, dx, dy)
 end
 
 local function setEndpointConstraint(curve, n, constraint)
-	local e = endpointIndex(n)
-	local p, ep, q = curve[e-1], curve[e], curve[e+1]
+	local p, ep, q = curve[n-1], curve[n], curve[n+1]
 	-- Save old values
-	local ret = { curve, e, ep.constraint or false, {unpack(p)}, {unpack(q)} }
-
-	-- Offset of each point.
-	local px, py = p[1] - ep[1], p[2] - ep[2]
-	local qx, qy = q[1] - ep[1], q[2] - ep[2]
-	-- Flip them in the same direction and average them.
-	local dx, dy = 0.5 * (px - qx), 0.5 * (py - qy)
-	-- Lengths of the above.
-	local p2 = px*px + py*py
-	local q2 = qx*qx + qy*qy
-	local d2 = dx*dx + dy*dy
-	if d2 < 0.001 then
-		if p2 < 0.001 then
-			-- Everything is zero, which fits any constraint.
-			if q2 < 0.001 then return unpack(ret)
-			else dx, dy, d2 = qx, qy, q2 end
-		else dx, dy, d2 = px, py, p2 end
-	end
-
-	ep.constraint = constraint
-	if constraint == 'smooth' then
-		local ps = math.sqrt(p2 / d2)
-		local qs = math.sqrt(q2 / d2)
-		p[1], p[2] = ep[1] + dx * ps, ep[2] + dy * ps
-		q[1], q[2] = ep[1] - dx * qs, ep[2] - dy * qs
-	elseif constraint == 'symmetric' then
-		p[1], p[2] = ep[1] + dx, ep[2] + dy
-		q[1], q[2] = ep[1] - dx, ep[2] - dy
-	end
-
+	local ret = { curve, n, ep.constraint or false, {unpack(p)}, {unpack(q)} }
+	Bezier.enforceConstraint(curve, n, constraint)
 	return unpack(ret)
 end
 
@@ -143,7 +114,7 @@ local function toggleConstraint(curve, n)
 	if ep.constraint == 'smooth' then constraint = 'symmetric'
 	elseif ep.constraint == 'symmetric' then constraint = nil
 	else constraint = 'smooth' end
-	edits:perform('setEndpointConstraint', curve, n, constraint)
+	edits:perform('setEndpointConstraint', curve, e, constraint)
 end
 
 local function moveBezierPoint(curve, n, x, y)
