@@ -116,6 +116,67 @@ local function splineToPolyline(curve, tolerance, out)
 	return out
 end
 
+local function isEndpoint(n)
+	return n % 3 == 1
+end
+
+local function endpointIndex(n)
+	return 1 + 3 * math.floor(n / 3)
+end
+
+local function otherControlPoint(curve, n)
+	local cp = 2*endpointIndex(n) - n
+	if cp < 1 or cp > #curve then cp = false end
+	return cp
+end
+
+local function updateControlPoints(curve, n, dx, dy)
+	if n < #curve then
+		local cp = curve[n+1]
+		cp[1] = cp[1] + dx
+		cp[2] = cp[2] + dy
+	end
+	if n > 1 then
+		local cp = curve[n-1]
+		cp[1] = cp[1] + dx
+		cp[2] = cp[2] + dy
+	end
+end
+
+local function updateOtherControlPoint(curve, n, dx, dy)
+	local e = endpointIndex(n)
+	local p, ep = curve[n], curve[e]
+	local constraint = ep.constraint
+	local o = curve[otherControlPoint(curve, n)]
+	if constraint == 'smooth' then
+		local ax, ay = p[1] - ep[1], p[2] - ep[2]
+		local bx, by = o[1] - ep[1], o[2] - ep[2]
+		local a2, b2 = ax*ax + ay*ay, bx*bx + by*by
+		if a2 > 0.001 and b2 > 0.001 then
+			local scale = math.sqrt(b2 / a2)
+			o[1] = ep[1] - ax * scale
+			o[2] = ep[2] - ay * scale
+		end
+	elseif constraint == 'symmetric' then
+		o[1] = 2*ep[1] - p[1]
+		o[2] = 2*ep[2] - p[2]
+	end
+end
+
+local function movePoint(curve, n, x, y)
+	local p = curve[n]
+	local dx, dy = x - p[1], y - p[2]
+	p[1], p[2] = x, y
+	if isEndpoint(n) then
+		updateControlPoints(curve, n, dx, dy)
+	else
+		local ep = curve[endpointIndex(n)]
+		if ep.constraint and otherControlPoint(curve, n) then
+			updateOtherControlPoint(curve, n)
+		end
+	end
+end
+
 local function enforceConstraint(curve, n, constraint)
 	local p, ep, q = curve[n-1], curve[n], curve[n+1]
 
@@ -174,6 +235,9 @@ return {
 	split = split,
 	toPolyline = toPolyline,
 	splineToPolyline = splineToPolyline,
+	isEndpoint = isEndpoint,
+	endpointIndex = endpointIndex,
+	movePoint = movePoint,
 	enforceConstraint = enforceConstraint,
 	xAlwaysIncreasing = xAlwaysIncreasing
 }

@@ -26,20 +26,6 @@ end
 ----------------------------------------------------------------
 -- Curve commands.
 
-local function isEndpoint(n)
-	return n % 3 == 1
-end
-
-local function endpointIndex(n)
-	return 1 + 3 * math.floor(n / 3)
-end
-
-local function otherControlPoint(curve, n)
-	local cp = 2*endpointIndex(n) - n
-	if cp < 1 or cp > #curve then cp = false end
-	return cp
-end
-
 local function extendBezier(curve, x, y)
 	local endpoint = {x, y}
 	if #curve > 0 then
@@ -58,39 +44,6 @@ local function retractBezier(curve)
 	return curve, cp1, cp2, ep
 end
 
-local function moveControlPoints(curve, n, dx, dy)
-	if n < #curve then
-		local cp = curve[n+1]
-		cp[1] = cp[1] + dx
-		cp[2] = cp[2] + dy
-	end
-	if n > 1 then
-		local cp = curve[n-1]
-		cp[1] = cp[1] + dx
-		cp[2] = cp[2] + dy
-	end
-end
-
-local function moveOtherControlPoint(curve, n, dx, dy)
-	local e = endpointIndex(n)
-	local p, ep = curve[n], curve[e]
-	local constraint = ep.constraint
-	local o = curve[otherControlPoint(curve, n)]
-	if constraint == 'smooth' then
-		local ax, ay = p[1] - ep[1], p[2] - ep[2]
-		local bx, by = o[1] - ep[1], o[2] - ep[2]
-		local a2, b2 = ax*ax + ay*ay, bx*bx + by*by
-		if a2 > 0.001 and b2 > 0.001 then
-			local scale = math.sqrt(b2 / a2)
-			o[1] = ep[1] - ax * scale
-			o[2] = ep[2] - ay * scale
-		end
-	elseif constraint == 'symmetric' then
-		o[1] = 2*ep[1] - p[1]
-		o[2] = 2*ep[2] - p[2]
-	end
-end
-
 local function setEndpointConstraint(curve, n, constraint)
 	local p, ep, q = curve[n-1], curve[n], curve[n+1]
 	-- Save old values
@@ -107,7 +60,7 @@ local function undoConstraint(curve, e, c, cp1, cp2)
 end
 
 local function toggleConstraint(curve, n)
-	local e = endpointIndex(n)
+	local e = Bezier.endpointIndex(n)
 	if n ~= e or n == 1 or n == #curve then return end
 	local ep = curve[e]
 	local constraint
@@ -119,22 +72,13 @@ end
 
 local function moveBezierPoint(curve, n, x, y)
 	local p = curve[n]
-	local undoX, undoY = p[1], p[2]
-	p[1], p[2] = x, y
-	if isEndpoint(n) then
-		local dx, dy = x - undoX, y - undoY
-		moveControlPoints(curve, n, dx, dy)
-	else
-		local e = endpointIndex(n)
-		if curve[e].constraint and otherControlPoint(curve, n) then
-			moveOtherControlPoint(curve, n, dx, dy)
-		end
-	end
-	return curve, n, undoX, undoY
+	local oldX, oldY = p[1], p[2]
+	Bezier.movePoint(curve, n, x, y)
+	return curve, n, oldX, oldY
 end
 
 local function deleteBezierPoint(curve, n)
-	n = endpointIndex(n)
+	n = Bezier.endpointIndex(n)
 	local a, b = math.max(n-1, 1), math.min(n+1, #curve)
 	if a == 1 then b = math.min(b+1, #curve)
 	elseif b == #curve then a = math.max(a-1, 1) end
