@@ -104,6 +104,18 @@ local function toPolyline(b, e, out, t0, t1)
 	return out
 end
 
+local function splineToPolyline(curve, tolerance, out)
+	out = out or {}
+	if #curve >= 4 then
+		for i=1,#curve-3,3 do
+			if i > 1 then table.remove(out) end
+			local b = {unpack(curve, i, i+3)}
+			toPolyline(b, tolerance, out)
+		end
+	end
+	return out
+end
+
 -- Is the x-value of the curve always increasing (derivative
 -- positive)? Find the places where the derivative B' crosses
 -- zero by converting it to the form t^2 + 2bt + c = 0
@@ -129,5 +141,6 @@ end
 return {
 	split = split,
 	toPolyline = toPolyline,
+	splineToPolyline = splineToPolyline,
 	xAlwaysIncreasing = xAlwaysIncreasing
 }

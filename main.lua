@@ -208,21 +208,19 @@ function love.load()
 	love.graphics.setLineWidth(3)
 end
 
-function love.draw()
-	if #curve >= 4 then
-		local points = {}
-		for i=1,#curve-3,3 do
-			if i > 1 then table.remove(points) end
-			local b = {unpack(curve, i, i+3)}
-			Bezier.toPolyline(b, 0.5, points)
-		end
-		local coords = {}
-		for _,p in ipairs(points) do
-			table.insert(coords, p[1])
-			table.insert(coords, p[2])
-		end
-		love.graphics.line(coords)
+local function splineCoords(curve, tolerance)
+	local points = Bezier.splineToPolyline(curve, tolerance)
+	local coords = {}
+	for _,p in ipairs(points) do
+		table.insert(coords, p[1])
+		table.insert(coords, p[2])
 	end
+	return coords
+end
+
+function love.draw()
+	local coords = splineCoords(curve, 0.5)
+	if coords then love.graphics.line(coords) end
 
 	local lw = love.graphics.getLineWidth()
 	local r = math.ceil(1.5 * lw)

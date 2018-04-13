@@ -18,6 +18,10 @@ This lets us have curves in arbitrary numbers of dimensions
   tagged with `t` values if the endpoint values `t0` and `t1`
   are given.
 
+* `Bezier.splineToPolyline(curve, tolerance, out)` - Same as
+  `toPolyline`, but for multiple curves.  Takes a list of `3n+1`
+  control points describing `n` curves linked end-to-end.
+
 * `Bezier.xAlwaysIncreasing(b)` - Check whether the curve is
   always going to the right (this would make it suitable for an
   animation curve using x as the time dimension).
