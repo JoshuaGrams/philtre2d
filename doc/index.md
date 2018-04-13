@@ -43,31 +43,11 @@ Todo
 ----
 
 * Automated tests.
-
 * Start on editor.
-
-* ~~Scene-tree - prevent path overlaps!~~
-* Scene-tree - set_parent()
-* Input manager
-* ~~Asset loader~~ - _Just use Cargo._
-* ~~Physics wrapper~~
-    * ~~one function to init world & set callbacks~~
-	* ~~holds physics callback handlers~~
-* ~~Pausing~~
-    * ~~flag to stop update (but not draw) from continuing down the tree~~
-    * ~~pause/unpause function call down the tree to stop sounds.~~
-        * ~~One recursive call rather than pause/resume functions on every single object.~~
-    * stop input? - just enable/disable on pause/unpause yourself?
-* Sound object
-    * pre-allocate multiple voices (sources)
-* ~~Text/'Label' object - world and GUI versions~~
-	* ~~Scale GUI text nicely~~ (could use optimization?)
-* Joint object (physics)
-* ~~Add vec2 library~~
-* ~~Add missing math functions~~
-* Sprite batching?
-* GUI 9-Patch object
-* GUI Stencils (for scroll boxes)
-    * `love.graphics.stencil(), .setStencilTest()`
-    * Need a callback after children have drawn to reset stencil
-* Emitter object.
+* Better GUI system.
+* ~~Input man~~ager. - Some stuff left on this?
+* Make a better version of Hump.timer.
+* Scene-tree - A way to change parents. (`set_parent()`)
+* Sound object.
+* Particle Emitter.
+* Physics Joint object.
