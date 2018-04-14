@@ -78,13 +78,7 @@ local function moveBezierPoint(curve, n, x, y)
 end
 
 local function deleteBezierPoint(curve, n)
-	n = Bezier.endpointIndex(n)
-	local a, b = math.max(n-1, 1), math.min(n+1, #curve)
-	if a == 1 then b = math.min(b+1, #curve)
-	elseif b == #curve then a = math.max(a-1, 1) end
-	local deleted = {unpack(curve, a, b)}
-	for i=0,b-a do table.remove(curve, a) end
-	return curve, a, deleted
+	return curve, Bezier.deleteSegment(curve, n, true)
 end
 
 local function insertBezierPoint(curve, n, points)

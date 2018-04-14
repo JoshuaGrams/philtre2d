@@ -177,6 +177,16 @@ local function movePoint(curve, n, x, y)
 	end
 end
 
+local function deleteSegment(curve, n, wantUndo)
+	n = endpointIndex(n)
+	local a, b = math.max(n-1, 1), math.min(n+1, #curve)
+	if a == 1 then b = math.min(b+1, #curve)
+	elseif b == #curve then a = math.max(a-1, 1) end
+	local deleted = wantUndo and {unpack(curve, a, b)}
+	for i=0,b-a do table.remove(curve, a) end
+	return a, deleted
+end
+
 local function enforceConstraint(curve, n, constraint)
 	local p, ep, q = curve[n-1], curve[n], curve[n+1]
 
@@ -238,6 +248,7 @@ return {
 	isEndpoint = isEndpoint,
 	endpointIndex = endpointIndex,
 	movePoint = movePoint,
+	deleteSegment = deleteSegment,
 	enforceConstraint = enforceConstraint,
 	xAlwaysIncreasing = xAlwaysIncreasing
 }
