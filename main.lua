@@ -44,12 +44,12 @@ local function retractBezier(curve)
 	return curve, cp1, cp2, ep
 end
 
-local function setEndpointConstraint(curve, n, constraint)
+local function setConstraint(curve, n, constraint)
 	local p, ep, q = curve[n-1], curve[n], curve[n+1]
-	-- Save old values
-	local ret = { curve, n, ep.constraint or false, {unpack(p)}, {unpack(q)} }
+	local c = ep.constraint or false
+	local oldP, oldQ = {unpack(p)}, {unpack(q)}
 	Bezier.enforceConstraint(curve, n, constraint)
-	return unpack(ret)
+	return curve, n, c, oldP, oldQ
 end
 
 local function undoConstraint(curve, e, c, cp1, cp2)
@@ -67,7 +67,7 @@ local function toggleConstraint(curve, n)
 	if ep.constraint == 'smooth' then constraint = 'symmetric'
 	elseif ep.constraint == 'symmetric' then constraint = nil
 	else constraint = 'smooth' end
-	edits:perform('setEndpointConstraint', curve, e, constraint)
+	edits:perform('setConstraint', curve, e, constraint)
 end
 
 local function moveBezierPoint(curve, n, x, y)
@@ -112,7 +112,7 @@ function love.load()
 	edits:command('extendBezier', extendBezier, retractBezier)
 	edits:command('moveBezierPoint', moveBezierPoint, moveBezierPoint, moveBezierPoint)
 	edits:command('deleteBezierPoint', deleteBezierPoint, insertBezierPoint)
-	edits:command('setEndpointConstraint', setEndpointConstraint, undoConstraint)
+	edits:command('setConstraint', setConstraint, undoConstraint)
 
 	love.graphics.setLineWidth(3)
 end
