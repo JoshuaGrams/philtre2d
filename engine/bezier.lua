@@ -10,6 +10,15 @@ local function lerp(t, a, b)
 	return out
 end
 
+local function distanceSquared(a, b)
+	local d2 = 0
+	for i=1,#a do
+		local dx = b[i] - a[i]
+		d2 = d2 + dx*dx
+	end
+	return d2
+end
+
 -- De Casteljau algorithm - return 7 points describing two
 -- curves (the middle point is shared).  Note that this is also
 -- a decent way to get a point on the curve (a little slower
@@ -130,6 +139,16 @@ local function otherControlPoint(curve, n)
 	return cp
 end
 
+local function nearestControlPoint(curve, x, y)
+	local q = {x, y}
+	local nearest, dist2 = false, math.huge
+	for i,p in ipairs(curve) do
+		local d2 = distanceSquared(p, q)
+		if d2 < dist2 then dist2, nearest = d2, i end
+	end
+	return nearest, math.sqrt(dist2)
+end
+
 local function updateControlPoints(curve, n, dx, dy)
 	if n < #curve then
 		local cp = curve[n+1]
@@ -242,11 +261,13 @@ local function xAlwaysIncreasing(b)
 end
 
 return {
+	v = { lerp = lerp, distanceSquared = distanceSquared },
 	split = split,
 	toPolyline = toPolyline,
 	splineToPolyline = splineToPolyline,
 	isEndpoint = isEndpoint,
 	endpointIndex = endpointIndex,
+	nearestControlPoint = nearestControlPoint,
 	movePoint = movePoint,
 	deleteSegment = deleteSegment,
 	enforceConstraint = enforceConstraint,

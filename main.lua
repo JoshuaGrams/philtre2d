@@ -1,101 +1,8 @@
 require('engine.all')
 local Bezier = require('engine.bezier')
+local BezierCommands = require('bezier-commands')
 
 local History = require('history')
-
-
-----------------------------------------------------------------
--- Vector math on arrays of arbitrary size.
-
-local function lerp(t, a, b)
-	local out = {}
-	for i=1,#a do out[i] = a[i] + t * (b[i] - a[i]) end
-	return out
-end
-
-local function distanceSquared(a, b)
-	local d2 = 0
-	for i=1,#a do
-		local dx = b[i] - a[i]
-		d2 = d2 + dx*dx
-	end
-	return d2
-end
-
-
-----------------------------------------------------------------
--- Curve commands.
-
-local function extendBezier(curve, x, y)
-	local endpoint = {x, y}
-	if #curve > 0 then
-		local beginpoint = curve[#curve]
-		table.insert(curve, lerp(1/3, beginpoint, endpoint))
-		table.insert(curve, lerp(2/3, beginpoint, endpoint))
-	end
-	table.insert(curve, endpoint)
-	return curve
-end
-
-local function retractBezier(curve)
-	local cp1 = table.remove(curve)
-	local cp2 = table.remove(curve)
-	local ep = table.remove(curve)
-	return curve, cp1, cp2, ep
-end
-
-local function setConstraint(curve, n, constraint)
-	local p, ep, q = curve[n-1], curve[n], curve[n+1]
-	local c = ep.constraint or false
-	local oldP, oldQ = {unpack(p)}, {unpack(q)}
-	Bezier.enforceConstraint(curve, n, constraint)
-	return curve, n, c, oldP, oldQ
-end
-
-local function undoConstraint(curve, e, c, cp1, cp2)
-	local p, ep, q = curve[e-1], curve[e], curve[e+1]
-	p[1], p[2] = unpack(cp1)
-	ep.constraint = c
-	q[1], q[2] = unpack(cp2)
-end
-
-local function toggleConstraint(curve, n)
-	local e = Bezier.endpointIndex(n)
-	if n ~= e or n == 1 or n == #curve then return end
-	local ep = curve[e]
-	local constraint
-	if ep.constraint == 'smooth' then constraint = 'symmetric'
-	elseif ep.constraint == 'symmetric' then constraint = nil
-	else constraint = 'smooth' end
-	edits:perform('setConstraint', curve, e, constraint)
-end
-
-local function moveBezierPoint(curve, n, x, y)
-	local p = curve[n]
-	local oldX, oldY = p[1], p[2]
-	Bezier.movePoint(curve, n, x, y)
-	return curve, n, oldX, oldY
-end
-
-local function deleteBezierPoint(curve, n)
-	return curve, Bezier.deleteSegment(curve, n, true)
-end
-
-local function insertBezierPoint(curve, n, points)
-	for i,p in ipairs(points) do
-		table.insert(curve, n+(i-1), p)
-	end
-end
-
-local function nearestPoint(curve, x, y)
-	local q = {x, y}
-	local nearest, dist2 = false, math.huge
-	for i,p in ipairs(curve) do
-		local d2 = distanceSquared(p, q)
-		if d2 < dist2 then dist2, nearest = d2, i end
-	end
-	return nearest, math.sqrt(dist2)
-end
 
 
 ----------------------------------------------------------------
@@ -109,10 +16,7 @@ function love.load()
 	}
 	dragging = false
 	edits = History.new()
-	edits:command('extendBezier', extendBezier, retractBezier)
-	edits:command('moveBezierPoint', moveBezierPoint, moveBezierPoint, moveBezierPoint)
-	edits:command('deleteBezierPoint', deleteBezierPoint, insertBezierPoint)
-	edits:command('setConstraint', setConstraint, undoConstraint)
+	BezierCommands:init(edits, 'bezier')
 
 	love.graphics.setLineWidth(3)
 end
@@ -158,7 +62,7 @@ function love.mousemoved(x, y)
 	if dragging then
 		edits:update(curve, dragging, x, y)
 	else
-		local i, d = nearestPoint(curve, x, y)
+		local i, d = Bezier.nearestControlPoint(curve, x, y)
 		if i and d <= pickDistance then
 			curve.highlight = i
 		else
@@ -168,14 +72,14 @@ function love.mousemoved(x, y)
 end
 
 function love.mousepressed(x, y, b)
-	local n, d = nearestPoint(curve, x, y)
+	local n, d = Bezier.nearestControlPoint(curve, x, y)
 	if d > pickDistance then n = false end
 	if b == 1 then
 		if n then
 			dragging = n
-			edits:perform('moveBezierPoint', curve, n, x, y)
+			edits:perform('bezier.movePoint', curve, n, x, y)
 		else
-			edits:perform('extendBezier', curve, x, y)
+			edits:perform('bezier.extend', curve, x, y)
 		end
 	end
 end
@@ -184,6 +88,17 @@ function love.mousereleased(x, y, b)
 	if b == 1 and dragging then
 		dragging = false
 	end
+end
+
+local function toggleConstraint(curve, n)
+	local e = Bezier.endpointIndex(n)
+	if n ~= e or n == 1 or n == #curve then return end
+	local ep = curve[e]
+	local constraint
+	if ep.constraint == 'smooth' then constraint = 'symmetric'
+	elseif ep.constraint == 'symmetric' then constraint = nil
+	else constraint = 'smooth' end
+	edits:perform('bezier.enforce', curve, e, constraint)
 end
 
 function love.keypressed(k, s)
@@ -199,7 +114,7 @@ function love.keypressed(k, s)
 		if k == 'escape' then love.event.quit()
 		elseif k == 'delete' or k == 'backspace' then
 			if curve.highlight then
-				edits:perform('deleteBezierPoint', curve, curve.highlight)
+				edits:perform('bezier.deleteSegment', curve, curve.highlight)
 			end
 		elseif k == 'c' then
 			if curve.highlight then
