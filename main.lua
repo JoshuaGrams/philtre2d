@@ -31,9 +31,11 @@ local function splineCoords(curve, tolerance)
 	return coords
 end
 
-function love.draw()
-	local coords = splineCoords(curve, 0.5)
+local function drawCurve(curve, tolerance, focused)
+	local coords = splineCoords(curve, tolerance)
 	if coords then love.graphics.line(coords) end
+
+	if not focused then return end
 
 	local lw = love.graphics.getLineWidth()
 	local r = math.ceil(1.5 * lw)
@@ -56,6 +58,10 @@ function love.draw()
 		end
 		q = p
 	end
+end
+
+function love.draw()
+	drawCurve(curve, 0.5, true)
 end
 
 function love.mousemoved(x, y)
