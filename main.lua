@@ -8,7 +8,19 @@ local History = require('history')
 ----------------------------------------------------------------
 -- Main love callbacks.
 
-function love.load()
+-- TODO - multiple curves.
+
+local function doTests(args)
+	for i,arg in ipairs(args) do
+		if arg == '-t' or arg == '--test' then
+			require 'engine.test.all'
+			return true
+		end
+	end
+end
+
+function love.load(arg)
+	if doTests(arg) then love.event.quit(); return end
 	pickDistance = 10
 	curve = {
 		highlight = false,
