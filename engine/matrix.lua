@@ -22,6 +22,15 @@ M.matrix = function(x, y, radians, sx, sy, kx, ky, m)
 	return m
 end
 
+-- Create a duplicate matrix or set a matrix to be equal.
+M.copy = function(m, out)
+	out = out or {}
+	out.ux = m.ux;  out.uy = m.uy
+	out.vx = m.vx;  out.vy = m.vy
+	out.x = m.x;  out.y = m.y
+	return out
+end
+
 -- Transform vector (multiply `v * m`, so transforms happen in
 -- left-to-right order when you combine matrices).
 M.x = function(m, x, y, w)
