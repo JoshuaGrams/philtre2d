@@ -85,22 +85,15 @@ local function draw(self)
 			local pushed
 			if m ~= object._to_world then
 				m = object._to_world
-				if not m.th then
-					m.th, m.sx, m.sy, m.kx, m.ky = M.parameters(m)
-				end
+				local th, sx, sy, kx, ky = M.parameters(m)
 				pushed = true
 				love.graphics.push()
 				love.graphics.translate(m.x, m.y)
-				love.graphics.rotate(m.th)
-				love.graphics.scale(m.sx, m.sy)
-				love.graphics.shear(m.kx, m.ky)
+				love.graphics.rotate(th)
+				love.graphics.scale(sx, sy)
+				love.graphics.shear(kx, ky)
 			end
-			object:draw()
-			if object.script then
-				for _,script in ipairs(object.script) do
-					if script.draw then script.draw(object) end
-				end
-			end
+			object('draw')
 			if pushed then love.graphics.pop() end
 		end
 	end
