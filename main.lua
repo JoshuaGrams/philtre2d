@@ -1,4 +1,4 @@
-require('engine.all')
+require('engine.globals')
 local Bezier = require('engine.bezier')
 local BezierCommands = require('bezier-commands')
 

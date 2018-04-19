@@ -1,15 +1,5 @@
 local M = require('engine.matrix')
 
--- Note that `props` override values already on `obj`.  This is
--- deliberate, so we can insert a file into a bigger scene and
--- then customize it.
-local function mod(obj, props) -- @@@ move this to engine.all?
-	for name,prop in pairs(props) do
-		obj[name] = prop
-	end
-	return obj
-end
-
 local function to_world(obj, x, y, w) -- @@@ keep as module function
 	return M.x(obj._to_world, x, y, w)
 end
@@ -165,8 +155,8 @@ end
 
 
 local T = {
-	mod = mod,  object = object,
-	new = new, methods = methods, class = class,
+	object = object,  new = new,
+	methods = methods,  class = class,
 	to_world = to_world,  to_local = to_local
 }
 
