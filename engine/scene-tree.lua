@@ -9,6 +9,8 @@ local tree = {
 	paths = {},
 }
 
+local reparents = {} -- to complete on next pre-/post-update
+
 local function to_world(obj, x, y, w)
 	return M.x(obj._to_world, x, y, w)
 end
@@ -48,6 +50,21 @@ local function init_child(obj, parent, index)
 	obj('init')
 end
 
+-- Actually swap obj between new and old parents' child lists.
+local function complete_reparenting()
+	for key,v in pairs(reparents) do
+		v.old_p.children[v.old_child_key] = nil
+		if not v.new_p.children then v.new_p.children = {} end
+		local i = 1 + #v.new_p.children
+		v.new_p.children[i] = v.obj
+		reparents[key] = nil
+	end
+end
+
+local function pre_update(dt)
+	complete_reparenting()
+end
+
 local function _update(objects, dt, draw_order, m)
 	for _,obj in pairs(objects) do
 		local dt = dt and not obj.paused and dt or nil
@@ -70,9 +87,15 @@ local function _update(objects, dt, draw_order, m)
 	end
 end
 
+local function post_update(dt)
+	complete_reparenting()
+end
+
 local function update(dt)
 	if tree.draw_order then  tree.draw_order:clear()  end
+	pre_update(dt)
 	_update(tree.children, dt, tree.draw_order, tree._to_world)
+	post_update(dt)
 end
 
 local function _draw(objects) -- only used if no draw_order
@@ -142,7 +165,24 @@ local function remove(obj, not_from_parent)
 	tree.paths[obj.path] = nil
 end
 
--- TODO - set_parent(obj, parent)
+-- Can't complete this synchronously or obj would miss a callback
+-- or get an extra callback. Switch the parent on obj now and
+-- change the child lists on the next pre- or post-update.
+local function set_parent(obj, parent)
+	parent = parent or tree
+	if parent == obj.parent then
+		print('Tried to set_parent to current parent: ' .. parent.path)
+		return
+	end
+	for k,c in pairs(obj.parent.children) do
+		if c == obj then
+			table.insert(reparents, { obj=obj, old_p=obj.parent, old_child_key=k, new_p=parent })
+			obj.parent = parent
+			return
+		end
+	end
+	error('scene.set_parent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
+end
 
 local function get(path) -- TODO - Relative paths?
 	return tree.paths[path]
@@ -153,6 +193,7 @@ local T = {
 	to_world = to_world,  to_local = to_local,
 	update = update,  draw = draw,  add = add,
 	remove = remove,  get = get,  init = init,
+	set_parent = set_parent
 }
 
 return T
