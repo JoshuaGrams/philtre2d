@@ -25,8 +25,7 @@ end
 Object.update_transform = Object.TRANSFORM_REGULAR
 
 -- Call a function on the object and its scripts (if any)
-function Object.__call(self, func_name, ...)
-	--print('called "' .. tostring(func_name) .. '" on ' .. self.name)
+function Object.call(self, func_name, ...)
 	if self[func_name] then self[func_name](self, ...) end
 	if self.script then
 		for _,script in ipairs(self.script) do
@@ -35,7 +34,7 @@ function Object.__call(self, func_name, ...)
 	end
 end
 
-function Object.call_scripts(self, func_name, ...) -- necessary?
+function Object.call_scripts(self, func_name, ...)
 	if self.script then
 		for _,script in ipairs(self.script) do
 			if script[func_name] then  script[func_name](self, ...)  end
@@ -43,17 +42,14 @@ function Object.call_scripts(self, func_name, ...) -- necessary?
 	end
 end
 
-function Object.register_draw(self, draw_order)
-end
-
 function Object.set_paused(self, paused)
 	self.paused = paused
 	self.call_scripts('set_paused', paused)
-	if self.children then
+	--if self.children then
 		-- Add some 'non-invasive' callback for pausing
 		-- and resuming sound effects here.
 		--for i,c in pairs(self.chidren) do  c:...()  end
-	end
+	--end
 end
 
 function Object.set_visible(self, visible)
@@ -66,12 +62,9 @@ function Object.draw(self)
 	love.graphics.points(0, 0)
 end
 
-Object.visible = true
-
 function Object.set(self, name, x, y, angle, sx, sy, kx, ky)
-	-- Properties set here will actually be on the new object itself, NOT on the __index table
 	self.pos = { x = x or 0, y = y or 0 }
-	self.name = name or 'new object'
+	self.name = name or 'Object'
 	self.angle = angle or 0
 	self.sx = sx or 1
 	self.sy = sy or sx or 1
@@ -81,6 +74,7 @@ function Object.set(self, name, x, y, angle, sx, sy, kx, ky)
 		self.pos.x, self.pos.y, self.angle,
 		self.sx, self.sy, self.kx, self.ky
 	)
+	self.visible = true
 end
 
 return Object

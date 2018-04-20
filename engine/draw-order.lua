@@ -93,7 +93,7 @@ local function draw(self)
 				love.graphics.scale(sx, sy)
 				love.graphics.shear(kx, ky)
 			end
-			object('draw')
+			object:call('draw')
 			if pushed then love.graphics.pop() end
 		end
 	end

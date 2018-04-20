@@ -47,7 +47,7 @@ local function init_child(obj, parent, index)
 	if obj.script and not obj.script[1] then
 		obj.script = { obj.script }
 	end
-	obj('init')
+	obj:call('init')
 end
 
 -- Actually swap obj between new and old parents' child lists.
@@ -71,7 +71,7 @@ local function _update(objects, dt, draw_order, m)
 		local draw_order = draw_order
 		if dt then -- not paused at self or anywhere up the tree
 			M.copy(m, obj._to_world);  obj._to_local = nil
-			obj('update', dt)
+			obj:call('update', dt)
 			obj:update_transform()
 		end
 		if draw_order and obj.visible then
@@ -107,7 +107,7 @@ local function _draw(objects) -- only used if no draw_order
 			love.graphics.rotate(obj.angle or 0)
 			love.graphics.shear(obj.kx or 0, obj.ky or 0)
 		end
-		obj('draw')
+		obj:call('draw')
 		if obj.children then
 			_draw(obj.children)
 		end
@@ -154,7 +154,7 @@ local function remove(obj, not_from_parent)
 			remove(c, true)
 		end
 	end
-	obj('final')
+	obj:call('final')
 	-- Ensure obj won't be drawn & children won't get another update.
 	-- final() functions will be the final callback.
 	-- @@@ make this part of object final function?
