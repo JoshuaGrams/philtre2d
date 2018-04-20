@@ -8,7 +8,7 @@ M.identity = {
 
 -- Since the order matters, this is the equivalent of skewing,
 -- scaling, rotating, then translating.
-M.matrix = function(x, y, radians, sx, sy, kx, ky, m)
+M.new = function(x, y, radians, sx, sy, kx, ky, m)
 	sx, kx = sx or 1, kx or 0
 	sy, ky = sy or sx, ky or 0
 	radians = radians or 0

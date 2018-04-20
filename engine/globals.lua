@@ -1,6 +1,6 @@
 -- Load engine components into global variables
 
-M = require('engine.matrix')
+matrix = require('engine.matrix')
 
 scene = require('engine.scene-tree');
 

@@ -6,14 +6,14 @@ local Object = BaseClass:extend()
 
 function Object.TRANSFORM_REGULAR(s) -- self * parent
 	local m = s._to_world
-	m = matrix.matrix(s.pos.x, s.pos.y, s.angle, s.sx, s.sy, s.kx, s.ky, m)
+	m = matrix.new(s.pos.x, s.pos.y, s.angle, s.sx, s.sy, s.kx, s.ky, m)
 	m = matrix.xM(m, s.parent._to_world, m)
 	s._to_local = nil
 end
 
 function Object.TRANSFORM_ABSOLUTE(s) -- self only
 	local m = s._to_world
-	m = matrix.matrix(s.pos.x, s.pos.y, s.angle, s.sx, s.sy, s.kx, s.ky, m)
+	m = matrix.new(s.pos.x, s.pos.y, s.angle, s.sx, s.sy, s.kx, s.ky, m)
 	s._to_local = nil
 end
 
@@ -77,7 +77,7 @@ function Object.set(self, name, x, y, angle, sx, sy, kx, ky)
 	self.sy = sy or sx or 1
 	self.kx = kx or 0
 	self.ky = ky or 0
-	self._to_world = matrix.matrix(
+	self._to_world = matrix.new(
 		self.pos.x, self.pos.y, self.angle,
 		self.sx, self.sy, self.kx, self.ky
 	)
