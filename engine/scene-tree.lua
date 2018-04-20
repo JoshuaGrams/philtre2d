@@ -1,31 +1,44 @@
 local M = require('engine.matrix')
 
-local function to_world(obj, x, y, w) -- @@@ keep as module function
+local tree = {
+	_to_world = M.identity,
+	_to_local = M.identity,
+	pos = {x=0, y=0},
+	children = {},
+	path = '',
+	paths = {},
+}
+
+local function to_world(obj, x, y, w)
 	return M.x(obj._to_world, x, y, w)
 end
 
-local function to_local(obj, x, y, w) -- @@@ keep as module function
+local function to_local(obj, x, y, w)
 	if not obj._to_local then
 		obj._to_local = M.invert(obj._to_world)
 	end
 	return M.x(obj._to_local, x, y, w)
 end
 
-local function init_child(self, obj, parent, index)
+local function init(draw_order)
+	tree.draw_order = draw_order
+end
+
+local function init_child(obj, parent, index)
 	obj.name = obj.name or tostring(index)
 	obj.path = parent.path .. '/' .. obj.name
-	if self.paths[obj.path] then -- Append index if identical path exists.
+	if tree.paths[obj.path] then -- Append index if identical path exists.
 		obj.path = obj.path .. index
 	end
-	self.paths[obj.path] = obj
-	obj.tree = self
+	tree.paths[obj.path] = obj
+	obj.tree = tree
 	obj.parent = parent
 
 	obj:update_transform()
 
 	if obj.children then
 		for i,c in pairs(obj.children) do
-			init_child(self, c, obj, i)
+			init_child(c, obj, i)
 		end
 	end
 
@@ -57,9 +70,9 @@ local function _update(objects, dt, draw_order, m)
 	end
 end
 
-local function update(self, dt)
-	if self.draw_order then  self.draw_order:clear()  end
-	_update(self.children, dt, self.draw_order, self._to_world)
+local function update(dt)
+	if tree.draw_order then  tree.draw_order:clear()  end
+	_update(tree.children, dt, tree.draw_order, tree._to_world)
 end
 
 local function _draw(objects) -- only used if no draw_order
@@ -79,11 +92,11 @@ local function _draw(objects) -- only used if no draw_order
 	end
 end
 
-local function draw(self)
-	if self.draw_order then
-		self.draw_order:draw()
+local function draw()
+	if tree.draw_order then
+		tree.draw_order:draw()
 	else
-		_draw(self.children)
+		_draw(tree.children)
 	end
 end
 
@@ -91,16 +104,17 @@ end
 -- because we're probably calling this from `update` which will
 -- immediately do it all over again.  But an object's `init`
 -- method may refer to them, so they need to be set now.
-local function add(self, obj, parent) -- @@@ keep as module function
-	parent = parent or self
+local function add(obj, parent)
+	parent = parent or tree
 	if not parent.children then parent.children = {} end
 	local i = 1 + #parent.children
 	parent.children[i] = obj
-	init_child(self, obj, parent, i)
+	init_child(obj, parent, i)
 end
 
--- @@@ keep as module function (make `not_from_parent` bit private somehow?)
-local function remove(self, obj, not_from_parent)
+-- TODO make `not_from_parent` bit private somehow?
+
+local function remove(obj, not_from_parent)
 	if not not_from_parent then -- remove obj from parent's child list
 		local parent = obj.parent
 		for i,c in pairs(parent.children) do
@@ -110,11 +124,11 @@ local function remove(self, obj, not_from_parent)
 			end
 		end
 	end
-	-- delete all children down the tree
-	-- don't bother telling children to delete themselves from our child list
 	if obj.children then
 		for i,c in pairs(obj.children) do
-			self:remove(c, true)
+			-- All descendants will be removed, tell them not to bother
+			-- to delete themselves from their parent's child list.
+			remove(c, true)
 		end
 	end
 	obj('final')
@@ -125,39 +139,20 @@ local function remove(self, obj, not_from_parent)
 	obj.pos = false
 	obj.draw = false
 	obj.children = false
-	self.paths[obj.path] = nil -- @@@ keep this
+	tree.paths[obj.path] = nil
 end
 
-local function get(self, path) -- @@@ keep as module function - (also do relative paths somehow?)
-	return self.paths[path]
-end
+-- TODO - set_parent(obj, parent)
 
-local methods = {
-	add = add, remove = remove, get = get,
-	update = update, draw = draw,
-	pause = pause, unpause = unpause
-}
-local class = { __index = methods }
-
-local function new(draw_order, root_objects) -- @@@ Get rid of this - store singular scene-tree state in module
-	local tree = setmetatable({
-		_to_world = M.identity, _to_local = M.identity,
-		pos = {x=0, y=0},
-		children = root_objects,
-		draw_order = draw_order,
-		path = '', paths = {},
-	}, class)
-	for i,c in pairs(tree.children) do
-		init_child(tree, c, tree, i)
-	end
-	return tree
+local function get(path) -- TODO - Relative paths?
+	return tree.paths[path]
 end
 
 
 local T = {
-	object = object,  new = new,
-	methods = methods,  class = class,
-	to_world = to_world,  to_local = to_local
+	to_world = to_world,  to_local = to_local,
+	update = update,  draw = draw,  add = add,
+	remove = remove,  get = get,  init = init,
 }
 
 return T

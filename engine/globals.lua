@@ -2,7 +2,7 @@
 
 M = require('engine.matrix')
 
-T = require('engine.scene-tree');
+scene = require('engine.scene-tree');
 
 DrawOrder = require('engine.draw-order')
 physics = require('engine.physics')
