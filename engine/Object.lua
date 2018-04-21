@@ -4,6 +4,8 @@ local matrix = require 'engine.matrix'
 
 local Object = BaseClass:extend()
 
+Object.className = 'Object'
+
 function Object.TRANSFORM_REGULAR(s) -- self * parent
 	local m = s._to_world
 	m = matrix.new(s.pos.x, s.pos.y, s.angle, s.sx, s.sy, s.kx, s.ky, m)
@@ -17,14 +19,12 @@ function Object.TRANSFORM_ABSOLUTE(s) -- self only
 	s._to_local = nil
 end
 
-function Object.TRANSFORM_NONE(s) -- parent only
-	m = s.parent._to_world
+function Object.TRANSFORM_PASS_THROUGH(s) -- parent only
+	matrix.copy(s.parent._to_world, s._to_world)
 	s._to_local = nil
 end
 
 Object.updateTransform = Object.TRANSFORM_REGULAR
-
-Object.className = 'Object'
 
 function Object.__tostring(self)
 	return '(' .. self.className .. '): path = ' .. tostring(self.path)
@@ -64,6 +64,7 @@ function Object.setVisible(self, visible)
 end
 
 function Object.draw(self)
+	love.graphics.setColor(255, 255, 255)
 	love.graphics.rectangle('line', -5, -5, 10, 10)
 	love.graphics.points(0, 0)
 end
