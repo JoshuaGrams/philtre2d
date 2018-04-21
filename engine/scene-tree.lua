@@ -155,13 +155,11 @@ local function remove(obj, not_from_parent)
 		end
 	end
 	obj:call('final')
-	-- Ensure obj won't be drawn & children won't get another update.
-	-- final() functions will be the final callback.
-	-- @@@ make this part of object final function?
-		-- should change to set_paused, set_visible
-	obj.pos = false
-	obj.draw = false
-	obj.children = false
+	-- Ensure that `final` is the last callback for obj, its scripts, and its children
+	obj.draw = false -- obj won't draw even if already in the draw order this frame
+	obj.script = false -- scripts won't do anything else either
+	obj.visible = false -- obj and children won't be added to draw order after this
+	obj.children = false -- children won't be updated after this
 	tree.paths[obj.path] = nil
 end
 
