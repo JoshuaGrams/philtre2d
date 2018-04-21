@@ -70,7 +70,7 @@ function Object.draw(self)
 end
 
 function Object.set(self, x, y, angle, sx, sy, kx, ky)
-	self.name = 'Object'
+	self.name = self.className
 	self.pos = { x = x or 0, y = y or 0 }
 	self.angle = angle or 0
 	self.sx = sx or 1
