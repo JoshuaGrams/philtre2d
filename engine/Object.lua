@@ -22,7 +22,7 @@ function Object.TRANSFORM_NONE(s) -- parent only
 	s._to_local = nil
 end
 
-Object.update_transform = Object.TRANSFORM_REGULAR
+Object.updateTransform = Object.TRANSFORM_REGULAR
 
 Object.className = 'Object'
 
@@ -40,7 +40,7 @@ function Object.call(self, func_name, ...)
 	end
 end
 
-function Object.call_scripts(self, func_name, ...)
+function Object.callScripts(self, func_name, ...)
 	if self.script then
 		for _,script in ipairs(self.script) do
 			if script[func_name] then  script[func_name](self, ...)  end
@@ -48,9 +48,9 @@ function Object.call_scripts(self, func_name, ...)
 	end
 end
 
-function Object.set_paused(self, paused)
+function Object.setPaused(self, paused)
 	self.paused = paused
-	self.call_scripts('set_paused', paused)
+	self.callScripts('set_paused', paused)
 	--if self.children then
 		-- Add some 'non-invasive' callback for pausing
 		-- and resuming sound effects here.
@@ -58,9 +58,9 @@ function Object.set_paused(self, paused)
 	--end
 end
 
-function Object.set_visible(self, visible)
+function Object.setVisible(self, visible)
 	self.visible = visible
-	self.call_scripts('set_visible', visible)
+	self.callScripts('set_visible', visible)
 end
 
 function Object.draw(self)

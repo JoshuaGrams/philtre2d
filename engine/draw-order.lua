@@ -1,6 +1,6 @@
 local M = require('engine.matrix')
 
-local function add_layer(self, depth, name)
+local function addLayer(self, depth, name)
 	local layer = { name = name, depth = depth, n = 0 }
 	if name and self.named[name] ~= nil then
 		error("Layer \"" .. name .. "\" already exists.")
@@ -11,7 +11,7 @@ local function add_layer(self, depth, name)
 	return layer
 end
 
-local function remove_layer(self, name)
+local function removeLayer(self, name)
 	local layer = self.named[name]
 	if not layer then
 		error("No such layer \"" .. name .. "\".")
@@ -32,11 +32,11 @@ local function clear(self)
 	end
 end
 
-local function object_layer(self, object)
+local function objectLayer(self, object)
 	local layer
 	local t = type(object.layer)
 	if t == 'number' then
-		layer = self.depth[object.layer] or add_layer(self, object.layer)
+		layer = self.depth[object.layer] or addLayer(self, object.layer)
 	elseif t == 'string' then
 		layer = self.named[object.layer]
 		if not layer then
@@ -49,17 +49,17 @@ local function object_layer(self, object)
 end
 
 local function add(self, object)
-	local layer = object_layer(self, object)
+	local layer = objectLayer(self, object)
 	self.current_layer = layer
 	layer.n = layer.n + 1
 	layer[layer.n] = object
 end
 
-local function save_current_layer(self)
+local function saveCurrentLayer(self)
 	table.insert(self.saved_layers, self.current_layer)
 end
 
-local function restore_current_layer(self)
+local function restoreCurrentLayer(self)
 	self.current_layer = table.remove(self.saved_layers)
 end
 
@@ -101,12 +101,12 @@ local function draw(self)
 end
 
 local methods = {
-	add_layer = add_layer,
-	remove_layer = remove_layer,
+	addLayer = addLayer,
+	removeLayer = removeLayer,
 	clear = clear,
 	add = add,
-	save_current_layer = save_current_layer,
-	restore_current_layer = restore_current_layer,
+	saveCurrentLayer = saveCurrentLayer,
+	restoreCurrentLayer = restoreCurrentLayer,
 	draw = draw
 }
 local class = { __index = methods }
@@ -120,7 +120,7 @@ local function new(default_name, default_depth)
 		named = {}, depth = {},
 		order = { n = 0 }
 	}, class)
-	add_layer(draw_order, default_depth, default_name)
+	addLayer(draw_order, default_depth, default_name)
 	draw_order.current_layer = draw_order.named[default_name]
 	return draw_order
 end

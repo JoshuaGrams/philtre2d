@@ -11,11 +11,11 @@ local tree = {
 
 local reparents = {} -- to complete on next pre-/post-update
 
-local function to_world(obj, x, y, w)
+local function toWorld(obj, x, y, w)
 	return M.x(obj._to_world, x, y, w)
 end
 
-local function to_local(obj, x, y, w)
+local function toLocal(obj, x, y, w)
 	if not obj._to_local then
 		obj._to_local = M.invert(obj._to_world)
 	end
@@ -26,7 +26,7 @@ local function init(draw_order)
 	tree.draw_order = draw_order
 end
 
-local function init_child(obj, parent, index)
+local function initChild(obj, parent, index)
 	obj.name = obj.name or tostring(index)
 	obj.path = parent.path .. '/' .. obj.name
 	if tree.paths[obj.path] then -- Append index if identical path exists.
@@ -36,11 +36,11 @@ local function init_child(obj, parent, index)
 	obj.tree = tree
 	obj.parent = parent
 
-	obj:update_transform()
+	obj:updateTransform()
 
 	if obj.children then
 		for i,c in pairs(obj.children) do
-			init_child(c, obj, i)
+			initChild(c, obj, i)
 		end
 	end
 
@@ -51,7 +51,7 @@ local function init_child(obj, parent, index)
 end
 
 -- Actually swap obj between new and old parents' child lists.
-local function complete_reparenting()
+local function completeReparenting()
 	for key,v in pairs(reparents) do
 		v.old_p.children[v.old_child_key] = nil
 		if not v.new_p.children then v.new_p.children = {} end
@@ -61,8 +61,8 @@ local function complete_reparenting()
 	end
 end
 
-local function pre_update(dt)
-	complete_reparenting()
+local function preUpdate(dt)
+	completeReparenting()
 end
 
 local function _update(objects, dt, draw_order, m)
@@ -72,10 +72,10 @@ local function _update(objects, dt, draw_order, m)
 		if dt then -- not paused at self or anywhere up the tree
 			M.copy(m, obj._to_world);  obj._to_local = nil
 			obj:call('update', dt)
-			obj:update_transform()
+			obj:updateTransform()
 		end
 		if draw_order and obj.visible then
-			draw_order:save_current_layer()
+			draw_order:saveCurrentLayer()
 			draw_order:add(obj)
 		else
 			draw_order = nil -- don't draw any children from here on down
@@ -83,19 +83,19 @@ local function _update(objects, dt, draw_order, m)
 		if obj.children then
 			_update(obj.children, dt, draw_order, obj._to_world)
 		end
-		if draw_order then  draw_order:restore_current_layer()  end
+		if draw_order then  draw_order:restoreCurrentLayer()  end
 	end
 end
 
-local function post_update(dt)
-	complete_reparenting()
+local function postUpdate(dt)
+	completeReparenting()
 end
 
 local function update(dt)
 	if tree.draw_order then  tree.draw_order:clear()  end
-	pre_update(dt)
+	preUpdate(dt)
 	_update(tree.children, dt, tree.draw_order, tree._to_world)
-	post_update(dt)
+	postUpdate(dt)
 end
 
 local function _draw(objects) -- only used if no draw_order
@@ -132,7 +132,7 @@ local function add(obj, parent)
 	if not parent.children then parent.children = {} end
 	local i = 1 + #parent.children
 	parent.children[i] = obj
-	init_child(obj, parent, i)
+	initChild(obj, parent, i)
 end
 
 -- TODO make `not_from_parent` bit private somehow?
@@ -168,7 +168,7 @@ end
 -- Can't complete this synchronously or obj would miss a callback
 -- or get an extra callback. Switch the parent on obj now and
 -- change the child lists on the next pre- or post-update.
-local function set_parent(obj, parent)
+local function setParent(obj, parent)
 	parent = parent or tree
 	if parent == obj.parent then
 		print('Tried to set_parent to current parent: ' .. parent.path)
@@ -190,10 +190,10 @@ end
 
 
 local T = {
-	to_world = to_world,  to_local = to_local,
+	toWorld = toWorld,  toLocal = toLocal,
 	update = update,  draw = draw,  add = add,
 	remove = remove,  get = get,  init = init,
-	set_parent = set_parent
+	setParent = setParent
 }
 
 return T
