@@ -24,6 +24,12 @@ end
 
 Object.update_transform = Object.TRANSFORM_REGULAR
 
+Object.className = 'Object'
+
+function Object.__tostring(self)
+	return '(' .. self.className .. '): path = ' .. tostring(self.path)
+end
+
 -- Call a function on the object and its scripts (if any)
 function Object.call(self, func_name, ...)
 	if self[func_name] then self[func_name](self, ...) end
@@ -62,9 +68,9 @@ function Object.draw(self)
 	love.graphics.points(0, 0)
 end
 
-function Object.set(self, name, x, y, angle, sx, sy, kx, ky)
+function Object.set(self, x, y, angle, sx, sy, kx, ky)
+	self.name = 'Object'
 	self.pos = { x = x or 0, y = y or 0 }
-	self.name = name or 'Object'
 	self.angle = angle or 0
 	self.sx = sx or 1
 	self.sy = sy or sx or 1
