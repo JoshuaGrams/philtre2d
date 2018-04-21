@@ -6,7 +6,7 @@ scene = require('engine.scene-tree');
 
 DrawOrder = require('engine.draw-order')
 physics = require('engine.physics')
-Sprite = require('engine.sprite')
+Sprite = require('engine.Sprite')
 Body = require('engine.body')
 Camera = require('engine.lovercam')
 GuiRoot = require('engine.gui_root')
