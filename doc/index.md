@@ -26,7 +26,7 @@ Engine
 Objects
 -------
 
-* [Body](engine/body.md) - Physics body object.
+* [Body](engine/Body.md) - Physics body object.
 	* `Body(world, type, x, y, angle, shapes, prop, ignore_parent_transform)`
 * [Camera](https://github.com/rgrams/lovercam/blob/master/Readme.md) - Camera object (by Lovercam)
 	* `Camera.new(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)`
