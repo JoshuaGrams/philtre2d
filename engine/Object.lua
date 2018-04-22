@@ -50,7 +50,7 @@ end
 
 function Object.setPaused(self, paused)
 	self.paused = paused
-	self.callScripts('set_paused', paused)
+	self.callScripts('setPaused', paused)
 	--if self.children then
 		-- Add some 'non-invasive' callback for pausing
 		-- and resuming sound effects here.
@@ -60,7 +60,7 @@ end
 
 function Object.setVisible(self, visible)
 	self.visible = visible
-	self.callScripts('set_visible', visible)
+	self.callScripts('setVisible', visible)
 end
 
 function Object.draw(self)
