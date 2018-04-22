@@ -19,25 +19,31 @@ Engine
   skew, translate) represented as 3x3 matrices (2D homogeneous
   coordinates).
 
+* [Physics](engine/physics.md) - Some physics utility functions.
+  For now, manages named collision groups. TODO: raycasts, point
+  checks.
+
 Objects
 -------
 
 * [Body](engine/body.md) - Physics body object.
-	* `Body.new(world, type, x, y, shapes, prop)`
-* Sprite - Object containing an image.
-	* `Sprite.new(image, ox, oy, x, y, angle, sx, sy, kx, ky)`
+	* `Body(world, type, x, y, angle, shapes, prop, ignore_parent_transform)`
 * [Camera](https://github.com/rgrams/lovercam/blob/master/Readme.md) - Camera object (by Lovercam)
 	* `Camera.new(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)`
-* Text - Object for rendering text.
-	* `Text.new(x, y, angle, text, font, wrap_limit, align, sx, sy, ox, oy, kx, ky)`
-* GUI Sprite - Sprite with anchors and that scales when parent is resized.
-	* `GuiSprite.new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, ky)`
 * GUI Root - Root 'window' object for GUI. Needs to get `love.resize` calls.
 	* `GuiRoot.new()`
+* GUI Sprite - Sprite with anchors and that scales when parent is resized.
+	* `GuiSprite.new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, ky)`
 * GUI Text - Text object with anchors and nice scaling
 	* `GuiText.new(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)`
-* [Physics](engine/physics.md) - Pauseable physics root object with its own world and callback handling.
-	* `physics.new(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
+* [Object](engine/Object.md) - Base 'game object' class.
+	* `Object(x, y, angle, sx, sy, kx, ky)`
+* Sprite - Object containing an image.
+	* `Sprite(image, x, y, angle, sx, sy, color, ox, oy, kx, ky)`
+* Text - Object for rendering text.
+	* `Text.new(x, y, angle, text, font, wrap_limit, align, sx, sy, ox, oy, kx, ky)`
+* [World](engine/World.md) - Object with its own physics world and callback handlers.
+	* `World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 
 Todo
 ----
