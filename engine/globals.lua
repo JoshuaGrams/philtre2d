@@ -1,20 +1,23 @@
 -- Load engine components into global variables
 
-matrix = require('engine.matrix')
+matrix = require 'engine.matrix'
 
-scene = require('engine.scene-tree');
+scene = require 'engine.scene-tree'
+DrawOrder = require 'engine.draw-order'
 
-DrawOrder = require('engine.draw-order')
-physics = require('engine.physics')
-World = require('engine.World')
-Sprite = require('engine.Sprite')
-Body = require('engine.Body')
-Camera = require('engine.lovercam')
-GuiRoot = require('engine.gui_root')
-GuiSprite = require('engine.gui_sprite')
-GuiText = require('engine.gui_text')
-Input = require('engine.input')
-Text = require('engine.text')
+Input = require 'engine.input'
+physics = require 'engine.physics'
+
+-- Objects
+Object = require 'engine.Object'
+Sprite = require 'engine.Sprite'
+Body = require 'engine.Body'
+World = require 'engine.World'
+Camera = require 'engine.lovercam'
+GuiRoot = require 'engine.gui_root'
+GuiSprite = require 'engine.gui_sprite'
+GuiText = require 'engine.gui_text'
+Text = require 'engine.text'
 
 -- Note that `props` override values already on `obj`.  This is
 -- deliberate, so we can insert a file into a bigger scene and
