@@ -1,27 +1,20 @@
 
-local M = {}
+local Object = require 'engine.Object'
 
--- Try to load a 'vec2' module in the current directory
-local module_dir = string.gsub(..., "%.[^%.]+$", "") .. "."
-local vec2_loaded, vec2 = pcall(require, module_dir .. "vec2")
-if not vec2_loaded then
-	-- No vec2 module found, create a minimal table with the functions we need
-	local vec2_mt = {}
-	vec2 = {
-		new = function(x, y) return setmetatable({x=x, y=y}, vec2_mt) end,
-	}
-	function vec2_mt.__call(_, x, y) return vec2.new(x, y) end
-	function vec2_mt.__div(x, y) if type(y) == "number" then return vec2.new(x.x/y, x.y/y) end end
-	function vec2_mt.__tostring(a) return string.format("(%+0.3f,%+0.3f)", a.x, a.y) end
-	setmetatable(vec2, vec2_mt)
-end
+local Camera = Object:extend()
 
-M.cur_cam = nil -- set to fallback_cam at end of module
+Camera.className = 'Camera'
+
 local cameras = {}
-M.default_shake_falloff = "linear"
-M.default_recoil_falloff = "quadratic"
-M.shake_rot_mult = 0.001
-M.default_shake_freq = 10
+
+-- Global default settings
+Camera.current = nil -- set to fallback_cam at end of module
+Camera.shake_falloff = "linear"
+Camera.recoil_falloff = "quadratic"
+Camera.shake_rot_mult = 0.001
+Camera.shake_freq = 8
+Camera.follow_lerp_speed = 3
+Camera.viewport_align = { x = 0.5, y = 0.5 }
 
 -- localize stuff
 local min = math.min
@@ -33,6 +26,10 @@ local rand = love.math.random
 local TWO_PI = math.pi*2
 
 --##############################  Private Functions  ##############################
+
+local function vec2(x, y)
+	return { x = x or 0, y = y or 0 }
+end
 
 local function rotate(x, y, a) -- vector rotate with x, y
 	local ax, ay = cos(a), sin(a)
@@ -55,7 +52,7 @@ local function lerpdt(ax, ay, bx, by, s, dt) -- vector lerp with x, y over dt
 	return ax + (bx - ax)*k, ay + (by - ay)*k
 end
 
-local function is_vec(v) -- check if `v` is a vector or a table with two values
+local function is_vec(v)
 	local t = type(v)
 	if t == "table" or t == "userdata" or t == "cdata" then
 		if v.x and v.y then
@@ -71,18 +68,19 @@ end
 local function get_aspect_rect_in_win(aspect_ratio, win_x, win_y)
 	local s = math.min(win_x/aspect_ratio, win_y)
 	local w, h = s*aspect_ratio, s
-	local x, y = (win_x - w)/2, (win_y - h)/2
+	local x = (win_x - w) * M.viewport_align.x
+	local y = (win_y - h) * M.viewport_align.y
 	return x, y, w, h
 end
 
-local function get_zoom_or_area(zoom_area)
-	local t = type(zoom_area)
+local function decipher_zoom_or_area(zoom_or_area)
+	local t = type(zoom_or_area)
 	if t == "nil" then
 		return 1 -- default value
 	elseif t == "number" then
-		return zoom_area -- if number
+		return zoom_or_area -- if number
 	else
-		x, y = is_vec(zoom_area)
+		local x, y = is_vec(zoom_or_area)
 		if x and y then
 			return x, y -- if vec
 		end
@@ -102,17 +100,17 @@ local function get_zoom_for_new_window(z, scale_mode, old_x, old_y, new_x, new_y
 	elseif scale_mode == "fixed height" then
 		return z * new_y / old_y
 	else
-		error("Lovercam - get_zoom_for_new_window() - invalid scale mode: " .. tostring(scale_mode))
+		error("Camera - get_zoom_for_new_window() - invalid scale mode: " .. tostring(scale_mode))
 	end
 end
 
 local function get_offset_from_deadzone(self, obj, deadzone)
 	-- get target pos in screen coordinates
 	local tx, ty = obj.pos.x, obj.pos.y
-	tx, ty = self:world_to_screen(tx, ty)
+	tx, ty = self:worldToScreen(tx, ty)
 
 	-- convert deadzone screen percent values to screen pixel values
-	--		and x, y, w, y to lt, rt, top, bot
+	--		and from  x, y, w, y  to  lt, rt, top, bot
 	--		use viewport, not full screen
 	local dz = deadzone
 	local lt, rt = dz.x*self.vp.w + self.vp.x, (dz.x+dz.w)*self.vp.w + self.vp.x
@@ -123,51 +121,40 @@ local function get_offset_from_deadzone(self, obj, deadzone)
 
 	-- if target is outside of deadzone, convert the offset back to world coordinates
 	if x ~= 0 or y ~= 0 then
-		return self:screen_to_world(x, y, true)
+		return self:screenToWorld(x, y, true)
 	end
 	return x, y
 end
 
---##############################  Module Functions ##############################
+--##############################  Public Functions ##############################
 
-function M.window_resized(w, h) -- call once on module and it updates all cameras
-	for i, self in ipairs(cameras) do
-		self.zoom = get_zoom_for_new_window(self.zoom, self.scale_mode, self.win.x, self.win.y, w, h)
-		self.win.x = w;  self.win.y = h
-		self.half_win.x = self.win.x / 2;  self.half_win.y = self.win.y / 2
-		if self.aspect_ratio then
-			self.vp.x, self.vp.y, self.vp.w, self.vp.h = get_aspect_rect_in_win(self.aspect_ratio, w, h)
-		else
-			self.vp.x, self.vp.y, self.vp.w, self.vp.h = 0, 0, w, h
-		end
+function Camera.windowResizedAll(x, y, w, h)
+	for i,cam in ipairs(cameras) do
+		cam:windowResized(x, y, w, h)
 	end
 end
 
-function M.update(dt) -- updates all cameras
-	for k, cam in pairs(cameras) do cam:update(dt) end
+-- x and y not used yet - TODO
+function Camera.windowResized(self, x, y, w, h)
+	local vp_w, vp_h = self.vp.w, self.vp.h -- save last values
+	if self.aspect_ratio then -- Must enforce fixed aspect ratio before figuring zoom.
+		self.vp.x, self.vp.y, self.vp.w, self.vp.h = get_aspect_rect_in_win(self.aspect_ratio, w, h)
+	else
+		self.vp.x, self.vp.y, self.vp.w, self.vp.h = 0, 0, w, h
+	end
+	self.vp.half_w = self.vp.w/2;  self.vp.half_h = self.vp.h/2
+	self.zoom = get_zoom_for_new_window(self.zoom, self.scale_mode, vp_w, vp_h, self.vp.w, self.vp.h)
+	self.win_x = w;  self.win_y = h
+	self.half_win_x = w/2;  self.half_win_y = h/2
 end
 
-function M.update_current(dt)
-	M.cur_cam:update(dt)
-end
-
--- convert these names into functions applied to the current camera
-local F = {	"apply_transform", "reset_transform", "pan", "screen_to_world",	"world_to_screen",
-	"zoom_in", "shake", "perlin_shake", "recoil", "stop_shaking", "follow", "unfollow", "set_bounds" }
-
-for i, func in ipairs(F) do -- calling functions on the module passes the call to the current camera
-	M[func] = function(...) return M.cur_cam[func](M.cur_cam, ...) end
-end
-
---##############################  Camera Object Functions  ##############################
-
-local function update(self, dt)
+function Camera.update(self, dt)
 	-- update follows
 	if self.follow_count > 0 then
 		-- average position of all follows
 		local total_weight = 0 -- total weight
 		local fx, fy = 0, 0
-		for obj, data in pairs(self.follows) do
+		for obj,data in pairs(self.follows) do
 			if data.deadzone then
 				local ox, oy = get_offset_from_deadzone(self, obj, data.deadzone)
 				fx = fx + self.pos.x + ox*data.weight
@@ -182,7 +169,7 @@ local function update(self, dt)
 		self.pos.x, self.pos.y = fx, fy
 	end
 
-	self:enforce_bounds()
+	self:enforceBounds()
 
 	-- update shakes & recoils
 	self.shake_x, self.shake_y, self.shake_a = 0, 0, 0
@@ -213,11 +200,10 @@ local function update(self, dt)
 	end
 end
 
-local function apply_transform(self)
-	-- save previous transform
+function Camera.applyTransform(self)
 	love.graphics.push()
-	-- center view on camera - offset by half window res
-	love.graphics.translate(self.half_win.x, self.half_win.y)
+	-- center view on camera - offset by viewport offset + half viewport
+	love.graphics.translate(self.vp.x + self.vp.half_w, self.vp.y + self.vp.half_h)
 	-- view rot and translate are negative because we're really transforming the world
 	love.graphics.rotate(-self.angle - self.shake_a)
 	love.graphics.scale(self.zoom, self.zoom)
@@ -228,86 +214,77 @@ local function apply_transform(self)
 	end
 end
 
-local function reset_transform(self)
+function Camera.resetTransform(self)
 	love.graphics.pop()
 	if self.aspect_ratio then love.graphics.setScissor() end
 end
 
-local function screen_to_world(self, x, y, delta)
+function Camera.screenToWorld(self, x, y, is_delta)
 	-- screen center offset
-	if not delta then x = x - self.half_win.x;  y = y - self.half_win.y end
+	if not is_delta then x = x - self.half_win_x;  y = y - self.half_win_y end
 	x, y = x/self.zoom, y/self.zoom -- scale
 	x, y = rotate(x, y, self.angle) -- rotate
 	-- translate
-	if not delta then x = x + self.pos.x;  y = y + self.pos.y end
+	if not is_delta then x = x + self.pos.x;  y = y + self.pos.y end
 	return x, y
 end
 
-local function world_to_screen(self, x, y, delta)
-	if not delta then x = x - self.pos.x;  y = y - self.pos.y end
+function Camera.worldToScreen(self, x, y, is_delta)
+	if not is_delta then x = x - self.pos.x;  y = y - self.pos.y end
 	x, y = rotate(x, y, -self.angle)
 	x, y = x*self.zoom, y*self.zoom
-	if not delta then x = x + self.half_win.x;  y = y + self.half_win.y end
+	if not is_delta then x = x + self.vp.x + self.vp.half_w;  y = y + self.vp.y + self.vp.half_h end
 	return x, y
 end
 
-local function activate(self)
+function Camera.activate(self)
 	self.active = true
-	M.cur_cam = self
+	Camera.current = self
 end
 
-local function final(self)
+function Camera.final(self)
 	for i, v in ipairs(cameras) do
 		if v == self then table.remove(cameras, i) end
 	end
-	if #cameras == 1 then M.cur_cam = cameras[1]
-	else M.cur_cam = fallback_cam
+	if #cameras == 1 then Camera.current = cameras[1]
+	else Camera.current = fallback_cam
 	end
 end
 
--- convenience function for moving camera
---		mostly useful to call on the module to apply to the current camera
-local function pan(self, dx, dy)
-	self.pos.x = self.pos.x + dx
-	self.pos.y = self.pos.y + dy
-end
-
 -- zoom in or out by a percentage
---		mostly useful to call on the module to apply to the current camera
-local function zoom_in(self, z)
+function Camera.zoomIn(self, z)
 	self.zoom = self.zoom * (1 + z)
 end
 
-local function shake(self, intensity, dur, falloff)
-	falloff = falloff_funcs[falloff or M.default_shake_falloff]
-	table.insert(self.shakes, {dist=intensity, t=dur, dur=dur, falloff=falloff})
+function Camera.shake(self, dist, dur, falloff)
+	falloff = falloff_funcs[falloff or self.shake_falloff]
+	table.insert(self.shakes, {dist=dist, t=dur, dur=dur, falloff=falloff})
 end
 
-local function perlin_shake(self, intensity, dur, freq, falloff)
-	falloff = falloff_funcs[falloff or M.default_shake_falloff]
-	freq = freq or M.default_perlin_shake_freq
+function Camera.perlinShake(self, dist, dur, freq, falloff)
+	falloff = falloff_funcs[falloff or self.shake_falloff]
+	freq = freq or self.shake_freq
 	local seed = rand()*1000
-	table.insert(self.shakes, {dist=intensity, t=dur, dur=dur, freq=freq, seed=seed, falloff=falloff})
+	table.insert(self.shakes, {dist=dist, t=dur, dur=dur, freq=freq, seed=seed, falloff=falloff})
 end
 
-local function recoil(self, vec, dur, falloff)
-	falloff = falloff or M.default_recoil_falloff
+function Camera.recoil(self, vec, dur, falloff)
+	falloff = falloff or self.recoil_falloff
 	table.insert(self.shakes, {vec=vec, t=dur, dur=dur, falloff=falloff_funcs[falloff]})
 end
 
-local function stop_shaking(self) -- clears all shakes and recoils
-	for i, v in ipairs(self.shakes) do self.shakes[i] = nil end
+function Camera.stopShaking(self) -- clears all shakes and recoils
+	for i,v in ipairs(self.shakes) do self.shakes[i] = nil end
 end
 
--- following requires 'obj' to have a property 'pos' with 'x' and 'y' properties
-local function follow(self, obj, allowMultiFollow, weight, deadzone)
+function Camera.follow(self, obj, allowMultiFollow, weight, deadzone)
 	weight = weight or 1
 	-- using object table as key
 	if self.follows[obj] then -- already following, update weight & deadzone
 		self.follows[obj].weight = weight
 		if deadzone and type(deadzone) == "table" then
 			if self.follows[obj].deadzone then -- update existing deadzone
-				for k, v in pairs(deadzone) do self.follows[obj][k] = v end
+				for k,v in pairs(deadzone) do self.follows[obj][k] = v end
 			else -- no existing deadzone, add deadzone table
 				self.follows[obj].deadzone = shallow_copy_dict(deadzone)
 			end
@@ -320,7 +297,7 @@ local function follow(self, obj, allowMultiFollow, weight, deadzone)
 		self.follow_count = self.follow_count + 1
 	end
 	if not allowMultiFollow and self.follow_count > 1 then
-		for k, v in pairs(self.follows) do
+		for k,v in pairs(self.follows) do
 			if k ~= obj then
 				-- maintain deadzone if passed `true`
 				if deadzone == true and v.deadzone and self.follow_count == 2 then
@@ -333,17 +310,17 @@ local function follow(self, obj, allowMultiFollow, weight, deadzone)
 	end
 end
 
-local function unfollow(self, obj)
+function Camera.unfollow(self, obj)
 	if obj and self.follows[obj] then -- remove specified object from list
 		self.follows[obj] = nil
 		self.follow_count = self.follow_count - 1
 	else -- no object specified, clear follows
-		for k, v in pairs(self.follows) do self.follows[k] = nil end
+		for k,v in pairs(self.follows) do self.follows[k] = nil end
 		self.follow_count = 0
 	end
 end
 
-local function set_bounds(self, lt, rt, top, bot)
+function Camera.setBounds(self, lt, rt, top, bot)
 	if lt and rt and top and bot then
 		local b = {
 			lt=lt, rt=rt, top=top, bot=bot,
@@ -359,16 +336,16 @@ end
 
 local bounds_vec_table = { tl=vec2(), tr=vec2(), bl=vec2(), br=vec2() } -- save the GC some work
 
-local function enforce_bounds(self)
+function Camera.enforceBounds(self)
 	if self.bounds then
 		local b = self.bounds
 		local vp = self.vp
 		local c = bounds_vec_table -- corners
 		-- get viewport corner positions in world space
-		c.tl.x, c.tl.y = self:screen_to_world(vp.x, vp.y) -- top left
-		c.tr.x, c.tr.y = self:screen_to_world(vp.x + vp.w, vp.y) -- top right
-		c.bl.x, c.bl.y = self:screen_to_world(vp.x, vp.y + vp.h) -- bottom left
-		c.br.x, c.br.y = self:screen_to_world(vp.x + vp.w, vp.y + vp.h) -- bottom right
+		c.tl.x, c.tl.y = self:screenToWorld(vp.x, vp.y) -- top left
+		c.tr.x, c.tr.y = self:screenToWorld(vp.x + vp.w, vp.y) -- top right
+		c.bl.x, c.bl.y = self:screenToWorld(vp.x, vp.y + vp.h) -- bottom left
+		c.br.x, c.br.y = self:screenToWorld(vp.x + vp.w, vp.y + vp.h) -- bottom right
 		-- get world-aligned viewport bounding box
 		local w_lt = min(c.tl.x, c.tr.x, c.bl.x, c.br.x) -- world left
 		local w_rt = max(c.tl.x, c.tr.x, c.bl.x, c.br.x) -- world right
@@ -393,81 +370,56 @@ local function enforce_bounds(self)
 	end
 end
 
-function M.new(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)
-	local win_x, win_y = love.graphics.getDimensions()
-	scale_mode = scale_mode or "fixed area"
+function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)
+	Camera.super.set(self, x, y, angle)
+	self.scale_mode = scale_mode or 'fixed area'
+	self.aspect_ratio = fixed_aspect_ratio
+	self.active = not inactive
 
-	local n = {
-		-- User Settings:
-		active = not inactive,
-		pos = vec2(x or 0, y or 0),
-		angle = angle or 0,
-		zoom = 1,
-		scale_mode = scale_mode,
-		aspect_ratio = fixed_aspect_ratio,
+	self.zoom = 1
+	self.win_x, self.win_y = love.graphics.getDimensions()
+	self.half_win_x = self.win_x/2
+	self.half_win_y = self.win_y/2
+	self.shakes = {}
+	self.shake_x, self.shake_y, self.shake_a = 0, 0, 0
+	self.follows = {}
+	self.follow_count = 0
 
-		-- functions, state properties, etc.
-		apply_transform = apply_transform,
-		reset_transform = reset_transform,
-		win = vec2(win_x, win_y),
-		half_win = vec2(win_x/2, win_y/2),
-		win_resized = win_resized,
-		screen_to_world = screen_to_world,
-		world_to_screen = world_to_screen,
-		activate = activate,
-		final = final,
-		pan = pan,
-		zoom_in = zoom_in,
-		update = update,
-		shake = shake,
-		perlin_shake = perlin_shake,
-		shakes = {},
-		recoil = recoil,
-		stop_shaking = stop_shaking,
-		shake_x = 0,
-		shake_y = 0,
-		follow = follow,
-		follows = {},
-		follow_count = 0,
-		unfollow = unfollow,
-		follow_lerp_speed = 3,
-		set_bounds = set_bounds,
-		enforce_bounds = enforce_bounds
-	}
 	-- Fixed aspect ratio - get viewport/scissor
 	local vp = {}
 	if fixed_aspect_ratio then
-		vp.x, vp.y, vp.w, vp.h = get_aspect_rect_in_win(n.aspect_ratio, win_x, win_y)
+		vp.x, vp.y, vp.w, vp.h = get_aspect_rect_in_win(self.aspect_ratio, self.win_x, self.win_y)
+		vp.half_w = vp.w/2;  vp.half_h = vp.h/2
 	else
-		vp.x, vp.y, vp.w, vp.h = 0, 0, win_x, win_y
+		vp.x, vp.y, vp.w, vp.h = 0, 0, self.win_x, self.win_y
+		vp.half_w = self.half_win_x;  vp.half_h = self.half_win_y
 	end
-	n.vp = vp
+	self.vp = vp
 
-	-- Zoom
-	local vx, vy = get_zoom_or_area(zoom_or_area)
+	-- Figure zoom
+	local vx, vy = decipher_zoom_or_area(zoom_or_area)
 	if not vx then
 		error("Lovercam - M.new() - invalid zoom or area: " .. tostring(zoom_or_area))
 	elseif vx and not vy then -- user supplied a zoom value, keep this zoom no matter what
-		n.zoom = vx
+		self.zoom = vx
 	else -- user supplied a view area - use this with scale_mode and viewport to find zoom
 		-- Want initial zoom to respect user settings. Even if "expand view" mode is used,
 		-- we want to zoom so the specified area fits the window. Use "fixed area" mode
 		-- instead to get a nice fit regardless of proportion differences.
 		local sm = scale_mode == "expand view" and "fixed area" or scale_mode
-		n.zoom = get_zoom_for_new_window(1, sm, vx, vy, n.vp.w, n.vp.h)
+		self.zoom = get_zoom_for_new_window(1, sm, vx, vy, self.vp.w, self.vp.h)
 	end
 
-	if n.active then M.cur_cam = n end
-	table.insert(cameras, n)
-	return n
+	if self.active then Camera.cur_cam = self end
+	table.insert(cameras, self)
 end
 
 local fallback_cam
 do
 	local x, y = love.graphics.getDimensions()
-	x, y = x/2, y/2
-	fallback_cam = M.new(x, y)
+	fallback_cam = Camera(x/2, y/2)
+	table.remove(cameras, 1)
 end
-M.cur_cam = fallback_cam
+Camera.current = fallback_cam
 
-return M
+return Camera
