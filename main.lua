@@ -4,7 +4,6 @@ local BezierCommands = require('bezier-commands')
 
 local History = require('history')
 
-
 ----------------------------------------------------------------
 -- Main love callbacks.
 
@@ -21,6 +20,7 @@ end
 
 function love.load(arg)
 	if doTests(arg) then love.event.quit(); return end
+
 	pickDistance = 10
 	curve = {
 		highlight = false,

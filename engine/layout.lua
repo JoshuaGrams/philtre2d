@@ -2,12 +2,23 @@
 ----------------------------------------------------------------
 -- All widgets have:
 
-local function boxRequest(self)
-	return self._req
+local function boxRequest(s)
+	return s._req
 end
 
-local boxMethods = { request = boxRequest }
-local boxClass = { __index = boxMethods }
+local function allocateBox(s, x, y, w, h)
+	s.x, s.y, s.w, s.h = x, y, w, h
+end
+
+local function drawBox(s)
+	love.graphics.rectangle('fill', s.x, s.y, s.w, s.h)
+end
+
+local boxClass = {
+	request = boxRequest, allocate = allocateBox,
+	draw = drawBox, __tostring = function() return 'Box' end
+}
+boxClass.__index = boxClass
 
 local function newBox(w, h)
 	return setmetatable({
@@ -23,9 +34,6 @@ end
 -- * spacing (number): units between elements (not at ends).
 --
 -- * homogeneous (boolean): place elements at equal intervals?
---
--- * A dimension: names for the coordinate and size that it
---   will read and set on the objects (e.g. 'x', 'width').
 --
 -- Each element within the container can have:
 --
@@ -50,6 +58,7 @@ local function addToRow(self, obj, dir, extra, pad)
 end
 
 local function increaseRowRequest(req, children)
+	local e = 0
 	for _,child in ipairs(children) do
 		local r = child.obj:request()
 		req.w = req.w + r.w + 2 * child.pad
@@ -66,11 +75,85 @@ local function rowRequest(self)
 	return req
 end
 
-local rowMethods = {
-	request = rowRequest,
-	add = addToRow,
+local function allocateChild(child, x, y, w, h)
+	local obj = child.obj
+	-- Subtract padding.
+	x = x + math.min(w, child.pad)
+	w = math.max(0, w - 2 * child.pad)
+	-- Account for extra unless child wants stretching.
+	if child.extra ~= 'stretch' then
+		local r = obj:request()
+		local ex, ey = w - r.w, h - r.h
+		ex, ey = math.max(ex, 0), math.max(ey, 0)
+		x, w = x + 0.5 * ex, w - ex
+	end
+	obj:allocate(x, y, w, h)
+end
+
+local function allocateHomogeneousRow(self, x, y, w, h)
+	local n = #self.startChildren + #self.endChildren
+	if n == 0 then return end
+	local a = math.max(0, w - self.spacing * (n - 1)) / n
+	for i,child in ipairs(self.startChildren) do
+		local ix = (i - 1) * a  +  (i - 1) * self.spacing
+		ix = x + math.max(0, math.min(w, ix))
+		allocateChild(child, ix, y, a, h)
+	end
+	for i,child in ipairs(self.endChildren) do
+		local ix = w - (i * a  +  (i - 1) * self.spacing)
+		ix = x + math.max(0, math.min(w, ix))
+		allocateChild(child, ix, y, a, h)
+	end
+end
+
+local function extraCount(self)
+	local e = 0
+	for _,child in ipairs(self.startChildren) do
+		if child.extra and child.extra ~= 'none' then
+			e = e + 1
+		end
+	end
+	for _,child in ipairs(self.endChildren) do
+		if child.extra and child.extra ~= 'none' then
+			e = e + 1
+		end
+	end
+	return e
+end
+
+local function allocateHeterogeneousRow(self, x, y, w, h)
+	local req = rowRequest(self)
+	local n = #self.startChildren + #self.endChildren
+	local ne = extraCount(self)
+	local e = 0
+	if ne > 0 then
+		local extra = (w - spacing * (n - 1)) - req.w
+		e = extra / ne
+	end
+end
+
+local function allocateRow(self, x, y, w, h)
+	if self.homogeneous then
+		allocateHomogeneousRow(self, x, y, w, h)
+	else
+		allocateHeterogeneousRow(self, x, y, w, h)
+	end
+end
+
+local function drawRow(self)
+	for _,c in ipairs(self.startChildren) do
+		c:draw()
+	end
+	for _,c in ipairs(self.endChildren) do
+		c:draw()
+	end
+end
+
+local rowClass = {
+	request = rowRequest,  allocate = allocateRow,
+	add = addToRow,  draw = drawRow
 }
-local rowClass = { __index = rowMethods }
+rowClass.__index = rowClass
 
 local noChildren = {}
 
@@ -87,6 +170,6 @@ local function newRow(spacing, homogeneous, children)
 end
 
 return {
-	Box = {new = newBox, methods = boxMethods, class = boxClass},
-	Row = {new = newRow, methods = rowMethods, class = rowClass}
+	Box = {new = newBox, class = boxClass},
+	Row = {new = newRow, class = rowClass}
 }
