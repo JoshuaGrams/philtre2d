@@ -5,7 +5,7 @@ local function addLayer(self, depth, name)
 	if name and self.named[name] ~= nil then
 		error("Layer \"" .. name .. "\" already exists.")
 	else
-		self.named[name] = layer  -- insert by name
+		if name then  self.named[name] = layer  end -- insert by name
 		self.depth[depth] = layer -- and by depth
 	end
 	return layer
