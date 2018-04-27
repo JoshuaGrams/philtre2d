@@ -109,26 +109,55 @@ end
 local function extraCount(self)
 	local e = 0
 	for _,child in ipairs(self.startChildren) do
-		if child.extra and child.extra ~= 'none' then
-			e = e + 1
-		end
+		if child.extra ~= 'none' then e = e + 1 end
 	end
 	for _,child in ipairs(self.endChildren) do
-		if child.extra and child.extra ~= 'none' then
-			e = e + 1
-		end
+		if child.extra ~= 'none' then e = e + 1 end
 	end
 	return e
 end
 
 local function allocateHeterogeneousRow(self, x, y, w, h)
-	local req = rowRequest(self)
 	local n = #self.startChildren + #self.endChildren
-	local ne = extraCount(self)
-	local e = 0
-	if ne > 0 then
-		local extra = (w - spacing * (n - 1)) - req.w
-		e = extra / ne
+	if n == 0 then return end
+
+	local req = rowRequest(self)
+	local squash
+	local extra = w - req.w
+	if extra >= 0 then
+		extra = extra / extraCount(self)
+	else
+		local space = self.spacing * (n - 1)
+		local allocated = math.max(0, w - space)
+		local requested = req.w - space
+		squash = allocated / requested
+	end
+
+	local left = 0
+	for _,c in ipairs(self.startChildren) do
+		local r = c.obj:request()
+		if squash ~= nil then
+			r.w = r.w * squash
+		elseif c.extra ~= 'none' then
+			r.w = r.w + extra
+		end
+		local a = math.max(0, math.min(w - left, r.w))
+		allocateChild(c, x + left, y, a, h)
+		left = math.min(w, left + a + self.spacing)
+	end
+
+	local right = 0
+	for _,c in ipairs(self.endChildren) do
+		local r = c.obj:request()
+		if squash ~= nil then
+			r.w = r.w * squash
+		elseif c.extra ~= 'none' then
+			r.w = r.w + extra
+		end
+		local a = math.max(0, math.min(w - right, r.w))
+		right = math.min(w, right + a)
+		allocateChild(c, x + w - right, y, a, h)
+		right = math.min(w, right + self.spacing)
 	end
 end
 
