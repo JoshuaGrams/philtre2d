@@ -94,15 +94,18 @@ local function allocateHomogeneousRow(self, x, y, w, h)
 	local n = #self.startChildren + #self.endChildren
 	if n == 0 then return end
 	local a = math.max(0, w - self.spacing * (n - 1)) / n
-	for i,child in ipairs(self.startChildren) do
-		local ix = (i - 1) * a  +  (i - 1) * self.spacing
-		ix = x + math.max(0, math.min(w, ix))
-		allocateChild(child, ix, y, a, h)
+
+	local left = 0
+	for _,c in ipairs(self.startChildren) do
+		allocateChild(c, x + left, y, a, h)
+		left = math.min(w, left + a + self.spacing)
 	end
-	for i,child in ipairs(self.endChildren) do
-		local ix = w - (i * a  +  (i - 1) * self.spacing)
-		ix = x + math.max(0, math.min(w, ix))
-		allocateChild(child, ix, y, a, h)
+
+	local right = 0
+	for _,c in ipairs(self.endChildren) do
+		right = math.min(w, right + a)
+		allocateChild(c, x + w - right, y, a, h)
+		right = math.min(w, right + self.spacing)
 	end
 end
 
