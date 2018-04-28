@@ -29,6 +29,9 @@ local function expand(self, args)
 end
 
 local function command(self, name, perform, revert, update)
+	if not perform or not revert then
+		error("A command must have both perform and revert functions")
+	end
 	self.commands[name] = {
 		perform = perform,
 		revert = revert,
