@@ -63,9 +63,9 @@ local function restoreCurrentLayer(self)
 	self.current_layer = table.remove(self.saved_layers)
 end
 
-local function depths(self)
+local function depths(self, depths)
 	local n, order = 0, self.order
-	for depth,layer in pairs(self.depth) do
+	for depth,layer in pairs(depths) do
 		n = n + 1
 		order[n] = depth
 	end
@@ -77,10 +77,11 @@ local function depths(self)
 	return order
 end
 
-local function draw(self)
+local function draw(self, depth_list)
 	love.graphics.push()
 	local m = nil
-	for _,depth in ipairs(depths(self)) do
+	if not depth_list then  depth_list = self.depth  end
+	for _,depth in ipairs(depths(self, depth_list)) do
 		for _,object in ipairs(self.depth[depth]) do
 			local pushed
 			if m ~= object._to_world then
