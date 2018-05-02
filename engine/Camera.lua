@@ -65,11 +65,11 @@ local function is_vec(v)
 	end
 end
 
-local function get_aspect_rect_in_win(aspect_ratio, win_x, win_y)
+local function get_aspect_rect_in_win(aspect_ratio, win_x, win_y, viewport_align)
 	local s = math.min(win_x/aspect_ratio, win_y)
 	local w, h = s*aspect_ratio, s
-	local x = (win_x - w) * M.viewport_align.x
-	local y = (win_y - h) * M.viewport_align.y
+	local x = (win_x - w) * viewport_align.x
+	local y = (win_y - h) * viewport_align.y
 	return x, y, w, h
 end
 
@@ -138,7 +138,7 @@ end
 function Camera.windowResized(self, x, y, w, h)
 	local vp_w, vp_h = self.vp.w, self.vp.h -- save last values
 	if self.aspect_ratio then -- Must enforce fixed aspect ratio before figuring zoom.
-		self.vp.x, self.vp.y, self.vp.w, self.vp.h = get_aspect_rect_in_win(self.aspect_ratio, w, h)
+		self.vp.x, self.vp.y, self.vp.w, self.vp.h = get_aspect_rect_in_win(self.aspect_ratio, w, h, self.viewport_align)
 	else
 		self.vp.x, self.vp.y, self.vp.w, self.vp.h = 0, 0, w, h
 	end
@@ -183,12 +183,12 @@ function Camera.update(self, dt)
 			a = (love.math.noise(s.seed+2, s.t*s.freq) - 0.5)*2
 			local d = s.dist * k
 			x = x * d;  y = y * d
-			a = a * d * M.shake_rot_mult
+			a = a * d * self.shake_rot_mult
 		elseif s.dist then -- is a shake
 			local d = rand() * s.dist * k
 			local angle = rand() * TWO_PI
 			x = sin(angle) * d;  y = cos(angle) * d
-			a = (rand()-0.5)*2 * s.dist * k * M.shake_rot_mult
+			a = (rand()-0.5)*2 * s.dist * k * self.shake_rot_mult
 		elseif s.vec then -- is a recoil
 			x = s.vec.x * k;  y = s.vec.y * k
 		end
@@ -388,7 +388,7 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 	-- Fixed aspect ratio - get viewport/scissor
 	local vp = {}
 	if fixed_aspect_ratio then
-		vp.x, vp.y, vp.w, vp.h = get_aspect_rect_in_win(self.aspect_ratio, self.win_x, self.win_y)
+		vp.x, vp.y, vp.w, vp.h = get_aspect_rect_in_win(self.aspect_ratio, self.win_x, self.win_y, self.viewport_align)
 		vp.half_w = vp.w/2;  vp.half_h = vp.h/2
 	else
 		vp.x, vp.y, vp.w, vp.h = 0, 0, self.win_x, self.win_y
@@ -399,7 +399,7 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 	-- Figure zoom
 	local vx, vy = decipher_zoom_or_area(zoom_or_area)
 	if not vx then
-		error("Lovercam - M.new() - invalid zoom or area: " .. tostring(zoom_or_area))
+		error("Camera.set - invalid zoom or area: " .. tostring(zoom_or_area))
 	elseif vx and not vy then -- user supplied a zoom value, keep this zoom no matter what
 		self.zoom = vx
 	else -- user supplied a view area - use this with scale_mode and viewport to find zoom
