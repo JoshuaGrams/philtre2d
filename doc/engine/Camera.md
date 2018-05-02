@@ -135,3 +135,62 @@ _PARAMETERS_
 * __rt__ <kbd>number</kbd> - The x position of the right edge of the bounds.
 * __top__ <kbd>number</kbd> - The y position of the top edge of the bounds.
 * __bot__ <kbd>number</kbd> - The y position of the bottom edge of the bounds.
+
+Properties
+----------
+
+### Module Defaults
+By default these aren't set on the camera objects, they're just inherited as meta-properties from the module. So you can either change them on the module to change the global defaults, or set them on individual cameras to just change how that camera behaves.
+
+#### Camera.current
+_DEFAULT:_ the fallback camera.
+
+A reference to the current camera. This is either the last created camera that was not initialized as inactive, or the last camera that you called `:activate()` on. There is a fallback camera that is used if no other cameras exist.
+
+#### Camera.shake_falloff
+_DEFAULT:_ "linear"
+
+The default falloff function for camera shakes (perlin and standard). Can be either "linear" or "quadratic"
+
+#### Camera.recoil_falloff
+_DEFAULT:_ "quadratic"
+
+The default falloff function for camera recoils. Can be either "linear" or "quadratic"
+
+#### Camera.shake_rot_mult
+_DEFAULT:_ 0.001
+
+The default amount of rotational shake relative to the shake `dist`. (in +/= radians / dist). It defaults to 0.001. Set it to zero to disable rotational shake.
+
+#### Camera.shake_freq
+_DEFAULT:_ 8
+
+Default frequency for Perlin shakes.
+
+#### Camera.follow_lerp_speed
+_DEFAULT:_ 3
+
+Default lerp speed for following.
+
+#### Camera.viewport_align
+_DEFAULT:_ { x = 0.5, y = 0.5 }
+
+Controls where the camera puts black bars if its using a fixed aspect ratio. The default of 0.5, 0.5 means any black bars will be split evenly on either axis, centering the viewport within the window. Setting it to 0, 0 would align the viewport to the top left corner of the window--any black bars would be on the bottom or the right.
+
+### Camera Properties
+Useful properties set on camera objects, not on the class module. These are in addition to the usual Object properties of course.
+
+#### self.scale_mode
+The scale mode the camera uses to adjust its zoom when the window is resized.
+
+#### self.aspect_ratio
+The aspect ratio that the camera will lock the viewport to, if using a fixed-aspect-ratio camera. Otherwise this will be `nil`.
+
+#### self.zoom
+The zoom multiplier of the camera. Higher values mean the camera is zoomed in, lower means it is zoomed out.
+
+#### self.vp
+The viewport properties that the camera is using. This is a table with the following properties:
+* __x, y__ - The x and y offset of the viewport, from the top left corner of the window. Will be 0, 0 for non-fixed-aspect-ratio cameras.
+* __w, h__ - The width and height of the viewport. Will be equal to the window dimensions for non-fixed-aspect-ratio cameras.
+* __half_w, half_h__ - Half of `w` and `h`. Used by the camera to center rendering in its viewport.
