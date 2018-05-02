@@ -48,11 +48,16 @@ local function objectLayer(self, object)
 	return layer
 end
 
-local function add(self, object)
-	local layer = objectLayer(self, object)
+local function addFunction(self, layer, m, fn, ...)
 	self.current_layer = layer
 	layer.n = layer.n + 1
-	layer[layer.n] = object
+	layer[layer.n] = {m = m, fn, ...}
+end
+
+local function add(self, object)
+	local layer = objectLayer(self, object)
+	local m = object._to_world
+	addFunction(self, layer, m, object.call, object, 'draw')
 end
 
 local function saveCurrentLayer(self)
@@ -82,10 +87,10 @@ local function draw(self, depth_list)
 	local m = nil
 	if not depth_list then  depth_list = self.depth  end
 	for _,depth in ipairs(depths(self, depth_list)) do
-		for _,object in ipairs(self.depth[depth]) do
+		for _,fn in ipairs(self.depth[depth]) do
 			local pushed
-			if m ~= object._to_world then
-				m = object._to_world
+			if m ~= fn.m then
+				m = fn.m
 				local th, sx, sy, kx, ky = M.parameters(m)
 				pushed = true
 				love.graphics.push()
@@ -94,7 +99,7 @@ local function draw(self, depth_list)
 				love.graphics.scale(sx, sy)
 				love.graphics.shear(kx, ky)
 			end
-			object:call('draw')
+			fn[1](unpack(fn, 2))
 			if pushed then love.graphics.pop() end
 		end
 	end
@@ -105,6 +110,7 @@ local methods = {
 	addLayer = addLayer,
 	removeLayer = removeLayer,
 	clear = clear,
+	addFunction = addFunction,
 	add = add,
 	saveCurrentLayer = saveCurrentLayer,
 	restoreCurrentLayer = restoreCurrentLayer,
