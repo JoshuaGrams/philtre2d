@@ -62,7 +62,7 @@ return {
 			}, "first box at left, doesn't stretch", "box")
 			T.has(boxes[2][1], {
 				pos = { x = w - 15, y = 0 },
-				width = itemWidth, height = h
+				width = 15, height = h
 			}, "second box at right, doesn't stretch", "box")
 			T.has(boxes[3][1], {
 				pos = { x = 10 + spacing, y = 0 },
