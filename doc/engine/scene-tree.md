@@ -1,113 +1,82 @@
 Scene Tree
 ==========
 
-A scene tree tracks objects and collections and manages
-transforms and local coordinates for child objects.
+The scene tree tracks objects and manages transforms and local coordinates for child objects. It manages updating all its child objects and adding them to the draw order. This module is 'stateful'. There is only one scene tree.
 
-Each object in a tree may have the following optional
-properties:
+Basic Usage
+-----------
 
-* `layer` - Name string or integer depth (distance into the
-  screen).  See [Draw Order](draw-order.md) for details.
+The only setup required is `scene.init(draw_order)`. All this does is give the scene tree a reference to a draw order. Other than that, all you need is `scene.add(object, [parent])`, and `scene.remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`. Scene tree will give each object `name`, `path`, and `parent` properties on init.
 
-* `children` - a sequence of child objects.
+Functions
+---------
 
-* `pos` - Table `{x=number, y=number}` giving the object's
-  position (in coordinates relative to its parent).
+### scene.init(draw_order)
+A bit silly, this just gives scene tree a reference to a draw order. Possibly scene tree should make its own draw order in the future.
 
-* `angle`, `sx`, `sy`, `kx`, `ky` - rotation, scale, skew.
+_PARAMETERS_
+* __draw_order__ <kbd>DrawOrder</kbd> - The DrawOrder for the scene tree to use.
 
-The scene tree functions add a few more:
+### scene.add(obj, [parent])
+Adds an object to the tree. If no parent is specified it will be added at the root level (a child of the tree object). This will add the object to its parent's child list and init the object, setting its path, parent, initializing its children, and finally calling 'init' on the object and its scripts.
 
-* `parent` - the object's parent within the scene tree.  This is
-  actually the nearest ancestor with a transform.  Collections
-  with no transform are removed from the tree and can only be
-  accessed by their path.
+_PARAMETERS_
+* __obj__ <kbd>Object</kbd> - The object to add.
+* __parent__ <kbd>Object</kbd> - _optional_ - The parent object to add it to. This defaults to the scene tree root if nothing is specified.
 
-* `_to_world` - the local-to-world transformation.
+### scene.remove(obj)
+Removes the object from the tree. This will also remove the object's children down the tree. The object and its children will not be drawn or updated after this, they will just get a 'final' callback.
 
-* `_to_local` - the world-to-local transformation.  This costs a
-  certain amount to compute, so it is set to `nil` unless you
-  use it (by calling `T.to_local()`).
+_PARAMETERS_
+* __obj__ <kbd>Object</kbd> - The object to remove.
 
+### scene.update(dt)
+Updates the whole scene tree. For each object this will call `update`, `updateTransform`, and add the object to the draw order.
 
-Contents
---------
+_PARAMETERS_
+* __dt__ <kbd>number</kbd> - Delta time for this frame.
 
-A table (`T`) containing the following:
+### scene.draw()
+If a draw order is known, this calls it's `draw` function, otherwise it draws everything in the tree in parent --> child order (obsolete).
 
-* `new(draw_order, root_objects) -> tree` - Create a new scene
-  tree object.  Sets `parent`, `path`, `_to_world`, and
-  `_to_local` properties on each object.
+### scene.get(path)
+Gets the object at the specified path.
 
-* `mod(object, properties) -> object` - copy key/value pairs
-  from `properties` onto `object`, overriding any that may
-  already exist.  This is a convenience function to help build
-  scene trees by making it easy to add or modify any properties
-  that the scene tree may need while constructing the tables.
+_PARAMETERS_
+* __path__ <kbd>string</kbd> - Path to the object to get.
 
-* `object(x, y, angle, xScale, yScale, xSkew, ySkew) -> table` -
-  create a table with all the transform parameters, providing
-  sensible defaults for any arguments which are not given.  This
-  function doesn't set a metatable, so you can do whatever you
-  like with the result.
+_RETURNS_
+* __obj__ <kbd>Object | nil</kbd> - The object at the specified path (or `nil` if none is found).
 
-* `to_world(obj, x, y, w) -> x2, y2` - Transform a local vector
-  into world coordinates.
+### scene.toWorld(obj, x, y, [w])
+Transforms a vector, local to `obj`, into world coordinates.
 
-* `to_local(obj, x, y, w) -> x2, y2` - Transform a world vector
-  into local coordinates.
+_PARAMETERS_
+* __obj__ <kbd>number</kbd> - The Object whose transform to use.
+* __x__ <kbd>number</kbd> - Local x.
+* __y__ <kbd>number</kbd> - Local y.
+* __w__ <kbd>number</kbd> - _optional_ - Local w. Defaults to 1.
 
------
+_RETURNS_
+* __x__ <kbd>number</kbd> - World x.
+* __y__ <kbd>number</kbd> - World y.
 
-A scene tree object has the following methods:
+### scene.toLocal(obj, x, y, [w])
+Transforms a world vector into coordinates local to `obj`.
 
-* `add(object, parent=nil)` - Add an object to the tree.  If no
-  parent is given, add it at the root level.
+_PARAMETERS_
+* __obj__ <kbd>number</kbd> - The Object whose transform to use.
+* __x__ <kbd>number</kbd> - World x.
+* __y__ <kbd>number</kbd> - World y.
+* __w__ <kbd>number</kbd> - _optional_ - World w. Defaults to 1.
 
-* `remove(object)` - Remove an object from the tree.
+_RETURNS_
+* __x__ <kbd>number</kbd> - Local x.
+* __y__ <kbd>number</kbd> - Local y.
 
-* `get(path) -> object or nil` - Look up an object by its path.
+### scene.setParent(obj, [parent])
+Moves an object in the scene tree from its current parent to another. Behind the scenes, this happens in two parts. The object's parent reference is changed immediately to the new parent, so it will inherit the new parent's transform for drawing & positioning, but it's kept in the same child list so none of its `update` or other callbacks get messed up. At the next pre- or post-update the reparenting is completed, swapping the object out of its old parent's child list into the new one's.
 
-* `pause(object)` - Pauses the object and its children down the tree.
-
-* `unpause(object)` - Un-pauses the object and its children down the tree.
-
-* `update(dt)` - Traverse the tree, updating all objects with
-  the given time delta.
-
-* `draw()` - Draw all objects in the tree by calling out to the
-  `draw_order` if present, or by traversing the tree (which
-  draws in strict tree order and doesn't support layers).
-
------
-
-* `update(tree, dt, draw_order)` - update all objects.  If
-  `draw_order` is given, adds all objects with a `draw` method
-  (note that you are responsible for clearing the draw order
-  between updates for yourself...).
-
-* `draw(tree)` - Draw all objects, in tree order.
-
-
-Todo
-----
-
-* Manipulating pure collections.  If you want to move it, should
-  we add a transform and re-parent all its children?  What if it
-  has a layer and you change that?  Or what if you disable or
-  hide it?  Hmm.  Maybe game objects need to be objects as well.
-  But then we need inheritance, because we'll want them to be
-  other types of object?  Or can we use composition for that?  I
-  don't want to think about that yet.  Bah.  Maybe it's fine
-  that pure collections are just an edit-time thing.  My main
-  objections to Defold were that game objects couldn't have
-  children and that you couldn't ask about the children of a
-  collection, and I have already fixed both of those things.
-
-* Automated tests
-
-Otherwise I think this is ok for now.  We probably need to use
-it a bunch and find out where the holes and weak points are.
-And I imagine it's slow, but I'll worry about that later, once
-everything else mostly works.
+_PARAMETERS_
+* __obj__ <kbd>Object</kbd> - The object to reparent.
+* __parent__ <kbd>Object</kbd> - _optional_ - The object to reparent `obj` to. Defaults to the scene tree root.
