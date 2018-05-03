@@ -33,6 +33,8 @@ local function add(self, obj, dir, extra, pad)
 	if dir == 'start' then list = self.startChildren
 	elseif dir == 'end' then list = self.endChildren end
 	table.insert(list, child)
+	if not self.children then self.children = {} end
+	table.insert(self.children, child)
 end
 Row.add = add
 
@@ -77,14 +79,14 @@ local function allocateHomogeneousRow(self, x, y, w, h)
 
 	local left = 0
 	for _,c in ipairs(self.startChildren) do
-		allocateChild(c, x + left, y, a, h)
+		allocateChild(c, left, 0, a, h)
 		left = math.min(w, left + a + self.spacing)
 	end
 
 	local right = 0
 	for _,c in ipairs(self.endChildren) do
 		right = math.min(w, right + a)
-		allocateChild(c, x + w - right, y, a, h)
+		allocateChild(c, w - right, 0, a, h)
 		right = math.min(w, right + self.spacing)
 	end
 end
@@ -125,7 +127,7 @@ local function allocateHeterogeneousRow(self, x, y, w, h)
 			r.w = r.w + extra
 		end
 		local a = math.max(0, math.min(w - left, r.w))
-		allocateChild(c, x + left, y, a, h)
+		allocateChild(c, left, 0, a, h)
 		left = math.min(w, left + a + self.spacing)
 	end
 
@@ -139,7 +141,7 @@ local function allocateHeterogeneousRow(self, x, y, w, h)
 		end
 		local a = math.max(0, math.min(w - right, r.w))
 		right = math.min(w, right + a)
-		allocateChild(c, x + w - right, y, a, h)
+		allocateChild(c, w - right, 0, a, h)
 		right = math.min(w, right + self.spacing)
 	end
 end

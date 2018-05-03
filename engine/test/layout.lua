@@ -42,15 +42,15 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x + 0.5*(itemWidth-10), y = y },
+				pos = { x = 0.5*(itemWidth-10), y = 0 },
 				width = 10, height = h
 			}, "first box at left, doesn't stretch", "box")
 			T.has(boxes[2][1], {
-				pos = { x = (x + w) - itemWidth + 0.5 * (itemWidth - 15), y = y },
+				pos = { x = w - itemWidth + 0.5 * (itemWidth - 15), y = 0 },
 				width = 15, height = h
 			}, "second box at right, doesn't stretch", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + itemWidth + spacing, y = y },
+				pos = { x = itemWidth + spacing, y = 0 },
 				width = itemWidth, height = h
 			}, "third box to right of first, stretches", "box")
 		end,
@@ -69,15 +69,15 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x + 0.5 * (itemWidth - 10), y = y  },
+				pos = { x = 0.5 * (itemWidth - 10), y = 0 },
 				width = 10, height = h
 			}, "first box at left, doesn't stretch", "box")
 			T.has(boxes[2][1], {
-				pos = { x = (x + w) - itemWidth, y = y },
+				pos = { x = w - itemWidth, y = 0 },
 				width = itemWidth, height = h
 			}, "second box at right, gets squashed", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + itemWidth + spacing, y = y },
+				pos = { x = itemWidth + spacing, y = 0 },
 				width = itemWidth, height = h
 			}, "third box to right of first, stretches", "box")
 		end,
@@ -96,15 +96,15 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x, y = y },
+				pos = { x = 0, y = 0 },
 				width = itemWidth, height = h
 			}, "first box at left, 9 width", "box")
 			T.has(boxes[2][1], {
-				pos = { x = (x + w) - itemWidth, y = y },
+				pos = { x = w - itemWidth, y = 0 },
 				width = itemWidth, height = h
 			}, "second box at right, gets 9 width", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + itemWidth + spacing, y = y },
+				pos = { x = itemWidth + spacing, y = 0 },
 				width = itemWidth, height = h
 			}, "third box to right of first, gets 9 width", "box")
 		end,
@@ -121,15 +121,15 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = {x = x, y = y },
+				pos = {x = 0, y = 0 },
 				width = 0, height = h
 			}, "first box at left, 0 width", "box")
 			T.has(boxes[2][1], {
-				pos = {x = x + spacing, y = y },
+				pos = {x = spacing, y = 0 },
 				width = 0, height = h
 			}, "second box to right of first, 0 width", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + w, y = y },
+				pos = { x = w, y = 0 },
 				width = 0, height = h
 			}, "third box at end, 0 width", "box")
 		end,
@@ -146,13 +146,13 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x, y = y }, width = 0, height = h
+				pos = { x = 0, y = 0 }, width = 0, height = h
 			}, "first box at left, 0 width", "box")
 			T.has(boxes[2][1], {
-				pos = { x = x + spacing, y = y }, width = 0, height = h
+				pos = { x = spacing, y = 0 }, width = 0, height = h
 			}, "second box to right of first, 0 width", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + w, y = y }, width = 0, height = h
+				pos = { x = w, y = 0 }, width = 0, height = h
 			}, "third box at end, 0 width", "box")
 		end,
 		function()
@@ -168,13 +168,13 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x, y = y }, width = 10, height = h
+				pos = { x = 0, y = 0 }, width = 10, height = h
 			}, "first box at left, doesn't stretch", "box")
 			T.has(boxes[2][1], {
-				pos = { x = x + w - 15, y = y }, width = 15, height = h
+				pos = { x = w - 15, y = 0 }, width = 15, height = h
 			}, "second box at right, doesn't stretch", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + 10 + spacing, y = y },
+				pos = { x = 10 + spacing, y = 0 },
 				width = w - 10 - 15 - 2 * spacing, height = h
 			}, "third box to right of first, stretches", "box")
 		end,
@@ -191,15 +191,15 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x, y = y  },
+				pos = { x = 0, y = 0 },
 				width = 10, height = h
 			}, "first box at left, doesn't stretch", "box")
 			T.has(boxes[2][1], {
-				pos = { x = (x + w) - 15, y = y },
+				pos = { x = w - 15, y = 0 },
 				width = itemWidth, height = h
 			}, "second box at right, doesn't stretch", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + 10 + spacing, y = y },
+				pos = { x = 10 + spacing, y = 0 },
 				width = 11, height = h
 			}, "third box to right of first, stretches", "box")
 		end,
@@ -216,13 +216,13 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x, y = y }, width = 8, height = h
+				pos = { x = 0, y = 0 }, width = 8, height = h
 			}, "first box at left, squashed", "box")
 			T.has(boxes[2][1], {
-				pos = { x = (x + w) - 12, y = y }, width = 12, height = h
+				pos = { x = w - 12, y = 0 }, width = 12, height = h
 			}, "second box at right, squashed", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + 8 + spacing, y = y },
+				pos = { x = 8 + spacing, y = 0 },
 				width = 8, height = h
 			}, "third box to right of first, squashed", "box")
 		end,
@@ -239,15 +239,15 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = {x = x, y = y },
+				pos = {x = 0, y = 0 },
 				width = 0, height = h
 			}, "first box at left, 0 width", "box")
 			T.has(boxes[2][1], {
-				pos = {x = x + spacing, y = y },
+				pos = {x = spacing, y = 0 },
 				width = 0, height = h
 			}, "second box to right of first, 0 width", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + w, y = y },
+				pos = { x = w, y = 0 },
 				width = 0, height = h
 			}, "third box at end, 0 width", "box")
 		end,
@@ -264,13 +264,13 @@ return {
 			row:allocate(x, y, w, h)
 
 			T.has(boxes[1][1], {
-				pos = { x = x, y = y }, width = 0, height = h
+				pos = { x = 0, y = 0 }, width = 0, height = h
 			}, "first box at left, 0 width", "box")
 			T.has(boxes[2][1], {
-				pos = { x = x + spacing, y = y }, width = 0, height = h
+				pos = { x = spacing, y = 0 }, width = 0, height = h
 			}, "second box to right of first, 0 width", "box")
 			T.has(boxes[3][1], {
-				pos = { x = x + w, y = y }, width = 0, height = h
+				pos = { x = w, y = 0 }, width = 0, height = h
 			}, "third box at end, 0 width", "box")
 		end
 	}
