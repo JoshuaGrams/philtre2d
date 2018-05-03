@@ -27,7 +27,7 @@ Objects
 -------
 
 * [Body](engine/Body.md) - Physics body object.
-	* `Body(world, type, x, y, angle, shapes, prop, ignore_parent_transform)`
+	* `Body(type, x, y, angle, shapes, prop, ignore_parent_transform)`
 * [Camera](engine/Camera.md) - Camera object.
 	* `Camera(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)`
 * GUI Root - Root 'window' object for GUI. Needs to get `love.resize` calls.
