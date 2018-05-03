@@ -119,7 +119,7 @@ local function allocateHeterogeneousRow(self, x, y, w, h)
 	local left = 0
 	for _,c in ipairs(self.startChildren) do
 		local r = c.obj:request()
-		if squash ~= nil then
+		if squashFactor ~= nil then
 			r.w = r.w * squashFactor
 		elseif c.extra ~= 'none' then
 			r.w = r.w + extra
@@ -132,8 +132,8 @@ local function allocateHeterogeneousRow(self, x, y, w, h)
 	local right = 0
 	for _,c in ipairs(self.endChildren) do
 		local r = c.obj:request()
-		if squash ~= nil then
-			r.w = r.w * squash
+		if squashFactor ~= nil then
+			r.w = r.w * squashFactor
 		elseif c.extra ~= 'none' then
 			r.w = r.w + extra
 		end
