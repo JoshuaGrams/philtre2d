@@ -62,8 +62,8 @@ local function is(a, b, msg)
 	ok(a == b, msg)
 	if a ~= b then
 		-- TODO - handle multi-line output from objectToString.
-		note("Expected " .. objectToString(b))
-		note(" but got " .. objectToString(a))
+		note("Expected " .. objectToString(b, '#'))
+		note(" but got " .. objectToString(a, '#'))
 	end
 end
 
