@@ -1,6 +1,7 @@
 
 local matrix = require 'engine.matrix'
 local Object = require 'engine.Object'
+local World = require 'engine.World'
 
 local Body = Object:extend()
 
@@ -62,13 +63,27 @@ local shape_constructors = {
 	chain = love.physics.newChainShape, -- loop, points OR loop, x1, y1, x2, y2 ... no vert limit
 }
 
+local function getWorld(parent)
+	if not parent then
+		return
+	elseif parent.is and parent:is(World) and parent.world then
+		return parent.world
+	else
+		return getWorld(parent.parent)
+	end
+end
+
 function Body.init(self)
 	if not self.ignore_transform and self.type ~= 'kinematic' then
 		self.pos.x, self.pos.y = matrix.x(self.parent._to_world, self.pos.x, self.pos.y)
 		self.angle = self.angle + matrix.parameters(self.parent._to_world)
 	end
 
-	self.body = love.physics.newBody(self.world, self.pos.x, self.pos.y, self.type)
+	local world = getWorld(self.parent)
+	if not world then
+		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
+	end
+	self.body = love.physics.newBody(world, self.pos.x, self.pos.y, self.type)
 	self.body:setAngle(self.angle)
 	if self.bodyData then
 		for k,v in pairs(self.bodyData) do
@@ -91,7 +106,6 @@ function Body.init(self)
 			end
 		end
 	end
-	self.world = nil
 	self.shapeData = nil
 	self.bodyData = nil
 	self.inherit = nil
@@ -101,7 +115,7 @@ function Body.final(self)
 	self.body:destroy()
 end
 
-function Body.set(self, world, type, x, y, angle, shapes, body_prop, ignore_parent_transform)
+function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_transform)
 	Body.super.set(self, x, y, angle)
 	local rand = love.math.random
 	self.color = {rand()*200+55, rand()*200+55, rand()*200+55, 255}
@@ -110,7 +124,6 @@ function Body.set(self, world, type, x, y, angle, shapes, body_prop, ignore_pare
 		self.updateTransform = Object.TRANSFORM_ABSOLUTE
 	end
 	-- Save to use on init:
-	self.world = world
 	self.shapeData = shapes
 	self.bodyData = body_prop
 	self.ignore_transform = ignore_parent_transform
