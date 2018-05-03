@@ -67,7 +67,18 @@ local function is(a, b, msg)
 	end
 end
 
+local function has(actual, expected, msg, path)
+	path = path or 'obj'
+	for k,v in pairs(expected) do
+		if type(v) == 'table' and type(actual[k]) == 'table' then
+			has(actual[k], v, msg, path .. '.' .. k)
+		else
+			is(actual[k], v, path .. '.' .. k .. ': ' .. msg)
+		end
+	end
+end
+
 return {
 	note = note, plan = plan, bail = bail, check = check,
-	ok = ok, is = is
+	ok = ok, is = is, has = has
 }
