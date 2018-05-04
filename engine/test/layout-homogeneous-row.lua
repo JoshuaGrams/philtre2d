@@ -4,8 +4,8 @@ local Layout = require 'engine.layout'
 
 return {
 	"GUI Layout Row (homogeneous)",
+	"Requested size",
 	function()
-		T.note("Homogeneous row: requested size")
 		local row = Layout.Row(0, false, {
 			{ Layout.Box(10, 50) },
 			{ Layout.Box(15, 49) }
@@ -20,8 +20,8 @@ return {
 		})
 		T.has(row:request(), {w=45, h=50}, "request (spacing, homogeneous)", "row")
 	end,
+	"Homogeneous row: adequate width.",
 	function()
-		T.note("Homogeneous row: adequate width.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50), 'end'},
@@ -47,8 +47,8 @@ return {
 			width = itemWidth, height = h
 		}, "third box to right of first, stretches", "box")
 	end,
+	"Homogeneous row: one box squashed.",
 	function()
-		T.note("Homogeneous row: one box squashed.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50), 'end'},
@@ -74,8 +74,8 @@ return {
 			width = itemWidth, height = h
 		}, "third box to right of first, stretches", "box")
 	end,
+	"Homogeneous row: all boxes squashed.",
 	function()
-		T.note("Homogeneous row: all boxes squashed.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50), 'end'},
@@ -101,8 +101,8 @@ return {
 			width = itemWidth, height = h
 		}, "third box to right of first, gets 9 width", "box")
 	end,
+	"Homogeneous row: width less than spacing.",
 	function()
-		T.note("Homogeneous row: width less than spacing.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50)},
@@ -126,8 +126,8 @@ return {
 			width = 0, height = h
 		}, "third box at end, 0 width", "box")
 	end,
+	"Homogeneous row with padding: width less than spacing.",
 	function()
-		T.note("Homogeneous row with padding: width less than spacing.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50)},

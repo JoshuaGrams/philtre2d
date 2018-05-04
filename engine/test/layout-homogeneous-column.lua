@@ -4,8 +4,8 @@ local Layout = require 'engine.layout'
 
 return {
 	"GUI Layout Column (homogeneous)",
+	"Homogeneous column: requested size",
 	function()
-		T.note("Homogeneous column: requested size")
 		local col = Layout.Column(0, false, {
 			{ Layout.Box(50, 10) },
 			{ Layout.Box(49, 15) }
@@ -20,8 +20,8 @@ return {
 		})
 		T.has(col:request(), {w=50, h=45}, "request (spacing, homogeneous)", "col")
 	end,
+	"Homogeneous column: adequate height.",
 	function()
-		T.note("Homogeneous column: adequate height.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15), 'end'},
@@ -47,8 +47,8 @@ return {
 			width = w, height = itemHeight
 		}, "third box below first, stretches", "box")
 	end,
+	"Homogeneous column: one box squashed.",
 	function()
-		T.note("Homogeneous column: one box squashed.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15), 'end'},
@@ -74,8 +74,8 @@ return {
 			width = w, height = itemHeight
 		}, "third box below first, stretches", "box")
 	end,
+	"Homogeneous column: all boxes squashed.",
 	function()
-		T.note("Homogeneous column: all boxes squashed.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15), 'end'},
@@ -101,8 +101,8 @@ return {
 			width = w, height = itemHeight
 		}, "third box below first, squashed", "box")
 	end,
+	"Homogeneous column: height less than spacing.",
 	function()
-		T.note("Homogeneous column: height less than spacing.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15)},
@@ -126,8 +126,8 @@ return {
 			width = w, height = 0
 		}, "third box at bottom, 0 width", "box")
 	end,
+	"Homogeneous column with padding: height less than spacing.",
 	function()
-		T.note("Homogeneous column with padding: height less than spacing.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15)},

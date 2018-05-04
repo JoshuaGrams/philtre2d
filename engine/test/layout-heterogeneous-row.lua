@@ -20,8 +20,8 @@ return {
 		T.has(row:request(), {w=45, h=50}, "request (with spacing)", "row")
 
 	end,
+	"Heterogeneous row: adequate width.",
 	function()
-		T.note("Heterogeneous row: adequate width.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50), 'end'},
@@ -43,8 +43,8 @@ return {
 			width = w - 10 - 15 - 2 * spacing, height = h
 		}, "third box to right of first, stretches", "box")
 	end,
+	"Heterogeneous row: still fits.",
 	function()
-		T.note("Heterogeneous row: still fits.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50), 'end'},
@@ -68,8 +68,8 @@ return {
 			width = 11, height = h
 		}, "third box to right of first, stretches", "box")
 	end,
+	"Heterogeneous row: all boxes squashed.",
 	function()
-		T.note("Heterogeneous row: all boxes squashed.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50), 'end'},
@@ -91,8 +91,8 @@ return {
 			width = 8, height = h
 		}, "third box to right of first, squashed", "box")
 	end,
+	"Heterogeneous row: width less than spacing.",
 	function()
-		T.note("Heterogeneous row: width less than spacing.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50)},
@@ -116,8 +116,8 @@ return {
 			width = 0, height = h
 		}, "third box at end, 0 width", "box")
 	end,
+	"Heterogeneous row with padding: width less than spacing.",
 	function()
-		T.note("Heterogeneous row with padding: width less than spacing.")
 		local boxes = {
 			{Layout.Box(10, 50)},
 			{Layout.Box(15, 50)},

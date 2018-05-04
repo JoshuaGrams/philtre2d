@@ -20,8 +20,8 @@ return {
 		T.has(col:request(), {w=50, h=45}, "request (with spacing)", "col")
 
 	end,
+	"Heterogeneous column: adequate width.",
 	function()
-		T.note("Heterogeneous column: adequate width.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15), 'end'},
@@ -43,8 +43,8 @@ return {
 			width = w, height = h - 10 - 15 - 2 * spacing
 		}, "third box below first, stretches", "box")
 	end,
+	"Heterogeneous column: still fits.",
 	function()
-		T.note("Heterogeneous column: still fits.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15), 'end'},
@@ -68,8 +68,8 @@ return {
 			width = w, height = 11
 		}, "third box below first, stretches", "box")
 	end,
+	"Heterogeneous column: all boxes squashed.",
 	function()
-		T.note("Heterogeneous column: all boxes squashed.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15), 'end'},
@@ -91,8 +91,8 @@ return {
 			width = w, height = 8
 		}, "third box below first, squashed", "box")
 	end,
+	"Heterogeneous column: height less than spacing.",
 	function()
-		T.note("Heterogeneous column: height less than spacing.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15)},
@@ -116,8 +116,8 @@ return {
 			width = w, height = 0
 		}, "third box at bottom, 0 width", "box")
 	end,
+	"Heterogeneous column with padding: height less than spacing.",
 	function()
-		T.note("Heterogeneous column with padding: height less than spacing.")
 		local boxes = {
 			{Layout.Box(50, 10)},
 			{Layout.Box(50, 15)},
