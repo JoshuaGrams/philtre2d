@@ -45,6 +45,11 @@ Objects
 * [World](engine/World.md) - Object with its own physics world and callback handlers.
 	* `World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 
+Libraries
+---------
+
+* [Testing](simple-test.md) - A simple test-runner.
+
 Todo
 ----
 
