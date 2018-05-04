@@ -48,17 +48,25 @@ Objects
 Libraries
 ---------
 
+Useful modules that were written by other people or just aren't required by the engine itself.
+
 * [Testing](simple-test.md) - A simple test-runner.
+* [Math Patch](lib/math_patch.md) - Patches some missing functions into the default `math` library.
+* [Vec2 (x,y)](lib/vec2xy.md) - Vector2 operations using only x and y numbers, not tables or userdata.
 
 Todo
 ----
 
 * Automated tests.
 * Start on editor.
-* Better GUI system.
+* Finish and test box-model GUI system.
+* Figure out a nice way to handle drawing layer groups at different times
+   and manage optional debug layers.
 * ~~Input man~~ager. - Some stuff left on this?
-* Make a better version of Hump.timer.
-* Scene-tree - A way to change parents. (`set_parent()`)
+    * Mouse movement.
+* Make a better version of Hump.timer/chrono?
 * Sound object.
 * Particle Emitter.
 * Physics Joint object.
+* Add ray cast and point check functions to the `physics` module.
+* Documentation Generator.
