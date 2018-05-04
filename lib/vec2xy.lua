@@ -16,7 +16,7 @@ local TWO_PI = math.pi*2
 --		This is the one outlier, just here for occasional convenience.
 --		All the other functions specifically use x and y, NOT tables.
 function vec2.new(x, y)
-	return { x or 0, y or x or 0 }
+	return { x = x or 0, y = y or x or 0 }
 end
 
 -- Add a vector to another vector.
