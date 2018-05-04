@@ -406,7 +406,7 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 		-- Want initial zoom to respect user settings. Even if "expand view" mode is used,
 		-- we want to zoom so the specified area fits the window. Use "fixed area" mode
 		-- instead to get a nice fit regardless of proportion differences.
-		local sm = scale_mode == "expand view" and "fixed area" or scale_mode
+		local sm = self.scale_mode == "expand view" and "fixed area" or self.scale_mode
 		self.zoom = get_zoom_for_new_window(1, sm, vx, vy, self.vp.w, self.vp.h)
 	end
 
