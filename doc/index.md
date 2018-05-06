@@ -30,18 +30,12 @@ Objects
 	* `Body(type, x, y, angle, shapes, prop, ignore_parent_transform)`
 * [Camera](engine/Camera.md) - Camera object.
 	* `Camera(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)`
-* GUI Root - Root 'window' object for GUI. Needs to get `love.resize` calls.
-	* `GuiRoot.new()`
-* GUI Sprite - Sprite with anchors and that scales when parent is resized.
-	* `GuiSprite.new(image, ox, oy, x, y, angle, sx, sy, ax, ay, scale_mode, kx, ky)`
-* GUI Text - Text object with anchors and nice scaling
-	* `GuiText.new(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, ax, ay, scale_mode, ox, oy, kx, ky)`
 * [Object](engine/Object.md) - Base 'game object' class.
 	* `Object(x, y, angle, sx, sy, kx, ky)`
 * Sprite - Object containing an image.
 	* `Sprite(image, x, y, angle, sx, sy, color, ox, oy, kx, ky)`
-* Text - Object for rendering text.
-	* `Text.new(x, y, angle, text, font, wrap_limit, align, sx, sy, ox, oy, kx, ky)`
+* Text - Object for rendering text. No fancy scaling.
+	* `Text(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, kx, ky)`
 * [World](engine/World.md) - Object with its own physics world and callback handlers.
 	* `World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 

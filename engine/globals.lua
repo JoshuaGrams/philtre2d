@@ -14,10 +14,7 @@ Sprite = require 'engine.Sprite'
 Body = require 'engine.Body'
 World = require 'engine.World'
 Camera = require 'engine.Camera'
-GuiRoot = require 'engine.gui_root'
-GuiSprite = require 'engine.gui_sprite'
-GuiText = require 'engine.gui_text'
-Text = require 'engine.text'
+Text = require 'engine.Text'
 
 -- Note that `props` override values already on `obj`.  This is
 -- deliberate, so we can insert a file into a bigger scene and
