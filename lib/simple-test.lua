@@ -76,10 +76,10 @@ local function has(actual, expected, msg, path)
 	for k,v in pairs(expected) do
 		local path = path .. '.' .. k
 		if type(v) == 'table' and type(actual[k]) == 'table' then
-			yes = yes and has(actual[k], v, msg, path, 2)
+			yes = has(actual[k], v, msg, path, 2) and yes
 		else
 			local msg = path .. ':' .. msg
-			yes = yes and is(actual[k], v, msg, 2)
+			yes = is(actual[k], v, msg, 2) and yes
 		end
 	end
 	return yes
