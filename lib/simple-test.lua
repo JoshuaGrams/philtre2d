@@ -45,21 +45,23 @@ local function plan(n)
 	end
 end
 
-local function ok(ok, msg)
+local function ok(ok, msg, level)
 	tested = tested + 1
 	if not ok then failed = failed + 1 end
 	local status = (ok and 'ok ' or 'not ok ') .. tested
 	local space = msg and not string.match(msg, '^\t') or false
 	print(status .. (space and ' ' or '') .. (msg or ''))
 	if not ok then
-		print(string.gsub('# ' .. debug.traceback(), '\n', '\n# '))
+		local l = 1 + (level or 1)
+		local t = '# ' .. debug.traceback('Test failed:', l)
+		print(string.gsub(t, '\n', '\n# '))
 	end
 	return ok
 end
 
-local function is(a, b, msg)
+local function is(a, b, msg, level)
 	local yes = (a == b)
-	ok(yes, msg)
+	ok(yes, msg, 1 + (level or 1))
 	if not yes then
 		-- TODO - handle multi-line output from objectToString.
 		note("Expected " .. objectToString(b, '#'))
@@ -72,10 +74,12 @@ local function has(actual, expected, msg, path)
 	path = path or 'obj'
 	local yes = true
 	for k,v in pairs(expected) do
+		local path = path .. '.' .. k
 		if type(v) == 'table' and type(actual[k]) == 'table' then
-			yes = yes and has(actual[k], v, msg, path .. '.' .. k)
+			yes = yes and has(actual[k], v, msg, path, 2)
 		else
-			yes = yes and is(actual[k], v, path .. '.' .. k .. ': ' .. msg)
+			local msg = path .. ':' .. msg
+			yes = yes and is(actual[k], v, msg, 2)
 		end
 	end
 	return yes
