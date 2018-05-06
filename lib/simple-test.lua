@@ -51,6 +51,9 @@ local function ok(ok, msg)
 	local status = (ok and 'ok ' or 'not ok ') .. tested
 	local space = msg and not string.match(msg, '^\t') or false
 	print(status .. (space and ' ' or '') .. (msg or ''))
+	if not ok then
+		print(string.gsub('# ' .. debug.traceback(), '\n', '\n# '))
+	end
 	return ok
 end
 
