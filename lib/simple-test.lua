@@ -70,16 +70,17 @@ local function is(a, b, msg, level)
 	return yes
 end
 
-local function has(actual, expected, msg, path)
+local function has(actual, expected, msg, path, l)
+	l = l or 2
 	path = path or 'obj'
 	local yes = true
 	for k,v in pairs(expected) do
 		local path = path .. '.' .. k
 		if type(v) == 'table' and type(actual[k]) == 'table' then
-			yes = has(actual[k], v, msg, path, 2) and yes
+			yes = has(actual[k], v, msg, path, l + 1) and yes
 		else
-			local msg = path .. ':' .. msg
-			yes = is(actual[k], v, msg, 2) and yes
+			local msg = path .. ': ' .. msg
+			yes = is(actual[k], v, msg, l) and yes
 		end
 	end
 	return yes
