@@ -93,9 +93,7 @@ local function update_logical(l)
 	l.value, l.change = v, v - l.value
 	-- Call objects that want input.
 	for _,o in pairs(O) do
-		if not o.paused then
-			o:input(l.name, l.value, l.change)
-		end
+		o:input(l.name, l.value, l.change)
 	end
 end
 
