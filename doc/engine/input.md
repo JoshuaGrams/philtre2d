@@ -32,6 +32,7 @@ go.
 * `Input.disable_all()`
 * `Input.to_physical(name) -> {{device, input}, ...}`
 * `Input.to_logical(device, input) -> {name, ...}`
+* `Input.get(name)`
 
 
 Setup
@@ -106,6 +107,13 @@ Each object that has input enabled requires this callback.
 -- For bound 'logical' input.
 function object.input(self, name, value, change)
 ```
+
+Get Current Input
+-----------------
+
+* `Input.get(name) -> {name, value, change}` - Returns a table
+  with the current state of a named logical input (or `nil` if
+  there is no binding for the specified `name`).
 
 Convert Between Input Types
 ---------------------------

@@ -63,6 +63,10 @@ local function logical_input(name)
 	return L[name]
 end
 
+local function get_logical(name)
+	return L[name]
+end
+
 local function to_physical(name)
 	local out
 	local i = L[name]
@@ -289,5 +293,6 @@ return {
 	disable_all = disable_all,
 	bind = bind, unbind = unbind,
 	unbind_all = unbind_all,
-	to_physical = to_physical, to_logical = to_logical
+	to_physical = to_physical, to_logical = to_logical,
+	get = get_logical
 }
