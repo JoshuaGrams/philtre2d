@@ -1,5 +1,5 @@
 
-local coll_groups = {}
+local coll_groups = {} -- -- { [name] = index, ... }
 
 local function set_groups(...)
 	local g = {...}
@@ -26,6 +26,17 @@ local function groups(...)
 	return g
 end
 
+local function groups_except(...)
+	local not_g = {...}
+	-- Add names as keys for easy checking.
+	for i,v in ipairs(not_g) do  not_g[v] = true  end
+	local g = {}
+	for name,i in pairs(coll_groups) do
+		if not not_g[name] then  table.insert(g, i)  end
+	end
+	return g
+end
+
 -- ray cast
 	-- multi-hit - sorted near-to-far
 	-- only-closest?
@@ -36,4 +47,4 @@ end
 	-- do fixture:testPoint on each fixture
 		-- and eliminate any misses
 
-return { set_groups = set_groups, groups = groups }
+return { set_groups = set_groups, groups = groups, groups_except = groups_except }
