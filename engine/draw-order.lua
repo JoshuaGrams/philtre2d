@@ -106,7 +106,7 @@ local function draw(self, depth_list)
 	love.graphics.pop()
 end
 
-local methods = {
+local class = {
 	addLayer = addLayer,
 	removeLayer = removeLayer,
 	clear = clear,
@@ -116,7 +116,7 @@ local methods = {
 	restoreCurrentLayer = restoreCurrentLayer,
 	draw = draw
 }
-local class = { __index = methods }
+class.__index = class
 
 local function new(default_name, default_depth)
 	default_name = default_name or 'default'
@@ -132,4 +132,4 @@ local function new(default_name, default_depth)
 	return draw_order
 end
 
-return { new = new, methods = methods, class = class }
+return { new = new, class = class }
