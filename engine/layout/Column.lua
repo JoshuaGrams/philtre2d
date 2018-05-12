@@ -17,7 +17,7 @@ local function add(self, obj, dir, extra, pad)
 	elseif dir == 'end' then list = self.endChildren end
 	table.insert(list, child)
 	if not self.children then self.children = {} end
-	table.insert(self.children, child)
+	table.insert(self.children, child.obj)
 end
 Column.add = add
 
@@ -135,18 +135,13 @@ function Column.allocate(self, x, y, w, h)
 	else
 		allocateHeterogeneousColumn(self, x, y, w, h)
 	end
+	self.pos.x, self.pos.y = x, y
 end
 
-function Column.draw(self)
-	for _,c in ipairs(self.startChildren) do
-		c:call('draw')
-	end
-	for _,c in ipairs(self.endChildren) do
-		c:call('draw')
-	end
-end
+function Column.draw(self) end
 
 function Column.set(self, spacing, homogeneous, children)
+	Column.super.set(self)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
 	self.startChildren, self.endChildren = {}, {}
