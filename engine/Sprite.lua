@@ -20,14 +20,26 @@ function Sprite.request(self)
 end
 
 function Sprite.allocate(self, x, y, w, h)
+	local iw, ih = self.image:getDimensions()
 	local c, s = math.cos(self.angle), math.sin(self.angle)
 	local ac, as = math.abs(c), math.abs(s)
-	local iw, ih = self.image:getDimensions()
-	local rw, rh = iw * ac + h * as, iw * as + h * ac
+
+	-- Choose aspect ratio.
+	local aw, ah
+	if self.keepAspect then  -- Use image dimensions.
+		aw, ah = iw, ih
+	else  -- Interpolate from (w, h) to (h, w).
+		aw, ah = w + (h - w) * as, h + (w - h) * as
+	end
+	-- Rotate box and scale it to fit.
+	local rw, rh = aw * ac + ah * as, aw * as + ah * ac
 	local scale = math.min(w / rw, h / rh)
-	self.sx, self.sy = scale, scale
-	local ox = (self.ox - iw/2) * scale
-	local oy = (self.oy - ih/2) * scale
+	aw, ah = aw * scale, ah * scale
+	-- Compute image scale.
+	self.sx, self.sy = aw / iw, ah / ih
+
+	local ox = (self.ox - iw/2) * self.sx
+	local oy = (self.oy - ih/2) * self.sy
 	self.pos.x = x + w/2 + ox * c - oy * s
 	self.pos.y = y + h/2 + ox * s + oy * c
 end
