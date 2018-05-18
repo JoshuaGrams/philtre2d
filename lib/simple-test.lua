@@ -59,15 +59,29 @@ local function ok(ok, msg, level)
 	return ok
 end
 
-local function is(a, b, msg, level)
-	local yes = (a == b)
+local function areOK(yes, a, b, msg, level)
 	ok(yes, msg, 1 + (level or 1))
 	if not yes then
-		-- TODO - handle multi-line output from objectToString.
 		note("Expected " .. objectToString(b, '#'))
 		note(" but got " .. objectToString(a, '#'))
 	end
 	return yes
+end
+
+local function is(a, b, msg, level)
+	return areOK(a == b, a, b, msg, level)
+end
+
+local function nearlyEqual(a, b, tol)
+	tol = tol or 1.19209290e-07
+	local diff = math.abs(a - b)
+	if diff <= tol then return true end
+	local largest = math.max(math.abs(a), math.abs(b))
+	return diff <= largest * tol
+end
+
+local function isNearly(a, b, msg, level)
+	return areOK(nearlyEqual(a, b), a, b, msg, level)
 end
 
 local function has(actual, expected, msg, path, l)
@@ -94,5 +108,6 @@ end
 return {
 	check = check, plan = plan,
 	ok = ok, is = is, has = has,
+	isNearly = isNearly,
 	note = note, bail = bail
 }
