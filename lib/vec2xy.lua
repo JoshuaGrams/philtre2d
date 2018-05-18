@@ -115,8 +115,7 @@ end
 
 -- Get the smallest, signed angle from one vector to another.
 function vec2.angle_between(ax, ay, bx, by)
-	local a = atan2(by, bx) - atan2(ay, ax)
-	return (a + PI) % TWO_PI - PI
+	return atan2(ax * by - ay * bx, ax * bx + ay * by)
 end
 
 -- Lerp between two vectors.
