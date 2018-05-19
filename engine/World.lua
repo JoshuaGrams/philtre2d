@@ -27,14 +27,32 @@ end
 
 local function makeCallback(self, type)
 	-- Only postSolve actually uses the last two arguments.
-	local cb = function(a, b, hit, normImpulse, tanImpulse)
-		handleContact(self, type, a, b, hit, normImpulse, tanImpulse)
+	local cb = function(a, b, hit, normImp, tanImp)
+		if self.isUpdating then
+			-- Delay callbacks that happen during physics update, so bodies
+			-- can be created during a callback.
+			local t = { type = type, a = a, b = b, hit = hit, normImp = normImp, tanImp = tanImp }
+			table.insert(self.delayedCallbacks, t)
+		else
+			-- Handle callbacks outside of physics update immediately, so
+			-- endContact callbacks for deleted bodies will happen correctly.
+			--		(They happen instantly when a body is destroyed.)
+			handleContact(type, a, b, hit, normImpulse, tanImpulse)
+		end
 	end
 	return cb
 end
 
 function World.update(self, dt)
+	self.isUpdating = true
 	self.world:update(dt)
+	self.isUpdating = false
+	if #self.delayedCallbacks > 0 then
+		for i,cb in ipairs(self.delayedCallbacks) do
+			handleContact(cb.type, cb.a, cb.b, cb.hit, cb.normImp, cb.tanImp)
+		end
+		self.delayedCallbacks = {}
+	end
 end
 
 function World.final(self)
@@ -51,6 +69,7 @@ function World.set(self, xg, yg, sleep, disableBegin, disableEnd, disablePre, di
 		not disablePre and makeCallback(self, 'preSolve') or nil,
 		not disablePost and makeCallback(self, 'postSolve') or nil
 	)
+	self.delayedCallbacks = {}
 end
 
 return World
