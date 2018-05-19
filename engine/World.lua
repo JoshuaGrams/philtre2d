@@ -10,6 +10,9 @@ local fix = {}
 local obj = {}
 
 local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
+	if a:isDestroyed() or b:isDestroyed() then
+		return
+	end
 	fix[0], fix[1] = a, b -- Index fixtures so we can flip them easily.
 	obj[0], obj[1] = a:getUserData(), b:getUserData()
 	-- Pass the call to both objects and any scripts they have. (using Object.call)
