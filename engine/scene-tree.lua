@@ -152,6 +152,9 @@ local function remove(obj, not_from_parent)
 			-- All descendants will be removed, tell them not to bother
 			-- to delete themselves from their parent's child list.
 			remove(c, true)
+			-- Must clear the child list because scene-tree may already
+			-- have its reference and be updating through it.
+			obj.children[i] = nil
 		end
 	end
 	obj:call('final')
@@ -159,7 +162,6 @@ local function remove(obj, not_from_parent)
 	obj.draw = false -- obj won't draw even if already in the draw order this frame
 	obj.script = false -- scripts won't do anything else either
 	obj.visible = false -- obj and children won't be added to draw order after this
-	obj.children = false -- children won't be updated after this
 	tree.paths[obj.path] = nil
 end
 
