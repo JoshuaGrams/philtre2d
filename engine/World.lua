@@ -7,24 +7,20 @@ local World = Object:extend()
 World.className = 'World'
 
 local fix = {}
-local paths = {}
 local obj = {}
 
-local function handleContact(s, type, a, b, hit, normImpulse, tanImpulse)
+local function handleContact(type, a, b, hit, normImpulse, tanImpulse)
 	fix[0], fix[1] = a, b -- Index fixtures so we can flip them easily.
-	paths[0], paths[1] = a:getUserData(), b:getUserData()
-	obj[0], obj[1] = scene.get(paths[0]), scene.get(paths[1])
-	-- Pass the call to each object and any scripts it has
-	for i=0, 1 do
-		print(type, fix[i], fix[1-i], obj[1-i], hit, normImpulse, tanImpulse)
+	obj[0], obj[1] = a:getUserData(), b:getUserData()
+	-- Pass the call to both objects and any scripts they have. (using Object.call)
+	for i=0,1 do
 		local o = obj[i]
+		--print(type, "\n", o, "\n", obj[1-i], "\n", fix[i], fix[1-i], hit, normImpulse, tanImpulse)
 		if o then
 			-- First fixture is the `self` fixture, second is the `other` fixture.
 			o:call(type, fix[i], fix[1-i], obj[1-i], hit, normImpulse, tanImpulse)
 		else
-			-- If there are going to be callbacks for destroyed objects, might want to
-			-- send the path to `other_obj` instead of trying to get the object itself.
-			print(type .. ' - "' .. paths[i] .. '" does not exist in scene-tree.')
+			print(type .. ' - WARNING: Object "' .. obj[i] .. '" does not exist.')
 		end
 	end
 end
