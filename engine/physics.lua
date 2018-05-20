@@ -37,6 +37,9 @@ local function groups_except(...)
 	return g
 end
 
+local function group_index(group_name)
+	return coll_groups[group_name]
+end
 -- ray cast
 	-- multi-hit - sorted near-to-far
 	-- only-closest?
@@ -47,4 +50,7 @@ end
 	-- do fixture:testPoint on each fixture
 		-- and eliminate any misses
 
-return { set_groups = set_groups, groups = groups, groups_except = groups_except }
+return {
+	set_groups = set_groups, groups = groups,
+	groups_except = groups_except, group_index = group_index
+}
