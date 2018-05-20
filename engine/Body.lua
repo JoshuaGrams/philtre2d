@@ -73,6 +73,18 @@ local function getWorld(parent)
 	end
 end
 
+-- Sets the masks for all fixtures on the body.
+function Body.setMasks(self, maskList)
+	if not self.body then
+		print('WARNING: Body.setMasks - Can\'t set masks before physics body has been created.')
+		return
+	end
+	local fixtures = self.body:getFixtureList()
+	for i,f in ipairs(fixtures) do
+		f:setMask(unpack(maskList))
+	end
+end
+
 function Body.init(self)
 	if not self.ignore_transform and self.type ~= 'kinematic' then
 		self.pos.x, self.pos.y = matrix.x(self.parent._to_world, self.pos.x, self.pos.y)
