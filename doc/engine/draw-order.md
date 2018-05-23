@@ -1,45 +1,69 @@
 Draw Order
 ==========
 
-Handles lists of objects by layer/depth.  Supports both named
-layers and depths.  I recommend that you use integer depths,
-though currently it should accept any number.
+Draws objects by layer.  Supports layer groupings.
 
 Create a draw order with:
 
-* `DrawOrder.new(default_layer_name, default_depth) -> order`
+* `DrawOrder(layer_groups, [default_layer]) -> order`
 
-Named layers must be added prior to use:
-
-* `order:add_layer(depth, name) -> layer`
-
-* `order:remove_layer(depth)`
+`layer_groups` is a dictionary of named groups.  Each group is a
+list of layer names in order from top to bottom.
 
 Within a layer, objects are drawn in the order they are added
-(so the ones added first will be behind the others).  Each
-frame, you will want to clear the order, add objects, and then
-draw the whole set:
+(so the ones added first will be behind the others).
+
+`default_layer` is optional: if none is provided, it will be set
+to the top layer of the first group.  Objects with no layer will
+be drawn in their parent's layer, or in `default_layer` if no
+ancestor specifies a layer.
+
+For instance:
+
+	groups = DrawOrder({
+		game = {
+			"bullets", "player", "enemies",
+			"platforms", "background"
+		},
+		gui = { "gui" }
+		
+	}, "enemies")
+
+
+The scene tree clears the draw order and adds all the objects
+each frame, so there is currently no method for removing objects
+from a layer.
 
 * `order:clear()` - Remove all objects.
 
-* `order:add(object)` - An object may have a `layer` property
-  which is either a name string or an integer depth.  If none is
-  given, it will be added to the current layer.
+* `order:addObject(object)` - An object may have a `layer`
+  property giving a layer name.  If none is given, it will be
+  added to the current layer.  _Note that this used to be
+  called_ `add`.
 
-* `order:save_current_layer()` - push the current layer onto a
+* `order:addFunction(layer, matrix, function, ...)` - Add a draw
+  function to the given layer.  The transform given by `matrix`
+  will be applied before the function is called.  Any extra
+  arguments will be passed on to the function.
+
+* `order:saveCurrentLayer()` - push the current layer onto a
   stack.
 
-* `order:restore_current_layer()` - pop the top layer from the
+* `order:restoreCurrentLayer()` - pop the top layer from the
   stack and set it as the current layer.
 
-* `order:draw()` - Draw everything.
+* `order:draw(groups)` - Draw the specified groups.  You can
+  pass either a string or a list of strings (in order from top
+  to bottom).
 
 
-Todo
-----
+-----
 
-* Can we set a `depth` property on an object on init or when it
-  is added to the scene tree, and then on update, just use depth
-  instead of named layers?  But what if we want some objects to
-  have a depth relative to their parent?  So if the parent's
-  depth changes, theirs needs to change too.
+You can also add or remove layers on the fly:
+
+* `order:addLayer(name, position, other) -> layer` - valid
+  positions are `"top"`, `"bottom"`, `"above"`, and `"below"`.
+  Above and below require `other` to be the name of an existing
+  layer.
+
+* `order:removeLayer(name)`

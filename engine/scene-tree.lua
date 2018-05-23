@@ -76,7 +76,7 @@ local function _update(objects, dt, draw_order, m)
 		end
 		if draw_order and obj.visible then
 			draw_order:saveCurrentLayer()
-			draw_order:add(obj)
+			draw_order:addObject(obj)
 		else
 			draw_order = nil -- don't draw any children from here on down
 		end
