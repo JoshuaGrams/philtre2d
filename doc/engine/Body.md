@@ -7,6 +7,13 @@ Bodies _must_ be descendants of a World object in the scene tree. On init they w
 
 > It seems pretty inefficient to search up the tree for a World every single time a Body is initialized, but it means you never have to manage references to physics worlds at all, which is great.
 
+The actual Box2d 'body' is not created until `init`. After it has init, you can access the body through `self.body`.
+
+```lua
+-- For example: (in a script on a body)
+local vx, vy = self.body:getLinearVelocity()
+```
+
 Constructor
 -----------
 
@@ -32,7 +39,67 @@ _PARAMETERS_
 *
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', and 'chain'.
 	* Available shape(fixture) properties are: 'sensor', 'groups', 'masks', 'friction', and 'restitution'.
-
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 * __ignore_parent_transform__ <kbd>bool</kbd> - For dynamic and static bodies only: if the body should be created at global `x`, `y`, and `angle`, rather than interpreting those as local to its parent. After creation, these body types will completely ignore their parent's transform, as usual.
+
+Shape Types
+-----------
+The names and different parameter options you can use to define shapes.
+
+* __'circle'__
+	1. `{ radius }`
+	2. `{ x, y, radius }`
+
+* __'rectangle'__
+	1. `{ width, height }`
+	2. `{ x, y, width, height, [angle = 0] }`
+
+* __'polygon'__
+	1. `{ x1, y1, x2, y2, x3, y3, ... }` - _(Can take up to 8 vertices, maximum.)_
+	2. `{ sequence }` _sequence = { x1, y1, x2, y2, x3, y3, ... } - i.e. You don't have to `unpack` a vertex list._
+
+* __'edge'__
+	1. `{ x1, y1, x2, y2 }`
+
+* __'chain'__
+	1. `{ loop, x1, y1, x2, y2, ... }` _loop = If the end of the chain should loop around to the first point._
+	2. `{ loop, sequence }` _sequence = { x1, y1, x2, y2, x3, y3, ... }_
+
+Shape Properties
+----------------
+The optional properties that you can specify for each shape, in the constructor.
+
+* __'sensor'__ - <kbd>bool</kbd> - If the shape is a sensor or not.
+
+* __'groups'__ - <kbd>sequence</kbd> - The collision groups that the shape is a member of. Must be a table of group indices—like what you get from `physics.groups` or `physics.groups_except`.
+
+* __'masks'__ - <kbd>sequence</kbd> - The collision groups that the shape should _not_ collide with. Must be a table of group indices—like what you get from `physics.groups` or `physics.groups_except`.
+
+* __'friction'__ - <kbd>number</kbd> - The shape's friction, in the range 0.0-1.0.
+
+* __'restitution'__ - <kbd>number</kbd> - The restitution or 'bounciness' of the shape.
+
+Body Properties
+---------------
+The optional properties you can specify in the constructor that affect the entire Body.
+
+* __'linDamp'__ - <kbd>number</kbd> - The linear damping of the body, from 0 to infinity. Controls how quickly the body's linear velocity will decrease over time. It is zero by default, meaning a moving body will continue moving indefinitely.
+
+* __'angDamp'__ - <kbd>number</kbd> - The angular damping of the body, from 0 to infinity. Controls how quickly the body's angular velocity (spin) will decrease over time. It is zero by default, meaning a spinning body will continue spinning indefinitely.
+
+* __'bullet'__ - <kbd>bool</kbd> - If the body should use Continuous Collision Detection (CCD) for detecting collisions "between frames". Off by default.
+
+* __'fixedRot'__ - <kbd>bool</kbd> - If the body's rotation should be fixed, or if it should rotate as normal. Defaults to `false`.
+
+* __'gScale'__ - <kbd>number</kbd> - The gravity scale of the body—a multiplier for how much this body is affected by the world's gravity.
+
+
+Methods
+-------
+
+### Body.setMasks(self, maskList)
+Set the masks on every fixture on the body (which groups the body should _not_ collide with). Can't be used until after the Body has been initialized (after its `init` function has been called).
+
+_PARAMETERS_
+* __maskList__ <kbd>table</kbd> - A sequence of group indices, like you may have used to construct the Body, like you get from `physics.groups` or `physics.groups_except`.
