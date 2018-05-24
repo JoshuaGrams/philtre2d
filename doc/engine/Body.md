@@ -3,14 +3,14 @@ Body
 
 Game Objects linked to a physics body. They can be dynamic, static, or kinematic, and have any number of fixtures with different properties.
 
-Bodies _must_ be descendants of a World object in the scene tree. On init they will search up the tree for the closest World object, and create their physics body within that World's Box2D physics world (or error if no World is found).
+Bodies _must_ be descendants of a World object in the scene tree. On init they will search up the tree for the closest World object and create their physics body within that World's Box2D physics world (or report an error if no World is found).
 
 > It seems pretty inefficient to search up the tree for a World every single time a Body is initialized, but it means you never have to manage references to physics worlds at all, which is great.
 
 The actual Box2d 'body' is not created until `init`. After it has init, you can access the body through `self.body`.
 
 ```lua
--- For example: (in a script on a body)
+-- For example: (in a script on a Body)
 local vx, vy = self.body:getLinearVelocity()
 ```
 
@@ -102,4 +102,4 @@ Methods
 Set the masks on every fixture on the body (which groups the body should _not_ collide with). Can't be used until after the Body has been initialized (after its `init` function has been called).
 
 _PARAMETERS_
-* __maskList__ <kbd>table</kbd> - A sequence of group indices, like you may have used to construct the Body, like you get from `physics.groups` or `physics.groups_except`.
+* __maskList__ <kbd>table</kbd> - A sequence of group indices, like you may have used to construct the Body, and what you get from `physics.groups` or `physics.groups_except`.
