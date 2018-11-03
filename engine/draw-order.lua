@@ -56,7 +56,7 @@ function DrawOrder.addFunction(self, layer, m, fn, ...)
 end
 
 function DrawOrder.addObject(self, object)
-	self.layer = self.layers[object.layer or self.layer]
+	self.layer = self.layers[object.layer] or self.layer
 	self.layer:addObject(object)
 end
 
