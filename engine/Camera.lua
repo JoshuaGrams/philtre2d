@@ -410,7 +410,7 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 		self.zoom = get_zoom_for_new_window(1, sm, vx, vy, self.vp.w, self.vp.h)
 	end
 
-	if self.active then Camera.cur_cam = self end
+	if self.active then Camera.current = self end
 	table.insert(cameras, self)
 end
 
