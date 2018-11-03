@@ -5,6 +5,13 @@ A physics utility module. Helps manage named collision groups so you don't have 
 
 > Note: Here and in `Body`, I use the term 'group', but I'm actually talking about what Box2D calls 'categories'. Box2D's 'group index' feature seems pretty unnecessary, so I ignored it, and the word 'group' is a lot shorter than 'category'.
 
+Basic Physics Usage
+-------------------
+
+Add a World object to your scene, and add Bodies as descendants of it.
+
+When Bodies are init they search up the tree for the nearest World (reporting an error if they don't find one). As an Object in the scene tree, the World will get updates and pass them on to the Box2D world. The World will use `Object.call()` to send callbacks to each Body involved in a collision and any scripts it has. By default all the callbacks are enabled, you can disable them when you create the World. See the World documentation for the list of callbacks. 
+
 Module Functions
 ----------------
 

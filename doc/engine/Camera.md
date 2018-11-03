@@ -1,6 +1,10 @@
 Camera
 ======
-Cameras work pretty much like any other Object. They fit into the scene-tree normally and get updates normally. For them to update properly to changing window sizes, you will need to either call `Camera.windowResizedAll` on the class module itself or `windowResized` on individual cameras to give them the new window size. There are a few settings (for shakes, follows, etc.) that you can set on the module to change the global defaults, or you can set them on specific cameras to make them behave differently. The module (and therefore each camera object) also has a `current` property, which is a reference to the current camera. This is either the last created camera that was not initialized as inactive, or the last camera that you called `:activate()` on. There is a fallback camera that is used if no other cameras exist.
+
+Basic Usage
+-----------
+
+First, add a camera to your scene tree. Second, in `love.draw()`, add `Camera.current:applyTransform()` before you draw world-space objects, and `Camera.current:resetTransform()` afterward. Lastly, in `love.resize(w, h)`, call `Camera.windowResizedAll(0, 0, w, h)`.
 
 Constructor
 -----------

@@ -6,7 +6,9 @@ The scene tree tracks objects and manages transforms and local coordinates for c
 Basic Usage
 -----------
 
-The only setup required is `scene.init(draw_order)`. All this does is give the scene tree a reference to a draw order. Other than that, all you need is `scene.add(object, [parent])`, and `scene.remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`. Scene tree will give each object `name`, `path`, and `parent` properties on init.
+Give the scene tree a draw order with `scene.init(DrawOrder)`, and add `scene.update()` and `scene.draw()` in `love.update()` and `love.draw()`, respectively.
+
+Other than that, all you need to use the scene tree are `scene.add(object, [parent])`, and `scene.remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`. Scene tree will give each object `name`, `path`, and `parent` properties on init.
 
 Functions
 ---------
