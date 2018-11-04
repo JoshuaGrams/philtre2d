@@ -7,16 +7,9 @@ Add to your git project as a submodule:
 
 This will produce a .gitmodules file (if you didn't already have one) and a `philtre` directory (whose SHA-1 hash won't be a hash of the directory, but will point to Philtre's HEAD).  Commit these two entries to your project repository.
 
-Huh. Maybe you also need:
-
-	cd philtre
-	git branch -u origin/master master
-
-Does that help?
-
 Fetch upstream engine changes with:
 
-	git submodule update --remote
+	git submodule update --remote --merge
 
 This will update `philtre` to point to the new upstream HEAD, and you'll need to commit that change to your project.
 
