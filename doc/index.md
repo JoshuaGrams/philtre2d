@@ -3,7 +3,7 @@ Philtre 2D
 
 Add to your git project as a submodule:
 
-	git submodule add https://github.com/JoshuaGrams/philtre2d.git philtre
+	git submodule add -b master https://github.com/JoshuaGrams/philtre2d.git philtre
 
 This will produce a .gitmodules file (if you didn't already have one) and a `philtre` directory (whose SHA-1 hash won't be a hash of the directory, but will point to Philtre's HEAD).  Commit these two entries to your project repository.
 
