@@ -1,5 +1,5 @@
-
-local Object = require 'engine.Object'
+local base = (...):gsub('[^%.]+$', '')
+local Object = require(base .. 'Object')
 local Text = Object:extend()
 Text.className = 'Text'
 

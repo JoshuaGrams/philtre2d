@@ -1,10 +1,10 @@
-local T = require 'lib.simple-test'
+local base = (...):gsub('[^%.]+.[^%.]+$', '')
+local T = require(base .. 'lib.simple-test')
 
-local Layout = require 'engine.layout'
+local Layout = require(base .. 'layout')
 
 return {
-	"GUI Layout Row (homogeneous)",
-	"Requested size",
+	"GUI Layout Row (heterogeneous)",
 	function()
 		local row = Layout.Row(0, false, {
 			{ Layout.Box(10, 50) },
@@ -13,14 +13,15 @@ return {
 		T.has(row:request(), {w=25, h=50}, "request", "row")
 	end,
 	function()
-		local row = Layout.Row(5, true, {
+		local row = Layout.Row(5, false, {
 			{ Layout.Box(10, 50) },
 			{ Layout.Box(15, 50), 'end' },
 			{ Layout.Box(10, 50) }
 		})
-		T.has(row:request(), {w=45, h=50}, "request (spacing, homogeneous)", "row")
+		T.has(row:request(), {w=45, h=50}, "request (with spacing)", "row")
+
 	end,
-	"Homogeneous row: adequate width.",
+	"Heterogeneous row: adequate width.",
 	function()
 		local boxes = {
 			{Layout.Box(10, 50)},
@@ -28,26 +29,22 @@ return {
 			{Layout.Box(10, 50), 'start', 'stretch'}
 		}
 		local spacing = 5
-		local row = Layout.Row(spacing, true, boxes)
+		local row = Layout.Row(spacing, false, boxes)
 		local x, y, w, h = -50, 10, 100, 80
-		local aw = w - spacing * (#boxes - 1)
-		local itemWidth = aw / #boxes
 		row:allocate(x, y, w, h)
 
 		T.has(boxes[1][1], {
-			pos = { x = 0.5*(itemWidth-10), y = 0 },
-			width = 10, height = h
+			pos = { x = 0, y = 0 }, width = 10, height = h
 		}, "first box at left, doesn't stretch", "box")
 		T.has(boxes[2][1], {
-			pos = { x = w - itemWidth + 0.5 * (itemWidth - 15), y = 0 },
-			width = 15, height = h
+			pos = { x = w - 15, y = 0 }, width = 15, height = h
 		}, "second box at right, doesn't stretch", "box")
 		T.has(boxes[3][1], {
-			pos = { x = itemWidth + spacing, y = 0 },
-			width = itemWidth, height = h
+			pos = { x = 10 + spacing, y = 0 },
+			width = w - 10 - 15 - 2 * spacing, height = h
 		}, "third box to right of first, stretches", "box")
 	end,
-	"Homogeneous row: one box squashed.",
+	"Heterogeneous row: still fits.",
 	function()
 		local boxes = {
 			{Layout.Box(10, 50)},
@@ -55,53 +52,47 @@ return {
 			{Layout.Box(10, 50), 'start', 'stretch'}
 		}
 		local spacing = 5
-		local row = Layout.Row(spacing, true, boxes)
+		local row = Layout.Row(spacing, false, boxes)
 		local x, y, w, h = 10, 10, 46, 80
-		local alloc = math.max(0, w - spacing * (#boxes - 1))
-		local itemWidth = alloc / #boxes
-		row:allocate(x, y, w, h)
-
-		T.has(boxes[1][1], {
-			pos = { x = 0.5 * (itemWidth - 10), y = 0 },
-			width = 10, height = h
-		}, "first box at left, doesn't stretch", "box")
-		T.has(boxes[2][1], {
-			pos = { x = w - itemWidth, y = 0 },
-			width = itemWidth, height = h
-		}, "second box at right, gets squashed", "box")
-		T.has(boxes[3][1], {
-			pos = { x = itemWidth + spacing, y = 0 },
-			width = itemWidth, height = h
-		}, "third box to right of first, stretches", "box")
-	end,
-	"Homogeneous row: all boxes squashed.",
-	function()
-		local boxes = {
-			{Layout.Box(10, 50)},
-			{Layout.Box(15, 50), 'end'},
-			{Layout.Box(10, 50), 'start', 'stretch'}
-		}
-		local spacing = 5
-		local row = Layout.Row(spacing, true, boxes)
-		local x, y, w, h = 10, 10, 37, 80
-		local aw = math.max(0, w - spacing * (#boxes - 1))
-		local itemWidth = aw / #boxes
 		row:allocate(x, y, w, h)
 
 		T.has(boxes[1][1], {
 			pos = { x = 0, y = 0 },
-			width = itemWidth, height = h
-		}, "first box at left, 9 width", "box")
+			width = 10, height = h
+		}, "first box at left, doesn't stretch", "box")
 		T.has(boxes[2][1], {
-			pos = { x = w - itemWidth, y = 0 },
-			width = itemWidth, height = h
-		}, "second box at right, gets 9 width", "box")
+			pos = { x = w - 15, y = 0 },
+			width = 15, height = h
+		}, "second box at right, doesn't stretch", "box")
 		T.has(boxes[3][1], {
-			pos = { x = itemWidth + spacing, y = 0 },
-			width = itemWidth, height = h
-		}, "third box to right of first, gets 9 width", "box")
+			pos = { x = 10 + spacing, y = 0 },
+			width = 11, height = h
+		}, "third box to right of first, stretches", "box")
 	end,
-	"Homogeneous row: width less than spacing.",
+	"Heterogeneous row: all boxes squashed.",
+	function()
+		local boxes = {
+			{Layout.Box(10, 50)},
+			{Layout.Box(15, 50), 'end'},
+			{Layout.Box(10, 50), 'start', 'stretch'}
+		}
+		local spacing = 5
+		local row = Layout.Row(spacing, false, boxes)
+		local x, y, w, h = 10, 10, 38, 80
+		row:allocate(x, y, w, h)
+
+		T.has(boxes[1][1], {
+			pos = { x = 0, y = 0 }, width = 8, height = h
+		}, "first box at left, squashed", "box")
+		T.has(boxes[2][1], {
+			pos = { x = w - 12, y = 0 }, width = 12, height = h
+		}, "second box at right, squashed", "box")
+		T.has(boxes[3][1], {
+			pos = { x = 8 + spacing, y = 0 },
+			width = 8, height = h
+		}, "third box to right of first, squashed", "box")
+	end,
+	"Heterogeneous row: width less than spacing.",
 	function()
 		local boxes = {
 			{Layout.Box(10, 50)},
@@ -109,7 +100,7 @@ return {
 			{Layout.Box(10, 50), 'start', 'stretch'}
 		}
 		local spacing = 5
-		local row = Layout.Row(spacing, true, boxes)
+		local row = Layout.Row(spacing, false, boxes)
 		local x, y, w, h = 10, 10, 8, 50
 		row:allocate(x, y, w, h)
 
@@ -126,7 +117,7 @@ return {
 			width = 0, height = h
 		}, "third box at end, 0 width", "box")
 	end,
-	"Homogeneous row with padding: width less than spacing.",
+	"Heterogeneous row with padding: width less than spacing.",
 	function()
 		local boxes = {
 			{Layout.Box(10, 50)},
@@ -134,7 +125,7 @@ return {
 			{Layout.Box(10, 50), 'start', 'stretch'}
 		}
 		local spacing = 5
-		local row = Layout.Row(spacing, true, boxes)
+		local row = Layout.Row(spacing, false, boxes)
 		local x, y, w, h = -100, -100, 8, 50
 		row:allocate(x, y, w, h)
 

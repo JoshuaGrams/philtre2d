@@ -1,7 +1,7 @@
-
-local matrix = require 'engine.matrix'
-local Object = require 'engine.Object'
-local World = require 'engine.World'
+local base = (...):gsub('[^%.]+$', '')
+local matrix = require(base .. 'matrix')
+local Object = require(base .. 'Object')
+local World = require(base .. 'World')
 
 local Body = Object:extend()
 

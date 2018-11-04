@@ -1,5 +1,6 @@
-local Class = require 'lib.base-class'
-local M = require 'engine.matrix'
+local base = (...):gsub('[^%.]+$', '')
+local Class = require(base .. 'lib.base-class')
+local M = require(base .. 'matrix')
 
 local Layer = Class:extend()
 

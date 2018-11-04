@@ -1,6 +1,7 @@
+local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local Box = require 'engine.layout.Box'
+local Box = require(base .. 'layout.Box')
 
 return {
 	"GUI Layout Box",

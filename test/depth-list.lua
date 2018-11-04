@@ -1,5 +1,6 @@
-local T = require 'lib.simple-test'
-local DepthList = require 'engine.depth-list'
+local base = (...):gsub('[^%.]+.[^%.]+$', '')
+local T = require(base .. 'lib.simple-test')
+local DepthList = require(base .. 'depth-list')
 
 local function logCall(obj)
 	table.insert(obj.log, obj.name)

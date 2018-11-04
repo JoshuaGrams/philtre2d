@@ -1,6 +1,7 @@
-local Class = require 'lib.base-class'
-local DepthList = require 'engine.depth-list'
-local Layer = require 'engine.layer'
+local base = (...):gsub('[^%.]+$', '')
+local Class = require(base .. 'lib.base-class')
+local DepthList = require(base .. 'depth-list')
+local Layer = require(base .. 'layer')
 
 local DrawOrder = Class:extend()
 

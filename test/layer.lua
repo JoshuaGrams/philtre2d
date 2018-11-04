@@ -1,7 +1,8 @@
+local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local Layer = require 'engine.layer'
-local M = require 'engine.matrix'
+local Layer = require(base .. 'layer')
+local M = require(base .. 'matrix')
 
 local function recordCall(called, name)
 	table.insert(called, name)

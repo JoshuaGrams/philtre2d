@@ -1,6 +1,7 @@
 -- Simple TAP-compatible testing.
 
-local objectToString = require 'lib.object-to-string'
+local base = (...):gsub('[^%.]+.[^%.]+$', '')
+local objectToString = require(base .. 'lib.object-to-string')
 
 local coverage = false
 local tested, failed = 0, 0

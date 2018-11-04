@@ -6,7 +6,7 @@ return {
 		exclude = {
 			"^main",
 			"^lib/*",
-			"^engine/test/*"
+			"^test/*"
 		}
 	}
 }

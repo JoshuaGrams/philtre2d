@@ -1,4 +1,5 @@
-local Class = require 'lib.base-class'
+local base = (...):gsub('[^%.]+$', '')
+local Class = require(base .. 'lib.base-class')
 
 local DepthList = Class:extend()
 

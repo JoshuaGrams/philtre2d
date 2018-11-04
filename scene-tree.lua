@@ -1,4 +1,5 @@
-local M = require('engine.matrix')
+local base = (...):gsub('[^%.]+$', '')
+local M = require(base .. 'matrix')
 
 local tree = {
 	_to_world = M.identity,
