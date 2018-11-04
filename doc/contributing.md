@@ -4,7 +4,7 @@ Contributing
 File Names
 ----------
 
-Engine systems like the scene tree, input manager, and so on use lower-case file names with hyphens. 
+Engine systems like the scene tree, input manager, and so on use lower-case file names with hyphens.
 
 Game objects (Body, Text, etc.) use CamelCase file names.
 

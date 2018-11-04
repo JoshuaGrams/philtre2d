@@ -23,7 +23,7 @@ function DrawOrder.set(self, groups, default)
 			local l = Layer()
 			self.layers[layer] = l
 			if not self.layer then self.layer = l end
-			g:add(l, 'bottom') 
+			g:add(l, 'bottom')
 		end
 	end
 	self.layer = (default and self.layers[default]) or self.layer
