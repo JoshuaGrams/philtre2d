@@ -1,6 +1,38 @@
 Philtre 2D
 ==========
 
+Add to your git project as a submodule:
+
+	git submodule add https://github.com/JoshuaGrams/philtre2d.git philtre
+
+This will produce a .gitmodules file (if you didn't already have one) and a `philtre` directory (whose SHA-1 hash won't be a hash of the directory, but will point to Philtre's HEAD).  Commit these two entries to your project repository.
+
+Fetch upstream engine changes with:
+
+	git submodule update --remote
+
+This will update `philtre` to point to the new upstream HEAD, and you'll need to commit that change to your project.
+
+-----
+
+Minimal usage:
+
+	require 'philtre.init'  -- Load all engine components into global variables.
+
+	function love.load()
+		drawOrder = DrawOrder({'default_layer'})
+		scene.init(drawOrder)
+	end
+
+	function love.update(dt)
+		scene.update(dt)
+	end
+
+	function love.draw()
+		drawOrder:draw()
+	end
+
+
 Engine
 ------
 
