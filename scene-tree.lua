@@ -116,9 +116,9 @@ local function _draw(objects) -- only used if no draw_order
 	end
 end
 
-local function draw()
+local function draw(groups)
 	if tree.draw_order then
-		tree.draw_order:draw()
+		tree.draw_order:draw(groups)
 	else
 		_draw(tree.children)
 	end
