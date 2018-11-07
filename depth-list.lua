@@ -2,6 +2,7 @@ local base = (...):gsub('[^%.]+$', '')
 local Class = require(base .. 'lib.base-class')
 
 local DepthList = Class:extend()
+DepthList.className = 'DepthList'
 
 function DepthList.draw(self)
 	local layer = self.bottom.above
