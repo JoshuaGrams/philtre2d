@@ -13,6 +13,7 @@ physics = require(base .. 'physics')
 -- Objects
 Object = require(base .. 'Object')
 Sprite = require(base .. 'Sprite')
+Quad = require(base .. 'Quad')
 Body = require(base .. 'Body')
 World = require(base .. 'World')
 Camera = require(base .. 'Camera')

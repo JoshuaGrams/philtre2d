@@ -57,6 +57,11 @@ Objects
 	* `Object(x, y, angle, sx, sy, kx, ky)`
 * Sprite - Object containing an image.
 	* `Sprite(image, x, y, angle, sx, sy, color, ox, oy, kx, ky)`
+	* `image` can be either a string (filename) or a love2d Texture object (image or canvas).
+* Quad - Object containing a sub-image.
+	* `Quad(image, quad, x, y, angle, sx, sy, color, ox, oy, kx, ky)`
+	* As above, `image` can be a string (filename) or an image.
+	* `quad` can be a table (`{x, y, w, h}`) or a quad created with `love.graphics.newQuad`).
 * Text - Object for rendering text. No fancy scaling.
 	* `Text(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, kx, ky)`
 * [World](objects/World.md) - Object with its own physics world and callback handlers.
