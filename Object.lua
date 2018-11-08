@@ -27,7 +27,7 @@ end
 Object.updateTransform = Object.TRANSFORM_REGULAR
 
 function Object.__tostring(self)
-	return '(' .. self.className .. '): path = ' .. tostring(self.path)
+	return '(' .. self.className .. ' ' .. self.id .. '): path = ' .. tostring(self.path)
 end
 
 -- Call a function on the object and its scripts (if any)

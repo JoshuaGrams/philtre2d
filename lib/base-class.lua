@@ -56,7 +56,9 @@ local function is(obj, class)
 end
 
 local function new(class, ...)
-	local obj = setmetatable({}, class)
+	local obj = {}
+	obj.id = tostring(obj):sub(1 + ("table: "):len())
+	setmetatable(obj, class)
 	obj:set(...)
 	return obj
 end
@@ -68,6 +70,8 @@ Class.is = is
 Class.new, Class.__call = new, new
 
 Class.set = function() end
-Class.__tostring = function() return "Object" end
+Class.__tostring = function(self)
+	return "Object: " .. self.id
+end
 
 return Class
