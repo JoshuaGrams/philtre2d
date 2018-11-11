@@ -177,7 +177,20 @@ local function bind(bindings, replace_old)
 			L[name] = nil
 			cleared[name] = true
 		end
-		binder[kind](name, unpack(b,3))
+		if binder[kind] then
+			binder[kind](name, unpack(b,3))
+		else -- Handle invalid kind/type error.
+			local tList = ""
+			for k, v in pairs(binder) do
+				tList = string.format("%s %s %s %s", tList, '\t', k, '\n')
+			end
+			local errMsg = string.format(
+				"%s%s%s%s",
+				'Input.bind - Invalid type "', kind,
+				'". Should be one of the following:\n', tList
+			)
+			error(errMsg)
+		end
 	end
 end
 
