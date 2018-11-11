@@ -8,6 +8,27 @@ Constructor
 
 ### Object(x, y, angle, sx, sy, kx, ky)
 
+Properties
+----------
+
+### Local Transform Properties
+These don't have to exist, but the scene-tree and some other modules will use them if they do.
+* **pos** - Position, {x=0, y=0}.
+* **sx, sy** - Scale x and y.
+* **angle** - Rotation angle in radians, clockwise.
+* **kx, ky** - Skew x and y.
+
+### Scene-tree Properties
+Scene-tree will add these to all objects when they are added to the tree.
+* **name** - The object's name. Doesn't have to be unique. Can be pre-set by the user, or will be set to the Object's class name.
+* **path** - A string identifier for this object in the tree. Parent's path .. / .. this object's name. An index number will be added to the end if necessary to ensure unique paths.
+* **tree** - A reference to the scene-tree root.
+* **parent** - A reference to this object's parent.
+
+#### Optional
+ * **children** - A list of references to this object's children.
+ * **script** - A list of references to this object's scripts. The user can set this to a single reference, but scene-tree will convert it to a list when it's added to the tree.
+
 Methods
 -------
 
