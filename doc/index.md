@@ -67,6 +67,8 @@ Objects
 * [World](objects/World.md) - Object with its own physics world and callback handlers.
 	* `World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 
+* [Layout Objects](Layout.md) - GUI helpers for laying out boxes.
+
 Libraries
 ---------
 
