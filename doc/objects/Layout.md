@@ -12,6 +12,8 @@ An object which wants to participate in layout must provide two methods:
   allocated size may be larger or smaller than the requested size, and the
   object is just supposed to deal with whatever it gets.
 
+These objects go in the scene tree. You have to manually call `allocate` on the top-level layout object and then it will allocate its children.
+
 -----
 
 The current objects are:
@@ -53,4 +55,6 @@ The current objects are:
 
 * `Column(spacing, homogeneous, children)` - Same parameters as `Row`, but
   lays its children out vertically instead of horizontally.
+
+* `Sprite` and `Quad` can also be layout objects.
 
