@@ -1,7 +1,7 @@
 
 local coll_groups = {} -- -- { [name] = index, ... }
 
-local function set_groups(...)
+local function setGroups(...)
 	local g = {...}
 	for i, v in ipairs(g) do
 		if i > 16 then
@@ -26,7 +26,7 @@ local function groups(...)
 	return g
 end
 
-local function groups_except(...)
+local function groupsExcept(...)
 	local not_g = {...}
 	-- Add names as keys for easy checking.
 	for i,v in ipairs(not_g) do  not_g[v] = true  end
@@ -37,9 +37,10 @@ local function groups_except(...)
 	return g
 end
 
-local function group_index(group_name)
+local function groupIndex(group_name)
 	return coll_groups[group_name]
 end
+
 -- ray cast
 	-- multi-hit - sorted near-to-far
 	-- only-closest?
@@ -51,6 +52,6 @@ end
 		-- and eliminate any misses
 
 return {
-	set_groups = set_groups, groups = groups,
-	groups_except = groups_except, group_index = group_index
+	setGroups = setGroups, groups = groups,
+	groupsExcept = groupsExcept, groupIndex = groupIndex
 }

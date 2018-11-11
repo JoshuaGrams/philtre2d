@@ -15,7 +15,7 @@ When Bodies are init they search up the tree for the nearest World (reporting an
 Module Functions
 ----------------
 
-### physics.set_groups(...)
+### physics.setGroups(...)
 Saves a table mapping string names to physics category indices (1-16). Pass in up to 16 different strings (as individual arguments).
 
 ### physics.groups(...)
@@ -24,13 +24,13 @@ Gets a list of group indices from mapped group names. Pass in up to 16 different
 _RETURNS_
 * __groups__ <kbd>table</kbd> - A table of category indices corresponding to the group names given. You can give this directly to the `Body` constructor for a shape's 'groups' or 'masks' property, or the `Body.setMask` method.
 
-### physics.groups_except(...)
+### physics.groupsExcept(...)
 Gets the opposite of `physics.groups`: a list of all group indices _except_ the ones corresponding to the group names given. Pass in up to 16 different strings (as individual arguments).
 
 _RETURNS_
 * __groups__ <kbd>table</kbd> - A table of category indices corresponding to all the group names _not_ given. You can give this directly to the `Body` constructor for a shape's 'groups' or 'masks' property, or the `Body.setMask` method.
 
-### physics.group_index(group_name)
+### physics.groupIndex(group_name)
 Gets the corresponding index of a named group. Can be useful for checking collision results.
 
 _PARAMETERS_
