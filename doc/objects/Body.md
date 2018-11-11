@@ -33,12 +33,12 @@ _PARAMETERS_
 		-- shape 2 - Example:
 		{ 'circle', {50} },
 		-- shape 3 - Example:
-		{ 'rectangle', {25, -10, 300, 100, math.pi/4}, groups={1, 5, 6, 7}, masks={3}, density=5}
+		{ 'rectangle', {25, -10, 300, 100, math.pi/4}, categories={1, 5, 6, 7}, masks={3}, density=5}
 	}
 ```
 *
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', and 'chain'.
-	* Available shape(fixture) properties are: 'sensor', 'groups', 'masks', 'friction', and 'restitution'.
+	* Available shape(fixture) properties are: 'sensor', 'categories', 'masks', 'friction', and 'restitution'.
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 * __ignore_parent_transform__ <kbd>bool</kbd> - For dynamic and static bodies only: if the body should be created at global `x`, `y`, and `angle`, rather than interpreting those as local to its parent. After creation, these body types will completely ignore their parent's transform, as usual.
@@ -72,9 +72,9 @@ The optional properties that you can specify for each shape, in the constructor.
 
 * __'sensor'__ - <kbd>bool</kbd> - If the shape is a sensor or not.
 
-* __'groups'__ - <kbd>sequence</kbd> - The collision groups that the shape is a member of. Must be a table of group indices—like what you get from `physics.groups` or `physics.groups_except`.
+* __'categories'__ - <kbd>sequence</kbd> - The collision categories that the shape is a member of. Must be a table of category indices—like what you get from `physics.categories` or `physics.categoriesExcept`.
 
-* __'masks'__ - <kbd>sequence</kbd> - The collision groups that the shape should _not_ collide with. Must be a table of group indices—like what you get from `physics.groups` or `physics.groups_except`.
+* __'masks'__ - <kbd>sequence</kbd> - The collision categories that the shape should _not_ collide with. Must be a table of category indices—like what you get from `physics.categories` or `physics.categoriesExcept`.
 
 * __'friction'__ - <kbd>number</kbd> - The shape's friction, in the range 0.0-1.0.
 
@@ -99,7 +99,7 @@ Methods
 -------
 
 ### Body.setMasks(self, maskList)
-Set the masks on every fixture on the body (which groups the body should _not_ collide with). Can't be used until after the Body has been initialized (after its `init` function has been called).
+Set the masks on every fixture on the body (which categories the body should _not_ collide with). Can't be used until after the Body has been initialized (after its `init` function has been called).
 
 _PARAMETERS_
-* __maskList__ <kbd>table</kbd> - A sequence of group indices, like you may have used to construct the Body, and what you get from `physics.groups` or `physics.groups_except`.
+* __maskList__ <kbd>table</kbd> - A sequence of category indices, like you may have used to construct the Body, and what you get from `physics.categories` or `physics.categoriesExcept`.

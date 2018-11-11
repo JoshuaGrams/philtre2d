@@ -1,44 +1,44 @@
 
-local coll_groups = {} -- -- { [name] = index, ... }
+local collCategories = {} -- -- { [name] = index, ... }
 
-local function setGroups(...)
-	local g = {...}
-	for i, v in ipairs(g) do
+local function setCategories(...)
+	local c = {...}
+	for i, v in ipairs(c) do
 		if i > 16 then
-			error("physics.set_groups - Can't have more than 16 collision groups.")
+			error("physics.setCategories - Can't have more than 16 collision categories.")
 		elseif type(v) == 'string' then
-			coll_groups[v] = i
+			collCategories[v] = i
 		else
-			error('physics.set_groups - Invalid group name: ' .. v .. '. Group names must be strings.')
+			error('physics.setCategories - Invalid category name: ' .. v .. '. Category names must be strings.')
 		end
 	end
 end
 
-local function groups(...)
-	local g = {...}
-	for i, v in ipairs(g) do
-		local gi = coll_groups[v]
-		if not gi then
-			error('physics.groups - Group name "' .. v .. '" not recognized.')
+local function categories(...)
+	local c = {...}
+	for i, v in ipairs(c) do
+		local ci = collCategories[v]
+		if not ci then
+			error('physics.categories - Category name "' .. v .. '" not recognized.')
 		end
-		g[i] = gi
+		c[i] = ci
 	end
-	return g
+	return c
 end
 
-local function groupsExcept(...)
-	local not_g = {...}
+local function categoriesExcept(...)
+	local not_c = {...}
 	-- Add names as keys for easy checking.
-	for i,v in ipairs(not_g) do  not_g[v] = true  end
-	local g = {}
-	for name,i in pairs(coll_groups) do
-		if not not_g[name] then  table.insert(g, i)  end
+	for i,v in ipairs(not_c) do  not_c[v] = true  end
+	local c = {}
+	for name,i in pairs(collCategories) do
+		if not not_c[name] then  table.insert(c, i)  end
 	end
-	return g
+	return c
 end
 
-local function groupIndex(group_name)
-	return coll_groups[group_name]
+local function categoryIndex(categoryName)
+	return collCategories[categoryName]
 end
 
 -- ray cast
@@ -52,6 +52,6 @@ end
 		-- and eliminate any misses
 
 return {
-	setGroups = setGroups, groups = groups,
-	groupsExcept = groupsExcept, groupIndex = groupIndex
+	setCategories = setCategories, categories = categories,
+	categoriesExcept = categoriesExcept, categoryIndex = categoryIndex
 }

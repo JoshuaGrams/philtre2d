@@ -49,7 +49,7 @@ local body_set_funcs = {
 
 local fixture_set_funcs = {
 	sensor = 'setSensor',
-	groups = 'setCategory',
+	categories = 'setCategory',
 	masks = 'setMask',
 	friction = 'setFriction',
 	restitution = 'setRestitution'
@@ -110,7 +110,7 @@ function Body.init(self)
 		f:setUserData(self) -- Store self ref on each fixture for collision callbacks.
 		for k,v in pairs(s) do
 			if fixture_set_funcs[k] then
-				if k == 'groups' or k == 'masks' then
+				if k == 'categories' or k == 'masks' then
 					f[fixture_set_funcs[k]](f, unpack(v))
 				else
 					f[fixture_set_funcs[k]](f, v)
