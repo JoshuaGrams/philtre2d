@@ -45,13 +45,48 @@ end
 	-- multi-hit - sorted near-to-far
 	-- only-closest?
 
--- point check
-	-- use world:queryBoundingBox
-		-- assemble a fixture list
-	-- do fixture:testPoint on each fixture
-		-- and eliminate any misses
+local queryResults = {}
+
+local function boxQueryCallback(fixture)
+	table.insert(queryResults, fixture)
+	return true
+end
+
+local function touchingBox(lt, rt, top, bot, world)
+	for i, v in ipairs(queryResults) do  queryResults[i] = nil  end
+	world:queryBoundingBox(lt, top, rt, bot, boxQueryCallback)
+	if #queryResults > 0 then -- Return table if results, or nil if none.
+		return queryResults
+	end
+end
+
+local function atPoint(x, y, world)
+	for i, v in ipairs(queryResults) do  queryResults[i] = nil  end
+	world:queryBoundingBox(x-0.5, y-0.5, x+0.5, y+0.5, boxQueryCallback)
+	for i=#queryResults, 1, -1 do
+		local fixture = queryResults[i]
+		if not fixture:testPoint(x, y) then
+			table.remove(queryResults, i)
+		end
+	end
+	if #queryResults > 0 then -- Return table if results, or nil if none.
+		return queryResults
+	end
+end
+
+local function getWorld(self)
+	local parent = self.parent
+	if not parent then
+		return
+	elseif parent.is and parent:is(World) and parent.world then
+		return parent.world
+	else
+		return getWorld(parent.parent)
+	end
+end
 
 return {
 	setCategories = setCategories, categories = categories,
-	categoriesExcept = categoriesExcept, categoryIndex = categoryIndex
+	categoriesExcept = categoriesExcept, categoryIndex = categoryIndex,
+	atPoint = atPoint, touchingBox = touchingBox, getWorld = getWorld,
 }

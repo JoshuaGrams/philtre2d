@@ -1,7 +1,7 @@
 Physics
 =======
 
-A physics utility module. Helps manage named collision categories so you don't have to remember arbitrary numbers.
+A physics utility module. Helps manage named collision categories so you don't have to remember arbitrary numbers and has helper functions for collision queries.
 
 Basic Physics Usage
 -------------------
@@ -36,3 +36,34 @@ _PARAMETERS_
 
 _RETURNS_
 * __index__ <kbd>number</kbd> - The category index.
+
+### physics.getWorld(obj)
+Traverses up the scene-tree to find the nearest physics world. Useful for getting the right world to use for `physics.touchingBox()` and `physics.atPoint()`.
+
+_PARAMETERS_
+* __obj__ <kbd>Object</kbd> - The Object in the scene-tree to start search from. (It starts by checking its parent.)
+
+_RETURNS_
+* __world__ <kbd>userdata | nil</kbd> - The nearest Love2D world object, or `nil` if none was found.
+
+### physics.touchingBox(lt, rt, top, bot, world)
+Gets a list of any fixtures whose Axis-Aligned Bounding Box overlaps the AABBs you specify. It does _not_ check against the actual shapes of fixtures, only AABB to AABB.
+> Note: You can get the actual Object that a fixture belongs to with `fixture:getUserData()`.
+
+_PARAMETERS_
+* __lt, rt, top, bot__ <kbd>numbers</kbd> - The left-x, right-x, top-y, and bottom-y coordinates of the AABB to check, in world coordinates.
+* __world__ <kbd>userdata</kbd> - The Love2D physics world to use.
+
+_RETURNS_
+* __results__ <kbd>table | nil</kbd> - A list table of all the overlapping fixtures, or `nil` if there are none.
+
+### physics.atPoint(x, y, world)
+Gets a list of any fixtures overlapping a single point. This is an accurate check against the shapes of the fixtures.
+> Note: You can get the actual Object that a fixture belongs to with `fixture:getUserData()`.
+
+_PARAMETERS_
+* __x, y__ <kbd>numbers</kbd> - The x and y coordinates of the point to check, in world coordinates.
+* __world__ <kbd>userdata</kbd> - The Love2D physics world to use.
+
+_RETURNS_
+* __results__ <kbd>table | nil</kbd> - A list table of all the overlapping fixtures, or `nil` if there are none.
