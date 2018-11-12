@@ -18,6 +18,10 @@ These don't have to exist, but the scene-tree and some other modules will use th
 * **angle** - Rotation angle in radians, clockwise.
 * **kx, ky** - Skew x and y.
 
+### Misc Properties
+* **paused** - If the object (and its children) will get updates or not. It's recommended to use `obj:setPaused(paused)` instead of changing this directly. 
+* **visible** - If the object (and its children) will be drawn or not. It's recommended to use `obj:setVisible(visible)` instead of changing this directly.
+
 ### Scene-tree Properties
 Scene-tree will add these to all objects when they are added to the tree.
 * **name** - The object's name. Doesn't have to be unique. Can be pre-set by the user, or will be set to the Object's class name.
