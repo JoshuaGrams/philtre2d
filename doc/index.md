@@ -63,7 +63,9 @@ Objects
 	* As above, `image` can be a string (filename) or an image.
 	* `quad` can be a table (`{x, y, w, h}`) or a quad created with `love.graphics.newQuad`).
 * Text - Object for rendering text. No fancy scaling.
-	* `Text(x, y, angle, text, font_filename, font_size, wrap_limit, align, sx, sy, kx, ky)`
+	* `Text(text, font, x, y, angle, wrap_limit, align, sx, sy, kx, ky)`
+	* `font` can be a table `{filename, size}` or an existing font object.
+	* `align` is a string: one of `left`, `center`, `right`, or `justify`.
 * [World](objects/World.md) - Object with its own physics world and callback handlers.
 	* `World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)`
 
