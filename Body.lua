@@ -13,7 +13,7 @@ function Body.draw(self)
 	local cx, cy = self.body:getLocalCenter()
 	love.graphics.circle('fill', cx, cy, 3, 4) -- dot at center of mass
 	love.graphics.line(cx, cy, cx + 10, cy + 0) -- x axis line
-	for i,f in ipairs(self.body:getFixtureList()) do
+	for i,f in ipairs(self.body:getFixtures()) do
 		local s = f:getShape()
 		if s:getType() == 'circle' then
 			local x, y = s:getPoint()
@@ -130,7 +130,7 @@ end
 function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_transform)
 	Body.super.set(self, x, y, angle)
 	local rand = love.math.random
-	self.color = {rand()*200+55, rand()*200+55, rand()*200+55, 255}
+	self.color = {rand()*0.8+0.2, rand()*0.8+0.2, rand()*0.8+0.2, 1}
 	self.type = type
 	if self.type ~= 'kinematic' then
 		self.updateTransform = Object.TRANSFORM_ABSOLUTE
