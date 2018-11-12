@@ -64,9 +64,9 @@ function Object.setVisible(self, visible)
 end
 
 function Object.draw(self)
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle('line', -5, -5, 10, 10)
-	love.graphics.points(0, 0)
+	love.graphics.circle('line', 0, 0, 0.5, 4)
 end
 
 function Object.set(self, x, y, angle, sx, sy, kx, ky)
