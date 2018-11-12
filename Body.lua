@@ -9,6 +9,7 @@ Body.className = 'Body'
 
 function Body.draw(self)
 	-- physics debug
+	love.graphics.setBlendMode('alpha')
 	love.graphics.setColor(self.color)
 	local cx, cy = self.body:getLocalCenter()
 	love.graphics.circle('fill', cx, cy, 3, 4) -- dot at center of mass

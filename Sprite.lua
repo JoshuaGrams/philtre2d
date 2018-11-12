@@ -11,6 +11,7 @@ local origins = {
 }
 
 function Sprite.draw(self)
+	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setColor(self.color)
 	love.graphics.draw(self.image, -self.ox, -self.oy)
 end
@@ -54,6 +55,7 @@ function Sprite.set(self, image, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 		image = image
 	end
 	self.image = image
+	self.blendMode = 'alpha'
 	self.color = color or {255, 255, 255, 255}
 	local w, h = image:getDimensions()
 	self._req = { w = w, h = h }

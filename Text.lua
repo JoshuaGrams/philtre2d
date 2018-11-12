@@ -4,6 +4,7 @@ local Text = Object:extend()
 Text.className = 'Text'
 
 function Text.draw(s)
+	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setFont(s.font)
 	love.graphics.setColor(s.color)
 	if s.wrapLimit then
@@ -17,6 +18,7 @@ local validAlignment = { center = true, left = true, right = true, justify = tru
 
 function Text.set(self, text, font, x, y, angle, wrapLimit, align, sx, sy, kx, ky)
 	Text.super.set(self, x, y, angle, sx, sy, kx, ky)
+	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}
 	self.text = text
 	self.wrapLimit = wrapLimit

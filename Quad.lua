@@ -11,6 +11,7 @@ local origins = {
 }
 
 function Quad.draw(self)
+	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setColor(self.color)
 	love.graphics.draw(self.image, self.quad, -self.ox, -self.oy)
 end
@@ -63,6 +64,7 @@ function Quad.set(self, image, quad, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	self.quad = quad
 	self.w, self.h = w, h
 	self.name = 'Quad'
+	self.blendMode = 'alpha'
 	self.color = color or {255, 255, 255, 255}
 	self._req = { w = w, h = h }
 	ox = ox or 'center';  oy = oy or 'center'
