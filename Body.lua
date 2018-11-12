@@ -92,6 +92,7 @@ function Body.init(self)
 	end
 
 	local world = getWorld(self.parent)
+	self.world = world
 	if not world then
 		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
 	end
