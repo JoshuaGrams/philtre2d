@@ -3,6 +3,7 @@
 local base = (...):gsub('%.init$', '.')
 
 matrix = require(base .. 'matrix')
+new = require(base .. 'new')
 
 scene = require(base .. 'scene-tree')
 DrawOrder = require(base .. 'draw-order')
