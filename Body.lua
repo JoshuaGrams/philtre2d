@@ -86,6 +86,24 @@ function Body.setMasks(self, maskList)
 	end
 end
 
+local function makeFixture(self, data)
+	-- data[1] = shape type, data[2] = shape specs, data[...] = fixture props.
+	local shape = shape_constructors[data[1]](unpack(data[2]))
+	local f = love.physics.newFixture(self.body, shape, data.density)
+	f:setUserData(self) -- Store self ref on each fixture for collision callbacks.
+	-- Discard already-used data, leaving only fixture properties (if any).
+	data[1], data[2], data.density = nil, nil, nil
+	for k,v in pairs(data) do
+		if fixture_set_funcs[k] then
+			if k == 'categories' or k == 'masks' then
+				f[fixture_set_funcs[k]](f, unpack(v))
+			else
+				f[fixture_set_funcs[k]](f, v)
+			end
+		end
+	end
+end
+
 function Body.init(self)
 	if not self.ignore_transform and self.type ~= 'kinematic' then
 		self.pos.x, self.pos.y = matrix.x(self.parent._to_world, self.pos.x, self.pos.y)
@@ -97,6 +115,7 @@ function Body.init(self)
 	if not world then
 		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
 	end
+	-- Make body.
 	self.body = love.physics.newBody(world, self.pos.x, self.pos.y, self.type)
 	self.body:setAngle(self.angle)
 	if self.bodyData then
@@ -104,22 +123,15 @@ function Body.init(self)
 			if body_set_funcs[k] then self.body[body_set_funcs[k]](self.body, v) end
 		end
 	end
-
-	for i,s in ipairs(self.shapeData) do
-		-- s[1] = shape type, s[2] = shape specs
-		local shape = shape_constructors[s[1]](unpack(s[2]))
-		local f = love.physics.newFixture(self.body, shape, s.density)
-		f:setUserData(self) -- Store self ref on each fixture for collision callbacks.
-		for k,v in pairs(s) do
-			if fixture_set_funcs[k] then
-				if k == 'categories' or k == 'masks' then
-					f[fixture_set_funcs[k]](f, unpack(v))
-				else
-					f[fixture_set_funcs[k]](f, v)
-				end
-			end
+	-- Make shapes & fixtures.
+	if type(self.shapeData[1]) == 'string' then -- Only one fixture def.
+		makeFixture(self, self.shapeData)
+	else
+		for i, data in ipairs(self.shapeData) do -- A list of fixture defs.
+			makeFixture(self, data)
 		end
 	end
+	-- Discard constructor data.
 	self.shapeData = nil
 	self.bodyData = nil
 	self.inherit = nil

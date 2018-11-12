@@ -24,8 +24,10 @@ _PARAMETERS_
 * __type__ <kbd>string(BodyType)</kbd> - The body type: 'static', 'dynamic', or 'kinematic'.
 * __x, y__ <kbd>number</kbd> - The initial position of the body.
 * __angle__ <kbd>number</kbd> - The initial angle of the body.
-* __shapes__ <kbd>table</kbd> - The shape/fixture data for the body. In the following format:
-```lua
+* __shapes__ <kbd>table</kbd> - The shape & fixture data for the body. This can either be in either of the following formats:
+ 	```lua
+	-- 1. A table of tables, for multi-fixture bodies.
+	-- shapes =
 	{
 		-- shape 1
 		{ 'shape type', {shape_arg_1, shape_arg_2, ...}, prop=value, prop2=value2, ... },
@@ -35,9 +37,13 @@ _PARAMETERS_
 		-- shape 3 - Example:
 		{ 'rectangle', {25, -10, 300, 100, math.pi/4}, categories={1, 5, 6, 7}, masks={3}, density=5}
 	}
-```
-*
+
+	-- 2. A single table for a single fixture body.
+	-- shapes =
+	{ 'polygon', { -10, -10, 10, -10, 0, 20 }, categories=physics.categories('enemies') }
+	```
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', and 'chain'.
+
 	* Available shape(fixture) properties are: 'sensor', 'categories', 'masks', 'friction', and 'restitution'.
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
