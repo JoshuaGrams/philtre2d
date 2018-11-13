@@ -4,7 +4,7 @@ local Text = Object:extend()
 Text.className = 'Text'
 
 function Text.draw(s)
-	love.graphics.setBlendMode(self.blendMode)
+	love.graphics.setBlendMode(s.blendMode)
 	love.graphics.setFont(s.font)
 	love.graphics.setColor(s.color)
 	if s.wrapLimit then
