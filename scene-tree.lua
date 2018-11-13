@@ -71,7 +71,6 @@ local function _update(objects, dt, draw_order, m)
 		local dt = dt and not obj.paused and dt or nil
 		local draw_order = draw_order
 		if dt then -- not paused at self or anywhere up the tree
-			M.copy(m, obj._to_world);  obj._to_local = nil
 			obj:call('update', dt)
 			obj:updateTransform()
 		end
