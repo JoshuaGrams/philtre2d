@@ -21,7 +21,7 @@ Constructor
 Construct a new physics Body object. The actual body, shapes, and fixtures will not be created until init().
 
 _PARAMETERS_
-* __type__ <kbd>string(BodyType)</kbd> - The body type: 'static', 'dynamic', or 'kinematic'.
+* __type__ <kbd>string(BodyType)</kbd> - The body type: 'static', 'dynamic', 'kinematic', or 'trigger'.
 * __x, y__ <kbd>number</kbd> - The initial position of the body.
 * __angle__ <kbd>number</kbd> - The initial angle of the body.
 * __shapes__ <kbd>table</kbd> - The shape & fixture data for the body. This can either be in either of the following formats:
@@ -48,6 +48,15 @@ _PARAMETERS_
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 * __ignore_parent_transform__ <kbd>bool</kbd> - For dynamic and static bodies only: if the body should be created at global `x`, `y`, and `angle`, rather than interpreting those as local to its parent. After creation, these body types will completely ignore their parent's transform, as usual.
+
+Trigger Bodies
+--------------
+
+Bodies with the type 'trigger' are a sort of custom preset. The are:
+
+* Dynamic bodies - So they will register overlap events with all other body types.
+* Sensors - All of their fixtures get set to 'sensor' mode, so they get `beginContact` and `endContact` callbacks, but pass through other objects without 'hitting' them.
+* Transform like regular Objects - Though technically dynamic bodies, they behave more like kinematic bodies, or any normal child Object in the scene-tree. When their parent or any ancestor moves or rotates around, they do too (like all Bodies, they still don't change scale).
 
 Shape Types
 -----------

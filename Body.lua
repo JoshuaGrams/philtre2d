@@ -9,6 +9,7 @@ Body.className = 'Body'
 
 function Body.draw(self)
 	-- physics debug
+	self.color[4] = self.body:isAwake() and 1 or 0.5
 	love.graphics.setBlendMode('alpha')
 	love.graphics.setColor(self.color)
 	local cx, cy = self.body:getLocalCenter()
@@ -26,15 +27,23 @@ function Body.draw(self)
 end
 
 function Body.update(self, dt)
-	if self.type == 'kinematic' then
-		-- Pos in local space, must update physics world pos to match.
-		self.body:setPosition(matrix.x(self.parent._to_world, self.pos.x, self.pos.y))
+	if self.type == 'kinematic' or self.type == 'trigger' then
+		-- User-Controlled - update physics body to match scene-tree Object.
+		local newx, newy = scene.toWorld(self.parent, self.pos.x, self.pos.y)
 		local th, sx, sy = matrix.parameters(self.parent._to_world)
-		self.body:setAngle(th)
-		 -- body can't scale, set to inverted _to_world scale to enforce this.
+		local last = self.lastTransform
+		self.body:setPosition(newx, newy)
+		self.body:setAngle(self.angle + th)
+		self.body:setLinearVelocity(0, 0) -- Just to make sure this can't build up.
+	 	-- Bodies can't scale, set to inverted _to_world scale to enforce this.
 		self.sx, self.sy = 1/sx, 1/sy
+		-- Need to wake up the body if it's parent changes (or any ancestor).
+		if newx ~= last.x or newy ~= last.y or th ~= last.angle then
+			self.body:setAwake(true)
+		end
+		last.x, last.y, last.angle = newx, newy, th
 	else -- 'dynamic' or 'static'
-		-- Pos controlled by physics in world space, update obj pos to match.
+		-- Physics-Controlled - update scene-tree Object to match physics body.
 		self.pos.x, self.pos.y = self.body:getPosition()
 		self.angle = self.body:getAngle()
 	end
@@ -102,12 +111,16 @@ local function makeFixture(self, data)
 			end
 		end
 	end
+	if self.type == 'trigger' then  f:setSensor(true)  end
 end
 
 function Body.init(self)
-	if not self.ignore_transform and self.type ~= 'kinematic' then
-		self.pos.x, self.pos.y = matrix.x(self.parent._to_world, self.pos.x, self.pos.y)
-		self.angle = self.angle + matrix.parameters(self.parent._to_world)
+	-- By default, dynamic and static bodies are created in local coords.
+	if not self.ignore_transform then
+		if self.type == 'dynamic' or self.type == 'static' then
+			self.pos.x, self.pos.y = scene.toWorld(self.parent, self.pos.x, self.pos.y)
+			self.angle = self.angle + matrix.parameters(self.parent._to_world)
+		end
 	end
 
 	local world = getWorld(self.parent)
@@ -116,7 +129,8 @@ function Body.init(self)
 		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
 	end
 	-- Make body.
-	self.body = love.physics.newBody(world, self.pos.x, self.pos.y, self.type)
+	local bType = (self.type == 'trigger') and 'dynamic' or self.type
+	self.body = love.physics.newBody(world, self.pos.x, self.pos.y, bType)
 	self.body:setAngle(self.angle)
 	if self.bodyData then
 		for k,v in pairs(self.bodyData) do
@@ -146,8 +160,13 @@ function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_tran
 	local rand = love.math.random
 	self.color = {rand()*0.8+0.2, rand()*0.8+0.2, rand()*0.8+0.2, 1}
 	self.type = type
-	if self.type ~= 'kinematic' then
+	if self.type == 'dynamic' or self.type == 'static' then
 		self.updateTransform = Object.TRANSFORM_ABSOLUTE
+	else
+		self.lastTransform = {}
+		-- Fix rotation on kinematic and trigger bodies to make sure it can't go crazy.
+		if body_prop then  body_prop.fixedRot = true
+		else  body_prop = { fixedRot = true }  end
 	end
 	-- Save to use on init:
 	self.shapeData = shapes
