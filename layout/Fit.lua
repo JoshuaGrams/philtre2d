@@ -21,17 +21,17 @@ local function allocateChild(self, w, h, cw, ch)
 	-- Allocate child.
 	self.child:allocate(x, y, cw, ch)
 	-- Allocate sides.
-	if self.left then
+	if self.left and self.left.allocate then
 		self.left:allocate(0, 0, extraWidth, h)
 	end
-	if self.right then
+	if self.right and self.right.allocate then
 		self.right:allocate(x + cw, 0, extraWidth, h)
 	end
 	-- Allocate top/bottom.
-	if self.top then
+	if self.top and self.top.allocate then
 		self.top:allocate(x, 0, cw, extraHeight)
 	end
-	if self.bottom then
+	if self.bottom and self.bottom.allocate then
 		self.bottom:allocate(x, y + ch, cw, extraHeight)
 	end
 end
