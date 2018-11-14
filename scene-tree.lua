@@ -66,7 +66,7 @@ local function preUpdate(dt)
 	completeReparenting()
 end
 
-local function _update(objects, dt, draw_order, m)
+local function _update(objects, dt, draw_order)
 	for _,obj in pairs(objects) do
 		local dt = dt and not obj.paused and dt or nil
 		local draw_order = draw_order
@@ -81,7 +81,7 @@ local function _update(objects, dt, draw_order, m)
 			draw_order = nil -- don't draw any children from here on down
 		end
 		if obj.children then
-			_update(obj.children, dt, draw_order, obj._to_world)
+			_update(obj.children, dt, draw_order)
 		end
 		if draw_order then  draw_order:restoreCurrentLayer()  end
 	end
@@ -94,7 +94,7 @@ end
 local function update(dt)
 	if tree.draw_order then  tree.draw_order:clear()  end
 	preUpdate(dt)
-	_update(tree.children, dt, tree.draw_order, tree._to_world)
+	_update(tree.children, dt, tree.draw_order)
 	postUpdate(dt)
 end
 
