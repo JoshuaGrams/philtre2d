@@ -10,5 +10,6 @@ T.check(require(base .. 'test.layout-heterogeneous-column'))
 T.check(require(base .. 'test.layout-fit'))
 T.check(require(base .. 'test.layer'))
 T.check(require(base .. 'test.depth-list'))
+T.check(require(base .. 'test.random'))
 
 T.plan()
