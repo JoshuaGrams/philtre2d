@@ -30,26 +30,26 @@ The current objects are:
 	  the child, just places it in the space. So if the child is bigger than
 	  the allocated space, this will probably break things. The others fit
 	  the child width/height/aspect, placing space around it as necessary.
-      * `size` - Does not resize the child, just places it in the space. If
-        the child is bigger than the available space, it is scaled down to
-        fit, with no regard for aspect ratio.
-      * `width` - Scales the child so its width fill the available  space.
-        The child's height is scaled to maintain its aspect ratio, unless
-        there is not enough room, in which case the height is scaled down to
-        fit inside the parent.
-      * `height` - Likewise, scales the child's height to fit the  space.
-        Width scales to maintain aspect ratio or is scaled down to fit
-        inside the parent.
-      * `aspect` - Scales the child uniformly up or down to always maintain
-        its aspect ratio while filling as much of the available space as
-        possible. There will always be some extra space unless the parent's
-        aspect ratio is the same as the child's.
+		* `size` - Does not resize the child, just places it in the space. If
+        	  the child is bigger than the available space, it is scaled down to
+        	  fit, with no regard for aspect ratio.
+		* `width` - Scales the child so its width fill the available  space.
+		  The child's height is scaled to maintain its aspect ratio, unless
+		  there is not enough room, in which case the height is scaled down to
+		  fit inside the parent.
+		* `height` - Likewise, scales the child's height to fit the  space.
+		  Width scales to maintain aspect ratio or is scaled down to fit
+		  inside the parent.
+		* `aspect` - Scales the child uniformly up or down to always maintain
+		  its aspect ratio while filling as much of the available space as
+		  possible. There will always be some extra space unless the parent's
+		  aspect ratio is the same as the child's.
 
-   * `space` is a table of up to four objects, keyed to each side (left/right
-      /top/bottom), which will be scaled to fill any extra space. If you
-      don't specify any, or if you specify both left/right or top/bottom, it
-      will center the child. If you specify an object for only one side on
-      an axis, the child will be pushed to the opposite side.
+	* `space` is a table of up to four objects, keyed to each side (left/right
+	  /top/bottom), which will be scaled to fill any extra space. If you
+	  don't specify any, or if you specify both left/right or top/bottom, it
+	  will center the child. If you specify an object for only one side on
+	  an axis, the child will be pushed to the opposite side.
 
 * `Row(spacing, homogeneous, children)` - Lays out its child objects in a
   row.
@@ -62,13 +62,13 @@ The current objects are:
 
 	* `children` - a list of child object specifers: `{obj, dir, extra, padding}`.
 
-      * `obj` - The child object.
+		* `obj` - The child object.
 
-      * `dir` - 'start'/'end' - Which side to put extra space on?
+		* `dir` - 'start'/'end' - Which side to put extra space on?
 
 		* `extra` - 'none'/'space'/'stretch' - Does this element want extra
-        space, and should we center the object in the space or report it to
-        the object.
+		  space, and should we center the object in the space or report it to
+		  the object.
 
 		* `padding` - Space to place on either side of the object.
 
