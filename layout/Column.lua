@@ -49,7 +49,8 @@ local function allocateChild(child, x, y, w, h)
 	-- Account for extra unless child wants stretching.
 	if child.extra ~= 'stretch' then
 		local r = obj:request()
-		local ex, ey = w - r.w, h - r.h
+		local rw, rh = r.w, r.h
+		local ex, ey = w - rw, h - rh
 		ex, ey = math.max(ex, 0), math.max(ey, 0)
 		y, h = y + 0.5 * ey, h - ey
 	end
@@ -105,12 +106,13 @@ local function allocateHeterogeneousColumn(self, x, y, w, h)
 	local top = 0
 	for _,c in ipairs(self.startChildren) do
 		local r = c.obj:request()
+		local rw, rh = r.w, r.h
 		if squashFactor ~= nil then
-			r.h = r.h * squashFactor
+			rh = rh * squashFactor
 		elseif c.extra ~= 'none' then
-			r.h = r.h + extra
+			rh = rh + extra
 		end
-		local a = math.max(0, math.min(h - top, r.h))
+		local a = math.max(0, math.min(h - top, rh))
 		allocateChild(c, 0, top, w, a)
 		top = math.min(h, top + a + self.spacing)
 	end
@@ -118,12 +120,13 @@ local function allocateHeterogeneousColumn(self, x, y, w, h)
 	local bottom = 0
 	for _,c in ipairs(self.endChildren) do
 		local r = c.obj:request()
+		local rw, rh = r.w, r.h
 		if squashFactor ~= nil then
-			r.h = r.h * squashFactor
+			rh = rh * squashFactor
 		elseif c.extra ~= 'none' then
-			r.h = r.h + extra
+			rh = rh + extra
 		end
-		local a = math.max(0, math.min(h - bottom, r.h))
+		local a = math.max(0, math.min(h - bottom, rh))
 		bottom = math.min(h, bottom + a)
 		allocateChild(c, 0, h - bottom, w, a)
 		bottom = math.min(h, bottom + self.spacing)
