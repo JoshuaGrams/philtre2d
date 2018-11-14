@@ -19,6 +19,10 @@ function vec2.new(x, y)
 	return { x = x or 0, y = y or x or 0 }
 end
 
+function vec2.from_polar(r, th)
+	return r * cos(th), r * sin(th)
+end
+
 -- Add a vector to another vector.
 function vec2.add(ax, ay, bx, by)
 	return ax + bx, ay + by
@@ -116,6 +120,10 @@ end
 -- Get the smallest, signed angle from one vector to another.
 function vec2.angle_between(ax, ay, bx, by)
 	return atan2(ax * by - ay * bx, ax * bx + ay * by)
+end
+
+function vec2.angle(x, y)
+	return atan2(y, x)
 end
 
 -- Lerp between two vectors.
