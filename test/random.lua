@@ -46,7 +46,7 @@ return {
 			local p = Rnd.disc(cx, cy, r)
 			local dx, dy = p.x - cx, p.y - cy
 			local d = math.sqrt(dx * dx + dy * dy)
-			T.ok(d <= r, 'disc ' .. i .. ': ' .. p.x .. ', ' .. y .. ' (' .. d .. ') from center (radius ' .. r .. ')')
+			T.ok(d <= r, 'disc ' .. i .. ': ' .. p.x .. ', ' .. p.y .. ' (' .. d .. ') from center (radius ' .. r .. ')')
 		end
 	end
 }
