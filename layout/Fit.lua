@@ -21,17 +21,17 @@ local function allocateChild(self, w, h, cw, ch)
 	-- Allocate child.
 	self.child:allocate(x, y, cw, ch)
 	-- Allocate sides.
-	if self.left and self.left.allocate then
+	if type(self.left) == 'table' and self.left.allocate then
 		self.left:allocate(0, 0, extraWidth, h)
 	end
-	if self.right and self.right.allocate then
+	if type(self.right) == 'table' and self.right.allocate then
 		self.right:allocate(x + cw, 0, extraWidth, h)
 	end
 	-- Allocate top/bottom.
-	if self.top and self.top.allocate then
+	if type(self.top) == 'table' and self.top.allocate then
 		self.top:allocate(x, 0, cw, extraHeight)
 	end
-	if self.bottom and self.bottom.allocate then
+	if type(self.bottom) == 'table' and self.bottom.allocate then
 		self.bottom:allocate(x, y + ch, cw, extraHeight)
 	end
 end

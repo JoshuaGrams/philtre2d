@@ -203,8 +203,19 @@ local fitSizeBoth = {
 		T.has(obj.bottom, {
 			pos = { x = 2, y = 5 }, width = 4, height = 2
 		}, "space on bottom", 'bottom')
+	end,
+	function(obj)
+		local fit = Layout.Fit('size', obj.child, {
+			left = true, right = true,
+			top = true, bottom = true
+		})
+		obj.fit:allocate(7, 8, 8, 7)
+		T.has(obj.child, {
+			pos = { x = 2, y = 2 }, width = 4, height = 3
+		}, "space all 'round with space flags", 'child')
 	end
 }
+
 
 local fitWidth = {
 	"Fit Width",
