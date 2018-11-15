@@ -12,7 +12,10 @@ An object which wants to participate in layout must provide two methods:
   allocated size may be larger or smaller than the requested size, and the
   object is just supposed to deal with whatever it gets.
 
-These objects go in the scene tree. You have to manually call `allocate` on the top-level layout object and then it will allocate its children.
+Basic Usage
+-----------
+
+These objects go in the scene tree. You only have to manually call `allocate` on the top-level layout object and then it will allocate its children.
 
 -----
 
@@ -52,23 +55,36 @@ The current objects are:
 	  an axis, the child will be pushed to the opposite side.
 
 * `Row(spacing, homogeneous, children)` - Lays out its child objects in a
-  row.
+  row. All the child objects are stretched vertically to the allocated height
+  of the row.
 
-	* `spacing` is a number giving the distance between children (but not at
-	  the ends)
+	* `spacing` - A number giving the distance between children (but not at
+	  the ends).
 
-	* `homogenous` - Give each element the same amount of space? If not,
-	  they get different amounts of space based on their individual widths.
+	* `homogeneous` - When `true`, divides up the space into equal chunks for
+     each child before figuring the other allocation options. So children
+     using 'none' and 'space' modes will behave the same, and children using
+     'stretch' mode will only expand to fill their own equal chunk. Changing
+     the anchor `dir` of children will only affect the order, not their
+     spacing. In non-homogeneous rows, children get allocated enough space
+     for their width, and the remaining space is divided up between children
+     using the 'space' or 'stretch' modes.
 
 	* `children` - a list of child object specifers: `{obj, dir, extra, padding}`.
 
 		* `obj` - The child object.
 
-		* `dir` - 'start'/'end' - Which side to put extra space on?
+		* `dir` - 'start'/'end' - Which side of the row. to anchor the child to.
 
-		* `extra` - 'none'/'space'/'stretch' - Does this element want extra
-		  space, and should we center the object in the space or report it to
-		  the object.
+		* `extra` - 'none'/'space'/'stretch' - Controls if this child gets
+        extra space, and if so, what it does with it.
+         * `'none'` - The child only gets enough space for its width, or a
+           share proportional to its width if the whole row is too short.
+         * `'space'` - The child gets a share of any leftover space
+           proportional to its width and will be centered in this space.
+         * `'stretch'` - The child gets the same extra space as with 'space',
+           but instead of just being centered inside, it is stretched to fill
+           it.
 
 		* `padding` - Space to place on either side of the object.
 
