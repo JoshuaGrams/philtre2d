@@ -75,7 +75,12 @@ The device name:
  * `mouse` (For mouse buttons. Mouse movement is not supported yet.)
 
 ### `input`
-The button or axis within the device. Keys and scancodes have the usual LÖVE names. Mouse buttons have the usual numbers. Joysticks have `axis#`, `button#`, `hat#left`, `hat#right`, `hat#up`, and `hat#down`. If a joystick is recognized as a gamepad, then you can also access its inputs by LÖVE gamepad input names. See [here for the list of buttons](https://love2d.org/wiki/GamepadButton), and [here for the list of axes](https://love2d.org/wiki/GamepadAxis).
+The button or axis within the device. Keys and scancodes have the usual LÖVE names. Mouse buttons have the usual numbers. Joysticks have `axis#`, `button#`, `hat#left`, `hat#right`, `hat#up`, and `hat#down`. If a joystick is recognized as a gamepad, then you can also access its inputs by LÖVE gamepad input names.
+
+* [List of key constants](https://love2d.org/wiki/KeyConstant)
+* [List of scancodes](https://love2d.org/wiki/Scancode)
+* [List of gamepad buttons](https://love2d.org/wiki/GamepadButton)
+* [List of axes](https://love2d.org/wiki/GamepadAxis).
 
 ---
 
