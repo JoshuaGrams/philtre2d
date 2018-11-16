@@ -81,6 +81,7 @@ The button or axis within the device. Keys and scancodes have the usual LÖVE na
 
 To remove bindings you can use:
  * `Input.unbind(bindings)` or `Input.unbind_all()`.
+   * `Input.unbind` must be given a table of tables with the logical input name as their first element. In other words, the same table that you used with `Input.bind` in the first place.
 
 Enable & Disable Input
 ----------------------

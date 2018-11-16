@@ -50,13 +50,17 @@ end
 
 local L = {}
 
-local function logical_input(name)
+local function register_logical(name, device, input)
+	-- Save device and input here so we can remove the physical binding later.
 	if not L[name] then
 		L[name] = {
 			name = name,
 			value = 0, change = 0,
+			device = device,
+			input = input,
 			-- {fn=fn, phy, ...}
 			-- fn(value, phy, ...) -> value'
+
 			physical = {}
 		}
 	end
@@ -86,11 +90,11 @@ end
 -- Set logical input, perform callbacks.
 local function update_logical(l)
 	-- Combine physical inputs to get new logical value.
-	local v = 0
+	local val = 0
 	for _,p in ipairs(l.physical) do
-		v = p.fn(v, unpack(p))
+		val = p.fn(val, unpack(p))
 	end
-	l.value, l.change = v, v - l.value
+	l.value, l.change = val, val - l.value
 	-- Call objects that want input.
 	for _,o in pairs(O) do
 		o:call('input', l.name, l.value, l.change)
@@ -102,24 +106,24 @@ end
 -- Handlers for collecting axes and buttons and converting
 -- between the two.
 
-local function axis_handler(v, phy)
+local function axis_handler(val, phy)
 	local a = phy.value
-	local pos, neg = math.max(0, a, v), math.min(0, a, v)
+	local pos, neg = math.max(0, a, val), math.min(0, a, val)
 	return pos + neg
 end
 
-local function button_axis_handler(v, phy)
-	local pos = math.max(v, phy[1].value)
-	local neg = math.min(v, -phy[2].value)
+local function button_axis_handler(val, phy)
+	local pos = math.max(val, phy[1].value)
+	local neg = math.min(val, -phy[2].value)
 	return pos + neg
 end
 
-local function button_handler(v, phy)
-	return math.max(v, phy.value)
+local function button_handler(val, phy)
+	return math.max(val, phy.value)
 end
 
-local function axis_button_handler(v, phy, dir, lim)
-	return math.max(v, (dir*phy.value > lim) and 1 or 0)
+local function axis_button_handler(val, phy, dir, lim)
+	return math.max(val, (dir*phy.value > lim) and 1 or 0)
 end
 
 
@@ -127,14 +131,14 @@ end
 -- Bind logical axes and buttons to physical axes or buttons.
 
 local function axis(name, device, input)
-	local l = logical_input(name)
+	local l = register_logical(name, device, input)
 	local r = use_physical(l, device, input)
 	table.insert(l.physical, {fn=axis_handler, P[device][input]})
 	return r
 end
 
 local function axis_from_buttons(name, dev1, in1, dev2, in2)
-	local l = logical_input(name)
+	local l = register_logical(name, device, input)
 	local r1 = use_physical(l, dev1, in1)
 	local r2 = use_physical(l, dev2, in2)
 	local p = {fn=button_axis_handler, {P[dev1][in1], P[dev2][in2]}}
@@ -143,14 +147,14 @@ local function axis_from_buttons(name, dev1, in1, dev2, in2)
 end
 
 local function button(name, device, input)
-	local l = logical_input(name)
+	local l = register_logical(name, device, input)
 	local r = use_physical(l, device, input)
 	table.insert(l.physical, {fn=button_handler, P[device][input]})
 	return r
 end
 
 local function button_from_axis(name, device, input, lim, dir)
-	local l = logical_input(name)
+	local l = register_logical(name, device, input)
 	local r = use_physical(l, device, input)
 	lim, dir = lim or 0.5, dir or 1
 	local p = {fn=axis_button_handler, P[device][input], dir, lim}
@@ -177,7 +181,7 @@ local function bind(bindings, replace_old)
 			L[name] = nil
 			cleared[name] = true
 		end
-		if binder[kind] then
+		if binder[kind] then -- Call binder func for this input type.
 			binder[kind](name, unpack(b,3))
 		else -- Handle invalid kind/type error.
 			local tList = ""
@@ -195,12 +199,40 @@ local function bind(bindings, replace_old)
 end
 
 local function unbind(bindings)
+	-- Error handling for incorrect argument format.
+	local errMsg = 'Input.unbind - Argument should be a sequence of tables with names of logical inputs.'
+	assert(type(bindings) == 'table', errMsg)
+	assert(type(bindings[1]) == 'table', errMsg)
+
 	for _,b in ipairs(bindings) do
-		L[b[1]] = nil
+		local logic_data = L[b[1]]
+		if logic_data then
+			-- Remove from logical inputs list.
+			L[b[1]] = nil
+
+			-- Remove from physical input.
+			local phy_data = P[logic_data.device][logic_data.input]
+			local name = logic_data.name
+			for i=#phy_data.bindings, 1, -1 do
+				local l_bind = phy_data.bindings[i]
+				if l_bind.name == name then
+					phy_data.bindings[i] = nil
+				end
+			end
+			-- If that phys. input has no other logical actions on it, clear it.
+			if #phy_data.bindings == 0 then
+				P[logic_data.device][logic_data.input] = nil
+			end
+		else
+			print('WARNING: Input.unbind - Tried to unbind nonexistent action name: "' .. b[1] .. '".')
+		end
 	end
 end
 
-local function unbind_all()  L = {}  end
+local function unbind_all()
+	L = {}
+	P = {}
+end
 
 
 ----------------------------------------------------------------
@@ -219,17 +251,20 @@ local function to_logical(device, input)
 end
 
 -- Set physical input.
-local function phy(v, device, input)
-	-- Notify objects of raw input.
+
+-- This is always called for every input that the device receives.
+-- Binder functions register logical AND physical input.
+local function phy(val, device, input)
+	-- Send all raw physical input to any objects registered for it.
 	for _,o in pairs(R) do
 		if not o.paused then
-			o.input({device, input}, v)
+			o.input({device, input}, val)
 		end
 	end
-	-- Update logical inputs, if any.
+	-- If any logical inputs are registered to this physical input, update them.
 	local i = P[device] and P[device][input]
 	if i then
-		i.value, i.change = v, v - i.value
+		i.value, i.change = val, val - i.value
 		for _,l in ipairs(i.bindings) do
 			update_logical(l)
 		end
