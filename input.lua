@@ -168,6 +168,31 @@ local binder = {
 	button_from_axis = button_from_axis
 }
 
+-- Private. Unbinds one logical action name.
+local function _unbind(name)
+	assert(type(name) == 'string', 'Input._unbind - Invalid name "' .. name .. '". Action names must be strings.')
+	local logic_data = L[name]
+	if logic_data then
+		-- Remove from logical inputs list.
+		L[name] = nil
+
+		-- Remove from physical input.
+		local phy_data = P[logic_data.device][logic_data.input]
+		for i=#phy_data.bindings, 1, -1 do
+			local l_bind = phy_data.bindings[i]
+			if l_bind.name == name then
+				phy_data.bindings[i] = nil
+			end
+		end
+		-- If that phys. input has no other logical actions on it, clear it.
+		if #phy_data.bindings == 0 then
+			P[logic_data.device][logic_data.input] = nil
+		end
+	else
+		print('WARNING: Input._unbind - Tried to unbind nonexistent action name: "' .. name .. '".')
+	end
+end
+
 -- Normally, this function adds to the existing bindings. If
 -- `replace_old` is true, it will remove all old bindings for
 -- these logical inputs, replacing them with the new ones.
@@ -178,10 +203,13 @@ local function bind(bindings, replace_old)
 	for _,b in ipairs(bindings) do
 		local name, kind = b[1], b[2]
 		if replace_old and not cleared[name] then
-			L[name] = nil
+			_unbind(name)
 			cleared[name] = true
 		end
 		if binder[kind] then -- Call binder func for this input type.
+			if L[name] then
+				error('Input.bind - replace_old=false and action name "' .. name .. '" is already bound.')
+			end
 			binder[kind](name, unpack(b,3))
 		else -- Handle invalid kind/type error.
 			local tList = ""
@@ -199,33 +227,17 @@ local function bind(bindings, replace_old)
 end
 
 local function unbind(bindings)
-	-- Error handling for incorrect argument format.
-	local errMsg = 'Input.unbind - Argument should be a sequence of tables with names of logical inputs.'
-	assert(type(bindings) == 'table', errMsg)
-	assert(type(bindings[1]) == 'table', errMsg)
-
-	for _,b in ipairs(bindings) do
-		local logic_data = L[b[1]]
-		if logic_data then
-			-- Remove from logical inputs list.
-			L[b[1]] = nil
-
-			-- Remove from physical input.
-			local phy_data = P[logic_data.device][logic_data.input]
-			local name = logic_data.name
-			for i=#phy_data.bindings, 1, -1 do
-				local l_bind = phy_data.bindings[i]
-				if l_bind.name == name then
-					phy_data.bindings[i] = nil
-				end
-			end
-			-- If that phys. input has no other logical actions on it, clear it.
-			if #phy_data.bindings == 0 then
-				P[logic_data.device][logic_data.input] = nil
-			end
-		else
-			print('WARNING: Input.unbind - Tried to unbind nonexistent action name: "' .. b[1] .. '".')
-		end
+	if type(bindings) == 'string' then
+		-- A single logical action name.
+		_unbind(bindings)
+	elseif type(bindings) == 'table' and type(bindings[1]) == 'string' then
+		-- A table of logical action names.
+		for i,name in ipairs(bindings) do _unbind(name) end
+	elseif type(bindings) == 'table' and type(bindings[1]) == 'table' then
+		-- A table of tables with action names as their first element.
+		for _,b in ipairs(bindings) do _unbind(b[1]) end
+	else
+		error('Input.unbind - Invalid argument: ' .. tostring(bindings) .. '. It should be a string, a table of strings, or a table of tables with strings as their first element.')
 	end
 end
 
