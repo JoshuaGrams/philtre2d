@@ -26,6 +26,17 @@ end
 
 Object.updateTransform = Object.TRANSFORM_REGULAR
 
+function Object.toWorld(obj, x, y, w)
+	return M.x(obj._to_world, x, y, w)
+end
+
+function Object.toLocal(obj, x, y, w)
+	if not obj._to_local then
+		obj._to_local = M.invert(obj._to_world)
+	end
+	return M.x(obj._to_local, x, y, w)
+end
+
 function Object.__tostring(self)
 	return '(' .. self.className .. ' ' .. self.id .. '): path = ' .. tostring(self.path)
 end
