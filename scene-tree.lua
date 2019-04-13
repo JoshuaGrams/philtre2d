@@ -173,7 +173,7 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 	error('scene.setParent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
 end
 
-local function SceneTree.get(self, path) -- TODO - Relative paths?
+function SceneTree.get(self, path) -- TODO - Relative paths?
 	return self.paths[path]
 end
 
