@@ -5,7 +5,7 @@ local base = (...):gsub('%.init$', '.')
 matrix = require(base .. 'matrix')
 new = require(base .. 'new')
 
-scene = require(base .. 'scene-tree')
+SceneTree = require(base .. 'scene-tree')
 DrawOrder = require(base .. 'draw-order')
 
 Input = require(base .. 'input')
