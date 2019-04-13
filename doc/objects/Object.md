@@ -51,6 +51,32 @@ Shows or hides the object and calls `setVisible` on the object's scripts. A hidd
 ### Object.draw(self)
 Draws a debug box. I'll probably just delete this later.
 
+### Object.toWorld(obj, x, y, [w])
+Transforms a vector, local to `obj`, into world coordinates.
+
+_PARAMETERS_
+* __obj__ <kbd>number</kbd> - The Object whose transform to use.
+* __x__ <kbd>number</kbd> - Local x.
+* __y__ <kbd>number</kbd> - Local y.
+* __w__ <kbd>number</kbd> - _optional_ - Local w. Defaults to 1.
+
+_RETURNS_
+* __x__ <kbd>number</kbd> - World x.
+* __y__ <kbd>number</kbd> - World y.
+
+### Object.toLocal(obj, x, y, [w])
+Transforms a world vector into coordinates local to `obj`.
+
+_PARAMETERS_
+* __obj__ <kbd>number</kbd> - The Object whose transform to use.
+* __x__ <kbd>number</kbd> - World x.
+* __y__ <kbd>number</kbd> - World y.
+* __w__ <kbd>number</kbd> - _optional_ - World w. Defaults to 1.
+
+_RETURNS_
+* __x__ <kbd>number</kbd> - Local x.
+* __y__ <kbd>number</kbd> - Local y.
+
 Properties
 ----------
 

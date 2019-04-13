@@ -62,7 +62,7 @@ M.invert = function(m, out)
 	if math.abs(d) < 0.0001 then return false end
 
 	out = out or {}
-	local m_ux = m.ux
+	local m_ux = m.ux  -- Save value in case `out` is `m`.
 	local k = 1/d
 	out.ux, out.uy = m.vy*k, -m.uy*k
 	out.vx, out.vy = -m.vx*k, m_ux*k
