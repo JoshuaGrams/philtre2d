@@ -20,8 +20,7 @@ Minimal usage:
 	require 'philtre.init'  -- Load all engine components into global variables.
 
 	function love.load()
-		drawOrder = DrawOrder({'default_layer'})
-		scene.init(drawOrder)
+		scene = SceneTree({'default_layer'})
 	end
 
 	function love.update(dt)

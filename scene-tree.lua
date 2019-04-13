@@ -1,33 +1,22 @@
 local base = (...):gsub('[^%.]+$', '')
 local M = require(base .. 'matrix')
+local Class = require(base .. 'lib.base-class')
+local Object = require(base .. 'Object')
 
-local tree = {
-	_to_world = M.identity,
-	_to_local = M.identity,
-	pos = {x=0, y=0},
-	children = {},
-	path = '',
-	paths = {},
-}
+local SceneTree = Class:extend()
 
-local reparents = {} -- to complete on next pre-/post-update
-
-local function toWorld(obj, x, y, w)
-	return M.x(obj._to_world, x, y, w)
+function SceneTree.set(self, groups, default)
+	self.drawOrder = DrawOrder(groups, default)
+	self._to_world = M.identity
+	self._to_local = M.identity
+	self.pos = {x=0, y=0}
+	self.children = {}
+	self.path = ''
+	self.paths = {}
+	self.reparents = {}  -- to complete on next pre-/post-update
 end
 
-local function toLocal(obj, x, y, w)
-	if not obj._to_local then
-		obj._to_local = M.invert(obj._to_world)
-	end
-	return M.x(obj._to_local, x, y, w)
-end
-
-local function init(draw_order)
-	tree.draw_order = draw_order
-end
-
-local function initChild(obj, parent, index)
+local function initChild(tree, obj, parent, index)
 	obj.name = obj.name or tostring(index)
 	obj.path = parent.path .. '/' .. obj.name
 	if tree.paths[obj.path] then -- Append index if identical path exists.
@@ -41,7 +30,7 @@ local function initChild(obj, parent, index)
 
 	if obj.children then
 		for i,c in pairs(obj.children) do
-			initChild(c, obj, i)
+			initChild(tree, c, obj, i)
 		end
 	end
 
@@ -51,26 +40,32 @@ local function initChild(obj, parent, index)
 	obj:call('init')
 end
 
+function _moveChild(obj, oldParent, iChild, newParent)
+	oldParent.children[iChild] = nil
+	if not newParent.children then newParent.children = {} end
+	table.insert(newParent.children, obj)
+	obj.parent = newParent
+end
+
 -- Actually swap obj between new and old parents' child lists.
-local function completeReparenting()
-	for key,v in pairs(reparents) do
-		v.old_p.children[v.old_child_key] = nil
-		if not v.new_p.children then v.new_p.children = {} end
-		local i = 1 + #v.new_p.children
-		v.new_p.children[i] = v.obj
+function SceneTree.finishReparenting(self)
+	for key,v in pairs(self.reparents) do
+		_moveChild(unpack(v))
 		reparents[key] = nil
 	end
 end
 
-local function preUpdate(dt)
-	completeReparenting()
+local function preUpdate(self, dt)
+	finishReparenting(self)
 end
 
 local function _update(objects, dt, draw_order)
 	for _,obj in pairs(objects) do
 		local dt = dt and not obj.paused and dt or nil
-		local draw_order = draw_order
 		if dt then -- not paused at self or anywhere up the tree
+			if obj.children then
+				_update(obj.children, dt, draw_order)
+			end
 			obj:call('update', dt)
 			obj:updateTransform()
 		end
@@ -80,65 +75,39 @@ local function _update(objects, dt, draw_order)
 		else
 			draw_order = nil -- don't draw any children from here on down
 		end
-		if obj.children then
-			_update(obj.children, dt, draw_order)
-		end
 		if draw_order then  draw_order:restoreCurrentLayer()  end
 	end
 end
 
-local function postUpdate(dt)
-	completeReparenting()
+local function postUpdate(self, dt)
+	finishReparenting(self)
 end
 
-local function update(dt)
-	if tree.draw_order then  tree.draw_order:clear()  end
+function SceneTree.update(self, dt)
+	self.draw_order:clear()
 	preUpdate(dt)
-	_update(tree.children, dt, tree.draw_order)
+	_update(self.children, dt, self.draw_order)
 	postUpdate(dt)
 end
 
-local function _draw(objects) -- only used if no draw_order
-	for _,obj in pairs(objects) do
-		if obj.pos then
-			love.graphics.push()
-			love.graphics.translate(obj.pos.x, obj.pos.y)
-			love.graphics.scale(obj.sx or 1, obj.sy)
-			love.graphics.rotate(obj.angle or 0)
-			love.graphics.shear(obj.kx or 0, obj.ky or 0)
-		end
-		obj:call('draw')
-		if obj.children then
-			_draw(obj.children)
-		end
-		if obj.pos then love.graphics.pop() end
-	end
-end
-
-local function draw(groups)
-	if tree.draw_order then
-		tree.draw_order:draw(groups)
-	else
-		_draw(tree.children)
-	end
+function SceneTree.draw(self, groups)
+	self.draw_order:draw(groups)
 end
 
 -- This sets all the transforms, which seems like a waste,
 -- because we're probably calling this from `update` which will
 -- immediately do it all over again.  But an object's `init`
 -- method may refer to them, so they need to be set now.
-local function add(obj, parent)
-	parent = parent or tree
+function SceneTree.add(self, obj, parent)
+	parent = parent or self
 	if not parent.children then parent.children = {} end
 	local i = 1 + #parent.children
 	parent.children[i] = obj
-	initChild(obj, parent, i)
+	initChild(self, obj, parent, i)
 end
 
--- TODO make `not_from_parent` bit private somehow?
-
-local function remove(obj, not_from_parent)
-	if not not_from_parent then -- remove obj from parent's child list
+local function _remove(tree, obj, fromChildren)
+	if fromChildren then -- remove obj from parent's child list
 		local parent = obj.parent
 		for i,c in pairs(parent.children) do
 			if c == obj then
@@ -151,7 +120,7 @@ local function remove(obj, not_from_parent)
 		for i,c in pairs(obj.children) do
 			-- All descendants will be removed, tell them not to bother
 			-- to delete themselves from their parent's child list.
-			remove(c, true)
+			_remove(tree, c, false)
 			-- Must clear the child list because scene-tree may already
 			-- have its reference and be updating through it.
 			obj.children[i] = nil
@@ -165,35 +134,47 @@ local function remove(obj, not_from_parent)
 	tree.paths[obj.path] = nil
 end
 
--- Can't complete this synchronously or obj would miss a callback
--- or get an extra callback. Switch the parent on obj now and
--- change the child lists on the next pre- or post-update.
-local function setParent(obj, parent)
-	parent = parent or tree
+function SceneTree.remove(self, obj)
+	_remove(self, obj, false)
+end
+
+-- By default, doesn't re-parent obj until the next pre- or
+-- post-update. The now parameter says to do it immediately. The
+-- keepWorld argument says to keep the world position (only
+-- has an effect for objects with TRANSFORM_REGULAR).
+function SceneTree.setParent(self, obj, parent, keepWorld, now)
+	parent = parent or self
+	keepWorld = keepWorld or false
 	if parent == obj.parent then
 		print('Tried to set_parent to current parent: ' .. parent.path)
 		return
 	end
 	for k,c in pairs(obj.parent.children) do
 		if c == obj then
-			table.insert(reparents, { obj=obj, old_p=obj.parent, old_child_key=k, new_p=parent })
-			obj.parent = parent
+			if now then
+				_moveChild(obj, obj.parent, k, parent)
+			else
+				table.insert(self.reparents, {obj, obj.parent, k, parent})
+				obj.parent = parent
+			end
+			if obj.updateTransform == Object.TRANSFORM_REGULAR then
+				if keepWorld then
+					local m = {}
+					M.xM(obj._to_world, M.invert(newParent._to_world, m), m)
+					obj.pos.x, obj.pos.y = m.x, m.y
+					obj.th, obj.sx, obj.sy, obj.kx, obj.ky = M.parameters(m)
+				else
+					obj:updateTransform()
+				end
+			end
 			return
 		end
 	end
-	error('scene.set_parent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
+	error('scene.setParent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
 end
 
-local function get(path) -- TODO - Relative paths?
-	return tree.paths[path]
+local function SceneTree.get(self, path) -- TODO - Relative paths?
+	return self.paths[path]
 end
 
-
-local T = {
-	toWorld = toWorld,  toLocal = toLocal,
-	update = update,  draw = draw,  add = add,
-	remove = remove,  get = get,  init = init,
-	setParent = setParent
-}
-
-return T
+return SceneTree
