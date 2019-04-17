@@ -135,7 +135,7 @@ local function _remove(tree, obj, fromChildren)
 end
 
 function SceneTree.remove(self, obj)
-	_remove(self, obj, false)
+	_remove(self, obj, true)
 end
 
 -- By default, doesn't re-parent obj until the next pre- or
