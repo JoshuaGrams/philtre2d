@@ -4,19 +4,20 @@ local Text = Object:extend()
 Text.className = 'Text'
 
 local validAlignment = { center = true, left = true, right = true, justify = true }
-local hOffset = { center = -0.5, left = 0, right = -1, justify = 0 }
-local vOffset = { top = 0, middle = -0.5, bottom = -1 }
+local hOffset = { left = 0, center = 0.5, right = 1, justify = 0 }
+local vOffset = { top = 0, middle = 0.5, bottom = 1 }
 
 function Text.draw(s)
 	love.graphics.setBlendMode(s.blendMode)
 	love.graphics.setFont(s.font)
 	love.graphics.setColor(s.color)
+	local oy = vOffset[s.vAlign] * s.font:getHeight()
 	if s.wrapLimit then
 		local ox = hOffset[s.hAlign] * s.wrapLimit
-		local oy = vOffset[s.vAlign] * s.font:getHeight()
-		love.graphics.printf(s.text, 0, 0, s.wrapLimit, s.hAlign, s.angle, 1, 1, 0, 0, s.kx, s.ky)
+		love.graphics.printf(s.text, 0, 0, s.wrapLimit, s.hAlign, s.angle, 1, 1, ox, oy, s.kx, s.ky)
 	else
-		love.graphics.print(s.text, 0, 0, s.angle, 1, 1, 0, 0, s.kx, s.ky)
+		local ox = hOffset[s.hAlign] * s.font:getWidth(s.text)
+		love.graphics.print(s.text, 0, 0, s.angle, 1, 1, ox, oy, s.kx, s.ky)
 	end
 end
 
