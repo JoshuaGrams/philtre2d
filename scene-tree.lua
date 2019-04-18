@@ -13,6 +13,7 @@ function SceneTree.set(self, groups, default)
 	self.children = {}
 	self.path = ''
 	self.paths = {}
+	self.removed = {}    -- finalize on next pre-/post-update
 	self.reparents = {}  -- to complete on next pre-/post-update
 end
 
@@ -40,6 +41,13 @@ local function initChild(tree, obj, parent, index)
 	obj:call('init')
 end
 
+local function finalizeRemoved(self)
+	for i=#self.removed,1,-1 do
+		self.removed[i]:call('final')
+		self.removed[i] = nil
+	end
+end
+
 function _moveChild(obj, oldParent, iChild, newParent)
 	oldParent.children[iChild] = nil
 	if not newParent.children then newParent.children = {} end
@@ -56,6 +64,7 @@ local function finishReparenting(self)
 end
 
 local function preUpdate(self, dt)
+	finalizeRemoved(self)
 	finishReparenting(self)
 end
 
@@ -69,18 +78,27 @@ local function _update(objects, dt, draw_order)
 			obj:call('update', dt)
 			obj:updateTransform()
 		end
-		if draw_order and obj.visible then
+	end
+end
+
+local function collectVisible(self, objects)
+	local draw_order = self.draw_order
+	for _,obj in pairs(objects) do
+		if obj.visible then
 			draw_order:saveCurrentLayer()
 			draw_order:addObject(obj)
-		else
-			draw_order = nil -- don't draw any children from here on down
+			if obj.children then
+				collectVisible(self, obj.children)
+			end
+			draw_order:restoreCurrentLayer()
 		end
-		if draw_order then  draw_order:restoreCurrentLayer()  end
 	end
 end
 
 local function postUpdate(self, dt)
+	finalizeRemoved(self)
 	finishReparenting(self)
+	collectVisible(self, self.children)
 end
 
 function SceneTree.update(self, dt)
@@ -126,11 +144,7 @@ local function _remove(tree, obj, fromChildren)
 			obj.children[i] = nil
 		end
 	end
-	obj:call('final')
-	-- Ensure that `final` is the last callback for obj, its scripts, and its children
-	obj.draw = false -- obj won't draw even if already in the draw order this frame
-	obj.script = false -- scripts won't do anything else either
-	obj.visible = false -- obj and children won't be added to draw order after this
+	table.insert(tree.removed, obj)
 	tree.paths[obj.path] = nil
 end
 
