@@ -48,10 +48,10 @@ function _moveChild(obj, oldParent, iChild, newParent)
 end
 
 -- Actually swap obj between new and old parents' child lists.
-function SceneTree.finishReparenting(self)
+local function finishReparenting(self)
 	for key,v in pairs(self.reparents) do
 		_moveChild(unpack(v))
-		reparents[key] = nil
+		self.reparents[key] = nil
 	end
 end
 
@@ -85,9 +85,9 @@ end
 
 function SceneTree.update(self, dt)
 	self.draw_order:clear()
-	preUpdate(dt)
+	preUpdate(self, dt)
 	_update(self.children, dt, self.draw_order)
-	postUpdate(dt)
+	postUpdate(self, dt)
 end
 
 function SceneTree.draw(self, groups)
@@ -135,7 +135,7 @@ local function _remove(tree, obj, fromChildren)
 end
 
 function SceneTree.remove(self, obj)
-	_remove(self, obj, false)
+	_remove(self, obj, true)
 end
 
 -- By default, doesn't re-parent obj until the next pre- or
