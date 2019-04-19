@@ -41,10 +41,10 @@ local function initChild(tree, obj, parent, index)
 	obj:call('init')
 end
 
-local function finalizeRemoved(self)
-	for i=#self.removed,1,-1 do
-		self.removed[i]:call('final')
-		self.removed[i] = nil
+local function finalizeRemoved(tree)
+	for i=#tree.removed,1,-1 do
+		tree.removed[i]:call('final')
+		tree.removed[i] = nil
 	end
 end
 
@@ -56,16 +56,16 @@ function _moveChild(obj, oldParent, iChild, newParent)
 end
 
 -- Actually swap obj between new and old parents' child lists.
-local function finishReparenting(self)
-	for key,v in pairs(self.reparents) do
+local function finishReparenting(tree)
+	for key,v in pairs(tree.reparents) do
 		_moveChild(unpack(v))
-		self.reparents[key] = nil
+		tree.reparents[key] = nil
 	end
 end
 
-local function finalizeAndReparent(self)
-	finalizeRemoved(self)
-	finishReparenting(self)
+local function finalizeAndReparent(tree)
+	finalizeRemoved(tree)
+	finishReparenting(tree)
 end
 
 local function _update(objects, dt)
@@ -85,15 +85,15 @@ function SceneTree.update(self, dt)
 	finalizeAndReparent(self)
 end
 
-local function collectVisible(self, objects)
-	local draw_order = self.draw_order
+local function collectVisible(tree, objects)
+	local draw_order = tree.draw_order
 	for _,obj in pairs(objects) do
 		if obj.visible then
 			obj:updateTransform()
 			draw_order:saveCurrentLayer()
 			draw_order:addObject(obj)
 			if obj.children then
-				collectVisible(self, obj.children)
+				collectVisible(tree, obj.children)
 			end
 			draw_order:restoreCurrentLayer()
 		end
@@ -129,8 +129,8 @@ function SceneTree.remove(self, obj)
 			break
 		end
 	end
-	table.insert(tree.removed, obj)
-	tree.paths[obj.path] = nil
+	table.insert(self.removed, obj)
+	self.paths[obj.path] = nil
 end
 
 -- By default, doesn't re-parent obj until the next pre- or
