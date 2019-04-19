@@ -6,13 +6,9 @@ The scene tree tracks objects and manages transforms and local coordinates for c
 Basic Usage
 -----------
 
-Create a scene tree with `Scene(layers, [default_layer])`. It
-passes its arguments to the [`drawOrder`](draw-order.md)
-constructor.  Call `scene:update(dt)` and
-`scene:draw(layerGroups)` from `love.update` and `love.draw`,
-respectively.
+Create a scene tree with `Scene(layer_groups, [default_layer])`. It passes its arguments to the [`drawOrder`](draw-order.md) constructor.  Call `scene:update(dt)` and `scene:draw(layer_group_names)` from `love.update` and `love.draw`, respectively.
 
-Other than that, all you need to use the scene tree are `scene:add(object, [parent])`, and `scene:remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`. Scene tree will give each object `name`, `path`, and `parent` properties on init.
+Other than that, all you need to use the scene tree are `scene:add(object, [parent])`, and `scene:remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`. Scene tree will give each object `name`, `path`, `parent`, and `tree` properties on init.
 
 Functions
 ---------
@@ -31,13 +27,13 @@ _PARAMETERS_
 * __obj__ <kbd>Object</kbd> - The object to remove.
 
 ### SceneTree.update(tree, dt)
-Updates the whole scene tree. For each object this will call `update`, `updateTransform`, and add the object to the draw order.
+Updates the whole scene tree. This will call the `update` method of each object. Then it will call `final` on any removed objects, complete pending reparentings, then `updateTransform` on all remaining objects and add them to the draw order.
 
 _PARAMETERS_
 * __dt__ <kbd>number</kbd> - Delta time for this frame.
 
 ### SceneTree.draw(tree, layerGroups)
-Calls `draw` on the scene tree's `drawOrder`.
+Calls `updateTransform` on all objects, collects the visible objects into the draw order, and `draw`s the given `layerGroups`.
 
 ### SceneTree.get(tree, path)
 Gets the object at the specified path.

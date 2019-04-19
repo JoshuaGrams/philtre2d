@@ -63,28 +63,33 @@ local function finishReparenting(self)
 	end
 end
 
-local function preUpdate(self, dt)
+local function finalizeAndReparent(self)
 	finalizeRemoved(self)
 	finishReparenting(self)
 end
 
-local function _update(objects, dt, draw_order)
+local function _update(objects, dt)
 	for _,obj in pairs(objects) do
-		local dt = dt and not obj.paused and dt or nil
-		if dt then -- not paused at self or anywhere up the tree
+		if not obj.paused then
 			if obj.children then
-				_update(obj.children, dt, draw_order)
+				_update(obj.children, dt)
 			end
 			obj:call('update', dt)
-			obj:updateTransform()
 		end
 	end
+end
+
+function SceneTree.update(self, dt)
+	finalizeAndReparent(self)
+	_update(self.children, dt, self.draw_order)
+	finalizeAndReparent(self)
 end
 
 local function collectVisible(self, objects)
 	local draw_order = self.draw_order
 	for _,obj in pairs(objects) do
 		if obj.visible then
+			obj:updateTransform()
 			draw_order:saveCurrentLayer()
 			draw_order:addObject(obj)
 			if obj.children then
@@ -95,21 +100,10 @@ local function collectVisible(self, objects)
 	end
 end
 
-local function postUpdate(self, dt)
-	finalizeRemoved(self)
-	finishReparenting(self)
-	collectVisible(self, self.children)
-end
-
-function SceneTree.update(self, dt)
-	self.draw_order:clear()
-	preUpdate(self, dt)
-	_update(self.children, dt, self.draw_order)
-	postUpdate(self, dt)
-end
-
 function SceneTree.draw(self, groups)
+	collectVisible(self, self.children)
 	self.draw_order:draw(groups)
+	self.draw_order:clear()
 end
 
 -- This sets all the transforms, which seems like a waste,
@@ -124,32 +118,19 @@ function SceneTree.add(self, obj, parent)
 	initChild(self, obj, parent, i)
 end
 
-local function _remove(tree, obj, fromChildren)
-	if fromChildren then -- remove obj from parent's child list
-		local parent = obj.parent
-		for i,c in pairs(parent.children) do
-			if c == obj then
-				parent.children[i] = nil
-				break
-			end
-		end
-	end
-	if obj.children then
-		for i,c in pairs(obj.children) do
-			-- All descendants will be removed, tell them not to bother
-			-- to delete themselves from their parent's child list.
-			_remove(tree, c, false)
-			-- Must clear the child list because scene-tree may already
-			-- have its reference and be updating through it.
-			obj.children[i] = nil
+-- Take an object out of the tree. If, on `update`, you remove an
+-- ancestor, it and some of its descendants (the not-yet-processed
+-- siblings) may still get `update`d.
+function SceneTree.remove(self, obj)
+	local parent = obj.parent
+	for i,c in pairs(parent.children) do
+		if c == obj then
+			parent.children[i] = nil
+			break
 		end
 	end
 	table.insert(tree.removed, obj)
 	tree.paths[obj.path] = nil
-end
-
-function SceneTree.remove(self, obj)
-	_remove(self, obj, true)
 end
 
 -- By default, doesn't re-parent obj until the next pre- or
@@ -187,7 +168,8 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 	error('scene.setParent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
 end
 
-function SceneTree.get(self, path) -- TODO - Relative paths?
+-- TODO - make an object-based relative-path version?
+function SceneTree.get(self, path)
 	return self.paths[path]
 end
 
