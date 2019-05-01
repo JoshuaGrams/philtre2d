@@ -6,6 +6,8 @@ local Object = require(base .. 'Object')
 local SceneTree = Class:extend()
 
 function SceneTree.set(self, groups, default)
+	groups = groups or {'default'}
+	default = default or 'default'
 	self.draw_order = DrawOrder(groups, default)
 	self._to_world = M.identity
 	self._to_local = M.identity
