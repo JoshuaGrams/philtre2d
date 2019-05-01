@@ -15,27 +15,27 @@ An object which wants to participate in layout must provide two methods:
 Basic Usage
 -----------
 
-These objects go in the scene tree. You only have to manually call `allocate` on the top-level layout object and then it will allocate its children.
+Create your layout objects and add them to the scene tree. It's easiest if
+you build them in a tree with a single Box object at the base. Then you
+just need to call allocate() on the root Box with the screen width and
+height, once on load, and then on love.resize.
 
 -----
 
 The current objects are:
 
-* `Box(width, height)` - A dummy object for testing purposes? Or for
-  inheriting from?
+* `Box(width, height)` - An invisible box that resizes to fit whatever
+  allocation it is given and passes on its allocation to all of its children.
 
 * `Fit(mode, child, space)` - fits a single child object into the allocated
   box. I'm not sure I understand the code any more, but I have a whole bunch
   of tests for this, so it probably does actually work. I'll have to try to
   make the code clearer.
 
-	* `mode` is a string: size/width/height/aspect. `Size` does not resize
-	  the child, just places it in the space. So if the child is bigger than
-	  the allocated space, this will probably break things. The others fit
-	  the child width/height/aspect, placing space around it as necessary.
+	* `mode` is a string: 'size'/'width'/'height'/'aspect'.
 		* `size` - Does not resize the child, just places it in the space. If
-        	  the child is bigger than the available space, it is scaled down to
-        	  fit, with no regard for aspect ratio.
+        the child is bigger than the available space, it is scaled down to
+        fit, with no regard for aspect ratio.
 		* `width` - Scales the child so its width fill the available  space.
 		  The child's height is scaled to maintain its aspect ratio, unless
 		  there is not enough room, in which case the height is scaled down to
@@ -48,11 +48,12 @@ The current objects are:
 		  possible. There will always be some extra space unless the parent's
 		  aspect ratio is the same as the child's.
 
-	* `space` is a table of up to four objects, keyed to each side (left/right
-	  /top/bottom), which will be scaled to fill any extra space. If you
-	  don't specify any, or if you specify both left/right or top/bottom, it
-	  will center the child. If you specify an object for only one side on
-	  an axis, the child will be pushed to the opposite side.
+	* `space` is a table of up to four values, keyed to each side (left/right
+	  /top/bottom). The values can be objects, which will be scaled to fill
+    any extra space, or they can be `true`. If you don't specify any, or if
+    you specify both left/right or top/bottom, it will center the child. If
+    you specify an object for only one side on an axis, the child will be
+    pushed to the opposite side.
 
 * `Row(spacing, homogeneous, children)` - Lays out its child objects in a
   row. All the child objects are stretched vertically to the allocated height
