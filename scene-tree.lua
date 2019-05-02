@@ -45,8 +45,9 @@ end
 
 local function finalizeRemoved(tree)
 	for i=#tree.removed,1,-1 do
-		tree.removed[i]:call('final')
+		local obj = tree.removed[i]
 		tree.removed[i] = nil
+		obj:call('final')
 	end
 end
 
