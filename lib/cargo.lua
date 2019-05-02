@@ -52,13 +52,14 @@ function cargo.init(config)
 
   local function halp(t, k)
     local path = (t._path .. '/' .. k):gsub('^/+', '')
-    if lf.isDirectory(path) then
+    local info = lf.getInfo(path)
+    if info and info.type == 'directory' then -- love.filesystem.getInfo
       rawset(t, k, init(path))
       return t[k]
     else
       for extension, loader in pairs(loaders) do
         local file = path .. '.' .. extension
-        if loader and lf.exists(file) then
+        if loader and lf.getInfo(file) then
           local asset = loader(file)
           rawset(t, k, asset)
           for pattern, processor in pairs(processors) do
