@@ -27,10 +27,10 @@ The current objects are:
 * `Box(width, height)` - An invisible box that resizes to fit whatever
   allocation it is given and passes on its allocation to all of its children.
 
-* `Fit(mode, child, space)` - fits a single child object into the allocated
-  box. I'm not sure I understand the code any more, but I have a whole bunch
-  of tests for this, so it probably does actually work. I'll have to try to
-  make the code clearer.
+* `Fit(mode, child, space, padding)` - fits a single child object into the
+  allocated box. I'm not sure I understand the code any more, but I have a
+  whole bunch of tests for this, so it probably does actually work. I'll
+  have to try to make the code clearer.
 
 	* `mode` is a string: 'size'/'width'/'height'/'aspect'.
 		* `size` - Does not resize the child, just places it in the space. If
@@ -54,6 +54,13 @@ The current objects are:
     you specify both left/right or top/bottom, it will center the child. If
     you specify an object for only one side on an axis, the child will be
     pushed to the opposite side.
+
+  * `padding` is either a number (for equal padding on all sides), or a
+    table. Valid keys for the table are `x` and `y` (for equal padding on
+    left/right and top/bottom, respectively) and `left`, `right`, `top`,
+    and `bottom`. Setting `x` will override `left` and `right`, likewise
+    for `y`. If you use objects to take up extra space inside the fit box,
+    they we be scaled to fit inside the padding.
 
 * `Row(spacing, homogeneous, children)` - Lays out its child objects in a
   row. All the child objects are stretched vertically to the allocated height

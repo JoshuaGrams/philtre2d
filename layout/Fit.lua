@@ -6,33 +6,38 @@ Fit.className = 'Layout.Fit'
 local min, max = math.min, math.max
 
 local function allocateChild(self, w, h, cw, ch)
+	local x, y = 0, 0 -- Top right corner of space inside padding.
+	if self.pad then
+		x, y = self.pad.left, self.pad.top
+	end
+	local cx, cy = x, y -- Top right corner for child placement.
+
 	-- Clip if necessary.
 	cw, ch = min(cw, w), min(ch, h)
 	local extraWidth, extraHeight = w - cw, h - ch
-	local x, y
 	-- Calculate x placement.
-	if self.left and not self.right then x = extraWidth
-	elseif self.right and not self.left then x = 0
-	else x, extraWidth = 0.5 * extraWidth, 0.5 * extraWidth end
+	if self.left and not self.right then cx = x + extraWidth
+	elseif self.right and not self.left then cx = x + 0
+	else cx, extraWidth = x + 0.5 * extraWidth, 0.5 * extraWidth end
 	-- Calculate y placement.
-	if self.top and not self.bottom then y = extraHeight
-	elseif self.bottom and not self.top then y = 0
-	else y, extraHeight = 0.5 * extraHeight, 0.5 * extraHeight end
+	if self.top and not self.bottom then cy = y + extraHeight
+	elseif self.bottom and not self.top then cy = y + 0
+	else cy, extraHeight = y + 0.5 * extraHeight, 0.5 * extraHeight end
 	-- Allocate child.
-	self.child:allocate(x, y, cw, ch)
+	self.child:allocate(cx, cy, cw, ch)
 	-- Allocate sides.
 	if type(self.left) == 'table' and self.left.allocate then
-		self.left:allocate(0, 0, extraWidth, h)
+		self.left:allocate(x, y, extraWidth, h)
 	end
 	if type(self.right) == 'table' and self.right.allocate then
-		self.right:allocate(x + cw, 0, extraWidth, h)
+		self.right:allocate(cx + cw, y, extraWidth, h)
 	end
 	-- Allocate top/bottom.
 	if type(self.top) == 'table' and self.top.allocate then
-		self.top:allocate(x, 0, cw, extraHeight)
+		self.top:allocate(cx, y, cw, extraHeight)
 	end
 	if type(self.bottom) == 'table' and self.bottom.allocate then
-		self.bottom:allocate(x, y + ch, cw, extraHeight)
+		self.bottom:allocate(cx, cy + ch, cw, extraHeight)
 	end
 end
 
@@ -71,6 +76,11 @@ local allocate = {
 function Fit.allocate(self, x, y, w, h)
 	self.pos.x, self.pos.y = x, y
 	self.width, self.height = w, h
+	if self.pad then
+		-- Subtract padding -before- calculating final w, h based on the fit mode.
+		w = w - self.pad.left - self.pad.right
+		h = h - self.pad.top - self.pad.bottom
+	end
 	allocate[self.mode](self, w, h)
 end
 
@@ -79,7 +89,7 @@ function Fit.request(self)
 	return self._req
 end
 
-function Fit.set(self, mode, child, space)
+function Fit.set(self, mode, child, space, padding)
 	Object.set(self)
 	if not allocate[mode] then
 		error('unknown Fit mode ' .. mode)
@@ -90,6 +100,24 @@ function Fit.set(self, mode, child, space)
 	self.child = child
 	self.left, self.right = space.left, space.right
 	self.top, self.bottom = space.top, space.bottom
+	if type(padding) == 'number' then
+		local p = padding
+		padding = {}
+		padding.left, padding.right = p, p
+		padding.top, padding.bottom = p, p
+	elseif type(padding) == 'table' then
+		if padding.x then
+			padding.left, padding.right = padding.x, padding.x
+		end
+		if padding.y then
+			padding.top, padding.bottom = padding.y, padding.y
+		end
+		padding.left = padding.left or 0
+		padding.right = padding.right or 0
+		padding.top = padding.top or 0
+		padding.bottom = padding.bottom or 0
+	end
+	self.pad = padding
 end
 
 return Fit
