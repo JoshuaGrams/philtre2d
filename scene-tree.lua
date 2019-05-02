@@ -44,9 +44,8 @@ local function initChild(tree, obj, parent, index)
 end
 
 local function finalizeRemoved(tree)
-	for i=#tree.removed,1,-1 do
-		local obj = tree.removed[i]
-		tree.removed[i] = nil
+	for k,obj in pairs(tree.removed) do
+		tree.removed[k] = nil
 		obj:call('final')
 	end
 end
