@@ -15,9 +15,12 @@ function SceneTree.set(self, groups, default)
 	self.children = {}
 	self.path = ''
 	self.paths = {}
-	self.removed = {}    -- finalize on next pre-/post-update
-	self.reparents = {}  -- to complete on next pre-/post-update
+	self.removed = {}    -- finalize after next update
+	self.reparents = {}  -- to complete after next update
+	self.compact = {}    -- renumber children after next update
 end
+
+local deletedMarker = Object()
 
 local function initChild(tree, obj, parent, index)
 	obj.name = obj.name or tostring(index)
@@ -43,31 +46,44 @@ local function initChild(tree, obj, parent, index)
 	obj:call('init')
 end
 
-local function finalizeRemoved(tree)
-	for k,obj in pairs(tree.removed) do
-		tree.removed[k] = nil
+local function finalizeRemoved(objects)
+	for k,obj in pairs(objects) do
 		obj:call('final')
+		objects[k] = nil
 	end
 end
 
-function _moveChild(obj, oldParent, iChild, newParent)
-	oldParent.children[iChild] = nil
+function _moveChild(obj, oldParent, iChild)
+	oldParent.children[iChild] = deletedMarker
 	if not newParent.children then newParent.children = {} end
 	table.insert(newParent.children, obj)
-	obj.parent = newParent
 end
 
 -- Actually swap obj between new and old parents' child lists.
-local function finishReparenting(tree)
-	for key,v in pairs(tree.reparents) do
+local function finishReparenting(moves)
+	for key,v in pairs(moves) do
 		_moveChild(unpack(v))
-		tree.reparents[key] = nil
+		moves[key] = nil
+	end
+end
+
+local function compact(objects)
+	for obj,_ in pairs(objects) do
+		local j = 1
+		for i,child in ipairs(obj.children) do
+			if i ~= j and child ~= deletedMarker then
+				objects[j] = child
+				j = j + 1
+			end
+		end
+		objects[obj] = nil
 	end
 end
 
 local function finalizeAndReparent(tree)
-	finalizeRemoved(tree)
-	finishReparenting(tree)
+	finalizeRemoved(tree.removed)
+	finishReparenting(tree.reparents)
+	compact(tree.compact)
 end
 
 local function _update(objects, dt)
@@ -82,8 +98,7 @@ local function _update(objects, dt)
 end
 
 function SceneTree.update(self, dt)
-	finalizeAndReparent(self)
-	_update(self.children, dt, self.draw_order)
+	_update(self.children, dt)
 	finalizeAndReparent(self)
 end
 
@@ -125,9 +140,10 @@ end
 -- siblings) may still get `update`d.
 function SceneTree.remove(self, obj)
 	local parent = obj.parent
-	for i,c in pairs(parent.children) do
+	for i,c in ipairs(parent.children) do
 		if c == obj then
-			parent.children[i] = nil
+			parent.children[i] = deletedMarker
+			self.compact[parent] = true
 			break
 		end
 	end
@@ -135,10 +151,10 @@ function SceneTree.remove(self, obj)
 	self.paths[obj.path] = nil
 end
 
--- By default, doesn't re-parent obj until the next pre- or
--- post-update. The now parameter says to do it immediately. The
--- keepWorld argument says to keep the world position (only
--- has an effect for objects with TRANSFORM_REGULAR).
+-- By default, doesn't re-parent obj until after the next update.
+-- The now parameter says to do it immediately. The keepWorld
+-- argument says to keep the world position the same (only has an
+-- effect for objects with TRANSFORM_REGULAR).
 function SceneTree.setParent(self, obj, parent, keepWorld, now)
 	parent = parent or self
 	keepWorld = keepWorld or false
@@ -146,14 +162,15 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 		print('Tried to set_parent to current parent: ' .. parent.path)
 		return
 	end
-	for k,c in pairs(obj.parent.children) do
+	for k,c in ipairs(obj.parent.children) do
 		if c == obj then
 			if now then
-				_moveChild(obj, obj.parent, k, parent)
+				_moveChild(obj, obj.parent, k)
 			else
-				table.insert(self.reparents, {obj, obj.parent, k, parent})
-				obj.parent = parent
+				table.insert(self.reparents, {obj, obj.parent, k})
 			end
+			self.compact[obj.parent] = true
+			obj.parent = parent
 			if obj.updateTransform == Object.TRANSFORM_REGULAR then
 				if keepWorld then
 					local m = {}
