@@ -67,15 +67,19 @@ local function finishReparenting(moves)
 	end
 end
 
-local function compact(objects)
-	for obj,_ in pairs(objects) do
-		local j = 1
-		for i,child in ipairs(obj.children) do
-			if i ~= j and child ~= deletedMarker then
-				objects[j] = child
-				j = j + 1
-			end
+local function compact(list, skip)
+	local j = 1
+	for i,v in ipairs(list) do
+		if v ~= skip then
+			if i ~= j then list[i], list[j] = nil, v end
+			j = j + 1
 		end
+	end
+end
+
+local function removeDeleted(objects)
+	for obj,_ in pairs(objects) do
+		compact(obj.children, deletedMarker)
 		objects[obj] = nil
 	end
 end
@@ -83,7 +87,7 @@ end
 local function finalizeAndReparent(tree)
 	finalizeRemoved(tree.removed)
 	finishReparenting(tree.reparents)
-	compact(tree.compact)
+	removeDeleted(tree.compact)
 end
 
 local function _update(objects, dt)
