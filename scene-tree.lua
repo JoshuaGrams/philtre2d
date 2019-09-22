@@ -140,6 +140,7 @@ end
 -- siblings) may still get `update`d.
 function SceneTree.remove(self, obj)
 	local parent = obj.parent
+	obj.parent = nil
 	for i,c in ipairs(parent.children) do
 		if c == obj then
 			parent.children[i] = deletedMarker
