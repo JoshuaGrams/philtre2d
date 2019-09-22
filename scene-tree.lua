@@ -47,9 +47,9 @@ local function initChild(tree, obj, parent, index)
 end
 
 local function finalizeRemoved(objects)
-	for k,obj in pairs(objects) do
+	for obj,_ in pairs(objects) do
 		obj:call('final')
-		objects[k] = nil
+		objects[obj] = nil
 	end
 end
 
@@ -147,7 +147,7 @@ function SceneTree.remove(self, obj)
 			break
 		end
 	end
-	table.insert(self.removed, obj)
+	self.removed[obj] = true
 	self.paths[obj.path] = nil
 end
 
