@@ -5,6 +5,10 @@ local Object = require(base .. 'Object')
 
 local SceneTree = Class:extend()
 
+function SceneTree.__tostring(self)
+	return 'SceneTree: ' .. self.id
+end
+
 function SceneTree.set(self, groups, default)
 	groups = groups or {'default'}
 	default = default or 'default'
