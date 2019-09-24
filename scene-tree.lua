@@ -59,6 +59,7 @@ end
 
 function _moveChild(obj, oldParent, iChild)
 	oldParent.children[iChild] = deletedMarker
+	obj.tree.compact[oldParent] = true
 	if not newParent.children then newParent.children = {} end
 	table.insert(newParent.children, obj)
 end
@@ -74,24 +75,33 @@ end
 local function compact(list, skip)
 	local j = 1
 	for i,v in ipairs(list) do
-		if v ~= skip then
+		if v == skip then
+			list[i] = nil
+		else
 			if i ~= j then list[i], list[j] = nil, v end
 			j = j + 1
 		end
 	end
 end
 
-local function removeDeleted(objects)
+local function compactChildren(objects)
 	for obj,_ in pairs(objects) do
+		local n = #obj.children
 		compact(obj.children, deletedMarker)
 		objects[obj] = nil
 	end
 end
 
 local function finalizeAndReparent(tree)
-	finalizeRemoved(tree.removed)
-	finishReparenting(tree.reparents)
-	removeDeleted(tree.compact)
+	if next(tree.removed) then
+		finalizeRemoved(tree.removed)
+	end
+	if next(tree.reparents) then
+		finishReparenting(tree.reparents)
+	end
+	if next(tree.compact) then
+		compactChildren(tree.compact)
+	end
 end
 
 local function _update(objects, dt)
@@ -111,6 +121,7 @@ function SceneTree.update(self, dt)
 end
 
 local function collectVisible(tree, objects)
+	finalizeAndReparent(tree)
 	local draw_order = tree.draw_order
 	for _,obj in pairs(objects) do
 		if obj.visible then
@@ -148,11 +159,11 @@ end
 -- siblings) may still get `update`d.
 function SceneTree.remove(self, obj)
 	local parent = obj.parent
-	obj.parent = nil
 	for i,c in ipairs(parent.children) do
 		if c == obj then
 			parent.children[i] = deletedMarker
 			self.compact[parent] = true
+			obj.parent = nil
 			break
 		end
 	end
