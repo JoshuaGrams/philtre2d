@@ -24,11 +24,11 @@ Minimal usage:
 	end
 
 	function love.update(dt)
-		scene.update(dt)
+		scene:update(dt)
 	end
 
 	function love.draw()
-		drawOrder:draw()
+		scene:draw()
 	end
 
 
