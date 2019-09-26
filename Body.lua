@@ -7,21 +7,37 @@ local Body = Object:extend()
 
 Body.className = 'Body'
 
-function Body.draw(self)
-	-- physics debug
-	self.color[4] = self.body:isAwake() and 1 or 0.5
-	love.graphics.setBlendMode('alpha')
-	love.graphics.setColor(self.color)
+local SLEEPING_ALPHA_MULT = 0.5
+local FILL_ALPHA_MULT = 0.3
+
+function Body.draw(self) -- Physics debug drawing.
+	-- We're modifying the alpha value multiple times, so separate these and do it non-destructively.
+	local r, g, b, alpha = self.color[1], self.color[2], self.color[3], self.color[4]
+	alpha = self.body:isAwake() and alpha or alpha * SLEEPING_ALPHA_MULT
+
 	local cx, cy = self.body:getLocalCenter()
-	love.graphics.circle('fill', cx, cy, 3, 4) -- dot at center of mass
-	love.graphics.line(cx, cy, cx + 10, cy + 0) -- x axis line
+
+	love.graphics.setBlendMode('alpha')
+	love.graphics.setColor(r, g, b, alpha)
+	love.graphics.circle('fill', cx, cy, 3, 4) -- Diamond-shaped dot at center of mass
+	love.graphics.line(cx, cy, cx + 10, cy + 0) -- X axis line to show rotation.
+
 	for i,f in ipairs(self.body:getFixtures()) do
 		local s = f:getShape()
 		if s:getType() == 'circle' then
 			local x, y = s:getPoint()
 			love.graphics.circle('line', x, y, s:getRadius(), 24)
+			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
+			love.graphics.circle('fill', x, y, s:getRadius(), 24)
 		else
-			love.graphics.polygon('line', {s:getPoints()})
+			local points = {s:getPoints()}
+			if #points == 4 then -- Is a single edge, can't draw a polygon.
+				love.graphics.line(points)
+			else
+				love.graphics.polygon('line', points)
+				love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
+				love.graphics.polygon('fill', points)
+			end
 		end
 	end
 end
