@@ -21,10 +21,10 @@ Collision Callbacks
 
 If enabled, these functions will get called on both objects involved in the collision and any scripts they have, if any of them have these function names defined.
 
-* __beginContact__(self, self_fixture, other_fixture, other_object, hit)
+* __beginContact__(self, self_fixture, other_fixture, other_object, contact)
 
-* __endContact__(self, self_fixture, other_fixture, other_object, hit)
+* __endContact__(self, self_fixture, other_fixture, other_object, contact)
 
-* __preSolve__(self, self_fixture, other_fixture, other_object, hit)
+* __preSolve__(self, self_fixture, other_fixture, other_object, contact)
 
-* __postSolve__(self, self_fixture, other_fixture, other_object, hit, normImpulse, tanImpulse)
+* __postSolve__(self, self_fixture, other_fixture, other_object, contact, normImpulse, tanImpulse)
