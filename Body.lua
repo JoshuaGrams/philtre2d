@@ -29,7 +29,7 @@ end
 function Body.update(self, dt)
 	if self.type == 'kinematic' or self.type == 'trigger' then
 		-- User-Controlled - update physics body to match scene-tree Object.
-		local newx, newy = scene.toWorld(self.parent, self.pos.x, self.pos.y)
+		local newx, newy = self.parent:toWorld(self.pos.x, self.pos.y)
 		local th, sx, sy = matrix.parameters(self.parent._to_world)
 		local last = self.lastTransform
 		self.body:setPosition(newx, newy)
@@ -118,7 +118,7 @@ function Body.init(self)
 	-- By default, dynamic and static bodies are created in local coords.
 	if not self.ignore_transform then
 		if self.type == 'dynamic' or self.type == 'static' then
-			self.pos.x, self.pos.y = scene.toWorld(self.parent, self.pos.x, self.pos.y)
+			self.pos.x, self.pos.y = self.parent:toWorld(self.pos.x, self.pos.y)
 			self.angle = self.angle + matrix.parameters(self.parent._to_world)
 		end
 	end
