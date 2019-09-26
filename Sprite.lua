@@ -56,7 +56,7 @@ function Sprite.set(self, image, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	end
 	self.image = image
 	self.blendMode = 'alpha'
-	self.color = color or {255, 255, 255, 255}
+	self.color = color or {1, 1, 1, 1}
 	local w, h = image:getDimensions()
 	self._req = { w = w, h = h }
 	ox = ox or 'center';  oy = oy or 'center'
