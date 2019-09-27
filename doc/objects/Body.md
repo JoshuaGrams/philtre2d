@@ -44,7 +44,7 @@ _PARAMETERS_
 	```
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', and 'chain'.
 
-	* Available shape(fixture) properties are: 'sensor', 'categories', 'masks', 'friction', and 'restitution'.
+	* Available shape(fixture) properties are: 'sensor', 'categories', 'masks', 'friction', 'density', and 'restitution'.
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 * __ignore_parent_transform__ <kbd>bool</kbd> - For dynamic and static bodies only: if the body should be created at global `x`, `y`, and `angle`, rather than interpreting those as local to its parent. After creation, these body types will completely ignore their parent's transform, as usual.
