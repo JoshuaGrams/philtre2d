@@ -168,7 +168,8 @@ function Body.init(self)
 end
 
 function Body.final(self)
-	self.body:destroy()
+	-- If the world was removed first, it will already be destroyed.
+	if not self.body:isDestroyed() then  self.body:destroy()  end
 end
 
 function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_transform)
