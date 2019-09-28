@@ -3,13 +3,9 @@ local new = {
 	loaded = { image = {}, font = {}, audio = {} }
 }
 
-local function stem(filename)
-	return string.gsub(filename, '%.[^%.]+$', '')
-end
-
 local function create(kind, fn, filename, ...)
-	local name, existing = stem(filename), new.loaded[kind]
-	local keys = {name, ...}
+	local existing = new.loaded[kind]
+	local keys = {filename, ...}
 	for i=1,#keys-1 do
 		local key = keys[i]
 		if not existing[key] then existing[key] = {} end
