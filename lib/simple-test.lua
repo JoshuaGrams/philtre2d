@@ -16,17 +16,17 @@ local function note(msg)
 	print((space and "# " or '#') .. (msg or ''))
 end
 
-local function check(test, context)
+local function check(test, setup, teardown)
 	if type(test) == 'function' then
+		local context
+		if setup then context = setup() end
 		test(context)
+		if teardown then teardown(context) end
 	elseif type(test) == 'string' then
 		note(test)
 	elseif type(test) == 'table' then
 		for i,t in ipairs(test) do
-			local context
-			if test.setup then context = test.setup() end
-			check(t, context)
-			if test.teardown then test.teardown(context) end
+			check(t, test.setup, test.teardown)
 		end
 	end
 end
