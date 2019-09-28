@@ -7,6 +7,7 @@ local Body = Object:extend()
 
 Body.className = 'Body'
 
+local FULL_MASK_INT = 2^16 - 1
 local SLEEPING_ALPHA_MULT = 0.5
 local FILL_ALPHA_MULT = 0.3
 
@@ -75,8 +76,6 @@ local body_set_funcs = {
 
 local fixture_set_funcs = {
 	sensor = 'setSensor',
-	categories = 'setCategory',
-	masks = 'setMask',
 	friction = 'setFriction',
 	restitution = 'setRestitution'
 }
@@ -99,50 +98,44 @@ local function getWorld(parent)
 	end
 end
 
--- Sets the masks for all fixtures on the body.
-function Body.setMasks(self, maskList)
-	if not self.body then
-		print('WARNING: Body.setMasks - Can\'t set masks before physics body has been created.')
-		return
-	end
-	local fixtures = self.body:getFixtureList()
-	for i,f in ipairs(fixtures) do
-		f:setMask(unpack(maskList))
-	end
-end
-
 local function makeFixture(self, data)
-	-- data[1] = shape type, data[2] = shape specs, data[...] = fixture props.
+	-- data[1] = shape type, data[2] = shape specs, any other keys = fixture props.
 	local shape = shape_constructors[data[1]](unpack(data[2]))
+	if self.type == 'trigger' then
+		data.density = data.density or 0
+		data.sensor = true
+	end
 	local f = love.physics.newFixture(self.body, shape, data.density)
+	data[1], data[2], data.density = nil, nil, nil -- Remove already used values.
 	f:setUserData(self) -- Store self ref on each fixture for collision callbacks.
-	-- Discard already-used data, leaving only fixture properties (if any).
-	data[1], data[2], data.density = nil, nil, nil
+
+	data.categories = data.categories or 1
+	data.mask = data.mask or FULL_MASK_INT
+	data.group = data.group or 0
+	f:setFilterData(data.categories, data.mask, data.group) -- With bitmasks, can only set them all together, not individually.
+	data.categories, data.mask, data.group = nil, nil, nil -- Remove already used values.
+
 	for k,v in pairs(data) do
 		if fixture_set_funcs[k] then
-			if k == 'categories' or k == 'masks' then
-				f[fixture_set_funcs[k]](f, unpack(v))
-			else
-				f[fixture_set_funcs[k]](f, v)
-			end
+			f[fixture_set_funcs[k]](f, v)
 		end
 	end
-	if self.type == 'trigger' then  f:setSensor(true)  end
 end
 
 function Body.init(self)
+
+	local world = getWorld(self.parent)
+	self.world = world
+	if not world then
+		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
+	end
+
 	-- By default, dynamic and static bodies are created in local coords.
 	if not self.ignore_transform then
 		if self.type == 'dynamic' or self.type == 'static' then
 			self.pos.x, self.pos.y = self.parent:toWorld(self.pos.x, self.pos.y)
 			self.angle = self.angle + matrix.parameters(self.parent._to_world)
 		end
-	end
-
-	local world = getWorld(self.parent)
-	self.world = world
-	if not world then
-		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
 	end
 	-- Make body.
 	local bType = (self.type == 'trigger') and 'dynamic' or self.type

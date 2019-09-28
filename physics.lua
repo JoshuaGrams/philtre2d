@@ -1,44 +1,53 @@
 
-local collCategories = {} -- -- { [name] = index, ... }
+local categoryIntFromName = {} -- { [name] = int, ... }
+local FULL_MASK_INT = 2^16 - 1
 
-local function setCategories(...)
+-- Assign names to collision category bits. (1-16)
+local function setCategoryNames(...)
 	local c = {...}
 	for i, v in ipairs(c) do
 		if i > 16 then
-			error("physics.setCategories - Can't have more than 16 collision categories.")
+			error("physics.setCategoryNames - Can't have more than 16 collision categories.")
 		elseif type(v) == 'string' then
-			collCategories[v] = i
+			categoryIntFromName[v] = 2^(i-1)
 		else
-			error('physics.setCategories - Invalid category name: ' .. v .. '. Category names must be strings.')
+			error('physics.setCategoryNames - Invalid category name: ' .. v .. '. Category names must be strings.')
 		end
 	end
 end
 
-local function categories(...)
+-- Take up to 16 category names.
+-- Return the matching bitmask.
+local function getCategoriesBitmask(...)
 	local c = {...}
+	local bitmask = 0
 	for i, v in ipairs(c) do
-		local ci = collCategories[v]
-		if not ci then
-			error('physics.categories - Category name "' .. v .. '" not recognized.')
+		local catInt = categoryIntFromName[v]
+		if not catInt then
+			error('physics.getCategoriesBitmask - Category name "' .. v .. '" not recognized.')
 		end
-		c[i] = ci
+		bitmask = bitmask + catInt
 	end
-	return c
+	return bitmask
 end
 
-local function categoriesExcept(...)
-	local not_c = {...}
-	-- Add names as keys for easy checking.
-	for i,v in ipairs(not_c) do  not_c[v] = true  end
-	local c = {}
-	for name,i in pairs(collCategories) do
-		if not not_c[name] then  table.insert(c, i)  end
-	end
-	return c
+-- Take up to 16 category names.
+-- Return the matching inverse bitmask.
+local function getMaskBitmask(...)
+	return bit.bxor(getCategoriesBitmask(...), FULL_MASK_INT)
 end
 
-local function categoryIndex(categoryName)
-	return collCategories[categoryName]
+-- Takes a bitmask and a category name.
+-- Returns if the bitmask has that category enabled (true/false).
+local function isInCategory(bitmask, category)
+	local categoryBitmask = categoryIntFromName[category]
+	return bit.band(bitmask, categoryBitmask) > 0
+end
+
+-- Takes two "category" and "mask" bitmask pairs.
+-- Returns if they collide (true/false).
+local function shouldCollide(catBitsA, maskBitsA, catBitsB, maskBitsB)
+	return (bit.band(maskBitsA, catBitsB) ~= 0) and (bit.band(catBitsA, maskBitsB) ~= 0)
 end
 
 -- ray cast
@@ -86,7 +95,9 @@ local function getWorld(self)
 end
 
 return {
-	setCategories = setCategories, categories = categories,
-	categoriesExcept = categoriesExcept, categoryIndex = categoryIndex,
+	setCategoryNames = setCategoryNames,
+	getCategoriesBitmask = getCategoriesBitmask,
+	getMaskBitmask = getMaskBitmask,
+	isInCategory = isInCategory, shouldCollide = shouldCollide,
 	atPoint = atPoint, touchingBox = touchingBox, getWorld = getWorld,
 }

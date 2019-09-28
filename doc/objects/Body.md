@@ -5,8 +5,6 @@ Game Objects linked to a physics body. They can be dynamic, static, or kinematic
 
 Bodies _must_ be descendants of a World object in the scene tree. On init they will search up the tree for the closest World object and create their physics body within that World's Box2D physics world (or report an error if no World is found).
 
-> It seems pretty inefficient to search up the tree for a World every single time a Body is initialized, but it means you never have to manage references to physics worlds at all, which is great.
-
 The actual Box2d 'body' is not created until `init`. After it has init, you can access the body through `self.body`.
 
 ```lua
@@ -35,16 +33,16 @@ _PARAMETERS_
 		-- shape 2 - Example:
 		{ 'circle', {50} },
 		-- shape 3 - Example:
-		{ 'rectangle', {25, -10, 300, 100, math.pi/4}, categories={1, 5, 6, 7}, masks={3}, density=5}
+		{ 'rectangle', {25, -10, 300, 100, math.pi/4}, categories={1, 5, 6, 7}, mask={3}, density=5}
 	}
 
 	-- 2. A single table for a single fixture body.
 	-- shapes =
-	{ 'polygon', { -10, -10, 10, -10, 0, 20 }, categories=physics.categories('enemies') }
+	{ 'polygon', { -10, -10, 10, -10, 0, 20 }, categories=physics.getCategoriesBitmask('enemies') }
 	```
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', and 'chain'.
 
-	* Available shape(fixture) properties are: 'sensor', 'categories', 'masks', 'friction', 'density', and 'restitution'.
+	* Available shape(fixture) properties are: 'sensor', 'categories', 'mask', 'group', 'friction', 'density', and 'restitution'.
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 * __ignore_parent_transform__ <kbd>bool</kbd> - For dynamic and static bodies only: if the body should be created at global `x`, `y`, and `angle`, rather than interpreting those as local to its parent. After creation, these body types will completely ignore their parent's transform, as usual.
@@ -87,9 +85,11 @@ The optional properties that you can specify for each shape, in the constructor.
 
 * __'sensor'__ - <kbd>bool</kbd> - If the shape is a sensor or not.
 
-* __'categories'__ - <kbd>sequence</kbd> - The collision categories that the shape is a member of. Must be a table of category indices—like what you get from `physics.categories` or `physics.categoriesExcept`.
+* __'categories'__ - <kbd>number</kbd> - The bitmask for the collision categories that the shape is a member of. By default it is in category 1. You can make this with `physics.getCategoriesBitmask`.
 
-* __'masks'__ - <kbd>sequence</kbd> - The collision categories that the shape should _not_ collide with. Must be a table of category indices—like what you get from `physics.categories` or `physics.categoriesExcept`.
+* __'mask'__ - <kbd>number</kbd> - The bitmask for the collision categories that the shape should _not_ collide with. By default it collides with everything. You can make this with `physics.getMaskBitmask`.
+
+* __'group'__ <kbd>number</kbd> - Another setting for how this fixture collides with others. See the [Box2D overview cheatsheet](https://love2d.org/w/images/2/29/Box2D_basic_overview.png) or the [Fixture:setFilterData Doc](https://love2d.org/wiki/Fixture:setFilterData) for info on this.
 
 * __'friction'__ - <kbd>number</kbd> - The shape's friction, in the range 0.0-1.0.
 
@@ -108,13 +108,3 @@ The optional properties you can specify in the constructor that affect the entir
 * __'fixedRot'__ - <kbd>bool</kbd> - If the body's rotation should be fixed, or if it should rotate as normal. Defaults to `false`.
 
 * __'gScale'__ - <kbd>number</kbd> - The gravity scale of the body—a multiplier for how much this body is affected by the world's gravity.
-
-
-Methods
--------
-
-### Body.setMasks(self, maskList)
-Set the masks on every fixture on the body (which categories the body should _not_ collide with). Can't be used until after the Body has been initialized (after its `init` function has been called).
-
-_PARAMETERS_
-* __maskList__ <kbd>table</kbd> - A sequence of category indices, like you may have used to construct the Body, and what you get from `physics.categories` or `physics.categoriesExcept`.
