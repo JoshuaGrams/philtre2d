@@ -11,7 +11,7 @@ local FULL_MASK_INT = 2^16 - 1
 local SLEEPING_ALPHA_MULT = 0.5
 local FILL_ALPHA_MULT = 0.3
 
-function Body.draw(self) -- Physics debug drawing.
+local function debugDraw(self)
 	-- We're modifying the alpha value multiple times, so separate these and do it non-destructively.
 	local r, g, b, alpha = self.color[1], self.color[2], self.color[3], self.color[4]
 	alpha = self.body:isAwake() and alpha or alpha * SLEEPING_ALPHA_MULT
@@ -41,6 +41,10 @@ function Body.draw(self) -- Physics debug drawing.
 			end
 		end
 	end
+end
+
+function Body.debugDraw(self, layer)
+	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
 function Body.update(self, dt)

@@ -89,11 +89,15 @@ function Object.setVisible(self, visible)
 	self.callScripts('setVisible', visible)
 end
 
-function Object.draw(self)
+local function debugDraw(self)
 	love.graphics.setBlendMode('alpha')
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle('line', -5, -5, 10, 10)
 	love.graphics.circle('line', 0, 0, 0.5, 4)
+end
+
+function Object.debugDraw(self, layer)
+	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
 function Object.set(self, x, y, angle, sx, sy, kx, ky)
