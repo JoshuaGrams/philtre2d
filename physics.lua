@@ -50,8 +50,13 @@ local function shouldCollide(catsA, maskA, catsB, maskB)
 	return (bit.band(maskA, catsB) ~= 0) and (bit.band(catsA, maskB) ~= 0)
 end
 
+local RAYCAST_MODES = { any = true, all = true, closest = true }
+local DEFAULT_RAYCAST_MODE = 'closest'
+
 local queryResults = {}
 local queryCats, queryMask
+local raycastResults
+local raycastMode = DEFAULT_RAYCAST_MODE
 
 local function boxQueryCallback(fixture)
 	table.insert(queryResults, fixture)
@@ -84,24 +89,37 @@ local function raycastCallback(fixture, x, y, xn, yn, fraction)
 	if queryCats and queryMask then
 		local cats, mask = fixture:getFilterData()
 		local canHit = shouldCollide(cats, mask, queryCats, queryMask)
-		if not canHit then  return 1  end
+		if not canHit then  return -1  end
 	end
-	local hit = {
-		fixture = fixture,
-		x = x, y = y, xn = xn, yn = yn, fraction = fraction
-	}
-	table.insert(queryResults, hit)
-	return 1
+	if raycastMode == 'any' then
+		raycastResults = true
+		return 0
+	elseif raycastMode == 'closest' then
+		raycastResults = {
+			fixture = fixture,
+			x = x, y = y, xn = xn, yn = yn, fraction = fraction
+		}
+		return fraction
+	else -- raycastMode == 'all'
+		raycastResults = raycastResults or {}
+		local hit = {
+			fixture = fixture,
+			x = x, y = y, xn = xn, yn = yn, fraction = fraction
+		}
+		table.insert(raycastResults, hit)
+		return 1
+	end
 end
 
-local function raycast(x1, y1, x2, y2, world, categories, mask)
-	for i, v in ipairs(queryResults) do  queryResults[i] = nil  end
+local function raycast(x1, y1, x2, y2, world, mode, categories, mask)
+	raycastMode = mode or DEFAULT_RAYCAST_MODE
+	assert(RAYCAST_MODES[raycastMode], 'physics.raycast - Invalid raycast mode: "' .. tostring(mode) .. '". Must be "any", "all", or "closest".')
 	queryCats, queryMask = categories, mask
+	raycastResults = nil
 	world:rayCast(x1, y1, x2, y2, raycastCallback)
-	if #queryResults > 0 then
-		return queryResults
-	end
+	return raycastResults
 end
+
 local function getWorld(self)
 	local parent = self.parent
 	if not parent then
