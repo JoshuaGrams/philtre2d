@@ -64,6 +64,16 @@ function Object.callScripts(self, func_name, ...)
 	end
 end
 
+-- Calls method on self AFTER children.
+function Object.callRecursive(self, func_name, ...)
+	if self.children then
+		for i,child in ipairs(self.children) do
+			child:callRecursive(func_name, ...)
+		end
+	end
+	self:call(func_name, ...)
+end
+
 function Object.setPaused(self, paused)
 	self.paused = paused
 	self.callScripts('setPaused', paused)

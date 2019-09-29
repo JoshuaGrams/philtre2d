@@ -50,19 +50,10 @@ local function initChild(tree, obj, parent, index)
 	obj:call('init')
 end
 
-local function recursiveCallFinal(obj)
-	if obj.children then
-		for i,child in ipairs(obj.children) do
-			recursiveCallFinal(child)
-		end
-	end
-	obj:call('final')
-end
-
 local function finalizeRemoved(objects)
 	for obj,_ in pairs(objects) do
 		objects[obj] = nil
-		recursiveCallFinal(obj)
+		obj:callRecursive('final')
 	end
 end
 
