@@ -122,6 +122,8 @@ local function makeFixture(self, data)
 	for k,v in pairs(data) do
 		if fixture_set_funcs[k] then
 			f[fixture_set_funcs[k]](f, v)
+		else
+			error('Body.init (' .. tostring(self.path) .. ') - Invalid fixture-data key: "' .. k .. '".')
 		end
 	end
 end
@@ -131,7 +133,7 @@ function Body.init(self)
 	local world = getWorld(self.parent)
 	self.world = world
 	if not world then
-		error('Body.init ' .. tostring(self) .. ' - No parent World found. Bodies must be descendants of a World object.')
+		error('Body.init (' .. tostring(self.path) .. ') - No parent World found. Bodies must be descendants of a World object.')
 	end
 
 	-- By default, dynamic and static bodies are created in local coords.
