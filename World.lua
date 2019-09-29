@@ -87,7 +87,7 @@ local function makeCallback(self, type)
 	-- Don't delay preSolve or postSolve.
 	-- preSolve in particular is useless if delayed. If you want to disable the contact it must be done immediately.
 	if type == 'preSolve' or type == 'postSolve' then
-		cb = function(a, b, contact, normImp, tanImp)
+		cb = function(a, b, contact, normImpulse, tanImpulse)
 			handleContact(type, a, b, contact, normImpulse, tanImpulse) -- Only postSolve actually uses the last two arguments.
 		end
 	else
