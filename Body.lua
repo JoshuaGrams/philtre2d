@@ -174,7 +174,7 @@ end
 function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_transform)
 	Body.super.set(self, x, y, angle)
 	local rand = love.math.random
-	self.color = {rand()*0.8+0.2, rand()*0.8+0.2, rand()*0.8+0.2, 1}
+	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
 	self.type = type
 	if self.type == 'dynamic' or self.type == 'static' then
 		self.updateTransform = Object.TRANSFORM_ABSOLUTE
