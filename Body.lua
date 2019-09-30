@@ -25,20 +25,20 @@ local function debugDraw(self)
 
 	for i,f in ipairs(self.body:getFixtures()) do
 		local s = f:getShape()
-		if s:getType() == 'circle' then
+		local shapeType = s:getType()
+		if shapeType == 'circle' then
 			local x, y = s:getPoint()
 			love.graphics.circle('line', x, y, s:getRadius(), 24)
 			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
 			love.graphics.circle('fill', x, y, s:getRadius(), 24)
+		elseif shapeType == 'edge' or shapeType == 'chain' then
+			local points = {s:getPoints()}
+			love.graphics.line(points)
 		else
 			local points = {s:getPoints()}
-			if #points == 4 then -- Is a single edge, can't draw a polygon.
-				love.graphics.line(points)
-			else
-				love.graphics.polygon('line', points)
-				love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
-				love.graphics.polygon('fill', points)
-			end
+			love.graphics.polygon('line', points)
+			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
+			love.graphics.polygon('fill', points)
 		end
 	end
 end
