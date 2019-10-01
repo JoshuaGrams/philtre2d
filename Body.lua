@@ -47,6 +47,12 @@ function Body.debugDraw(self, layer)
 	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
+function Body.TRANSFORM_PHYSICS(s)
+	self.pos.x, self.pos.y = self.body:getPosition()
+	self.angle = self.body:getAngle()
+	Object.TRANSFORM_ABSOLUTE(s)
+end
+
 function Body.update(self, dt)
 	if self.type == 'kinematic' or self.type == 'trigger' then
 		-- User-Controlled - update physics body to match scene-tree Object.
@@ -177,7 +183,7 @@ function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_tran
 	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
 	self.type = type
 	if self.type == 'dynamic' or self.type == 'static' then
-		self.updateTransform = Object.TRANSFORM_ABSOLUTE
+		self.updateTransform = Body.TRANSFORM_PHYSICS
 	else
 		self.lastTransform = {}
 		-- Fix rotation on kinematic and trigger bodies to make sure it can't go crazy.
