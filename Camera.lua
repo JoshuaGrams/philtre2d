@@ -6,6 +6,7 @@ local Camera = Object:extend()
 Camera.className = 'Camera'
 
 local cameras = {}
+local fallback_cam
 
 -- Global default settings
 Camera.current = nil -- set to fallback_cam at end of module
@@ -248,8 +249,10 @@ function Camera.final(self)
 	for i, v in ipairs(cameras) do
 		if v == self then table.remove(cameras, i) end
 	end
-	if #cameras == 1 then Camera.current = cameras[1]
-	else Camera.current = fallback_cam
+	if Camera.current == self then
+		if #cameras > 0 then Camera.current = cameras[1]
+		else Camera.current = fallback_cam
+		end
 	end
 end
 
@@ -416,7 +419,6 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 	table.insert(cameras, self)
 end
 
-local fallback_cam
 do
 	local x, y = love.graphics.getDimensions()
 	fallback_cam = Camera(x/2, y/2)
