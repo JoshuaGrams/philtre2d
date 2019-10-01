@@ -1,9 +1,8 @@
 local base = (...):gsub('[^%.]+$', '')
 local M = require(base .. 'matrix')
-local Class = require(base .. 'lib.base-class')
 local Object = require(base .. 'Object')
 
-local SceneTree = Class:extend()
+local SceneTree = Object:extend()
 
 function SceneTree.__tostring(self)
 	return 'SceneTree: ' .. self.id
