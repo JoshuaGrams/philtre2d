@@ -47,10 +47,10 @@ function Body.debugDraw(self, layer)
 	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
-function Body.TRANSFORM_PHYSICS(s)
+function Body.TRANSFORM_PHYSICS(self)
 	self.pos.x, self.pos.y = self.body:getPosition()
 	self.angle = self.body:getAngle()
-	Object.TRANSFORM_ABSOLUTE(s)
+	Object.TRANSFORM_ABSOLUTE(self)
 end
 
 function Body.update(self, dt)
@@ -135,7 +135,6 @@ local function makeFixture(self, data)
 end
 
 function Body.init(self)
-
 	local world = getWorld(self.parent)
 	self.world = world
 	if not world then
@@ -170,6 +169,10 @@ function Body.init(self)
 	self.shapeData = nil
 	self.bodyData = nil
 	self.inherit = nil
+
+	if self.type == 'dynamic' or self.type == 'static' then
+		self.updateTransform = Body.TRANSFORM_PHYSICS
+	end
 end
 
 function Body.final(self)
@@ -183,7 +186,7 @@ function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_tran
 	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
 	self.type = type
 	if self.type == 'dynamic' or self.type == 'static' then
-		self.updateTransform = Body.TRANSFORM_PHYSICS
+		self.updateTransform = Object.TRANSFORM_ABSOLUTE -- Change to TRANSFORM_PHYSICS after body is created.
 	else
 		self.lastTransform = {}
 		-- Fix rotation on kinematic and trigger bodies to make sure it can't go crazy.
