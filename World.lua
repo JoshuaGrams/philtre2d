@@ -1,5 +1,4 @@
 local base = (...):gsub('[^%.]+$', '')
-local scene = require(base .. 'scene-tree')
 local Object = require(base .. 'Object')
 
 local World = Object:extend()
