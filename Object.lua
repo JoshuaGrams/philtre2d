@@ -97,7 +97,9 @@ local function debugDraw(self)
 end
 
 function Object.debugDraw(self, layer)
-	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+	if self.tree then
+		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+	end
 end
 
 function Object.set(self, x, y, angle, sx, sy, kx, ky)
