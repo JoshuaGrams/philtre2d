@@ -56,14 +56,6 @@ function Object.call(self, func_name, ...)
 	end
 end
 
-function Object.callScripts(self, func_name, ...)
-	if self.script then
-		for _,script in ipairs(self.script) do
-			if script[func_name] then  script[func_name](self, ...)  end
-		end
-	end
-end
-
 -- Calls method on self AFTER children.
 function Object.callRecursive(self, func_name, ...)
 	if self.children then
@@ -72,21 +64,6 @@ function Object.callRecursive(self, func_name, ...)
 		end
 	end
 	self:call(func_name, ...)
-end
-
-function Object.setPaused(self, paused)
-	self.paused = paused
-	self.callScripts('setPaused', paused)
-	--if self.children then
-		-- Add some 'non-invasive' callback for pausing
-		-- and resuming sound effects here.
-		--for i,c in pairs(self.chidren) do  c:...()  end
-	--end
-end
-
-function Object.setVisible(self, visible)
-	self.visible = visible
-	self.callScripts('setVisible', visible)
 end
 
 local function debugDraw(self)

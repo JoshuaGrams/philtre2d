@@ -19,8 +19,8 @@ These don't have to exist, but the scene-tree and some other modules will use th
 * **kx, ky** - Skew x and y.
 
 ### Misc Properties
-* **paused** - If the object (and its children) will get updates or not. It's recommended to use `obj:setPaused(paused)` instead of changing this directly. 
-* **visible** - If the object (and its children) will be drawn or not. It's recommended to use `obj:setVisible(visible)` instead of changing this directly.
+* **paused** - If the object (and its children) will get updates or not.
+* **visible** - If the object (and its children) will be drawn or not.
 
 ### Scene-tree Properties
 Scene-tree will add these to all objects when they are added to the tree.
@@ -39,17 +39,11 @@ Methods
 ### Object.call(self, func_name, ...)
 Attempts to call the named function on the object and any scripts that object may have.
 
-### Object.callScripts(self, func_name, ...)
-The same as `Object.call`, except it skips the object and only iterates through the object's scripts, if any.
+### Object.callRecursive(self, func_name, ...)
+Recursively calls `Object.call` on the object and all of its descendants. Works from the bottom up (children are called before self).
 
-### Object.setPaused(self, paused)
-Changes the pause state of the object and calls `setPaused` on the object's scripts. A paused object will not get `update` calls and will prevent them from passing down to its children.
-
-### Object.setVisible(self, visible)
-Shows or hides the object and calls `setVisible` on the object's scripts. A hidden object will not draw and will prevent its children from drawing.
-
-### Object.draw(self)
-Draws a debug box. I'll probably just delete this later.
+### Object.debugDraw(self, layer)
+Unused by default. Uses `tree.draw_order:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`.
 
 ### Object.toWorld(obj, x, y, [w])
 Transforms a vector, local to `obj`, into world coordinates.
