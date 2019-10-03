@@ -26,6 +26,9 @@ end
 local deletedMarker = Object()
 
 local function initChild(tree, obj, parent, index)
+	if not obj._notInit then  return  end -- Prevent duplicate init in case of adding sibling inside init().
+	obj._notInit = nil
+
 	obj.name = obj.name or tostring(index)
 	obj.path = parent.path .. '/' .. obj.name
 	if tree.paths[obj.path] then -- Append index if identical path exists.

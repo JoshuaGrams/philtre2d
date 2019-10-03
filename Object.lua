@@ -92,6 +92,7 @@ function Object.set(self, x, y, angle, sx, sy, kx, ky)
 		self.sx, self.sy, self.kx, self.ky
 	)
 	self.visible = true
+	self._notInit = true -- Temporary flag to prevent duplicate init. Cleared by Scene-Tree.
 end
 
 return Object
