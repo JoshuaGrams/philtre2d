@@ -59,7 +59,7 @@ local function makefsetter(field)
       error("expected function or callable", 2)
     end
     local old = self[field]
-    self[field] = old and function() old() x() end or x
+    self[field] = old and function(...) old(...) x(...) end or x
     return self
   end
 end
@@ -84,6 +84,7 @@ tween.onstart     = makefsetter("_onstart")
 tween.onupdate    = makefsetter("_onupdate")
 tween.oncomplete  = makefsetter("_oncomplete")
 
+local emptyvars = {}
 
 function tween.new(obj, time, vars)
   local self = setmetatable({}, tween)
@@ -92,12 +93,17 @@ function tween.new(obj, time, vars)
   self.progress = time > 0 and 0 or 1
   self._delay = 0
   self._ease = "quadout"
-  self.vars = {}
-  for k, v in pairs(vars) do
-    if type(v) ~= "number" then
-      error("bad value for key '" .. k .. "'; expected number")
+  local varsType = type(vars)
+  if varsType == "nil" then
+    self.vars = emptyvars
+  elseif varsType == "function" then
+    self.vars = emptyvars
+    self:oncomplete(vars)
+  else
+    self.vars = {}
+    for k, v in pairs(vars) do
+      self.vars[k] = v
     end
-    self.vars[k] = v
   end
   return self
 end
@@ -107,9 +113,10 @@ function tween:init()
   for k, v in pairs(self.vars) do
     local x = self.obj[k]
     if type(x) ~= "number" then
-      error("bad value on object key '" .. k .. "'; expected number")
+      self.vars[k] = { start = x, final = v, nonNumber = true }
+    else
+      self.vars[k] = { start = x, diff = v - x }
     end
-    self.vars[k] = { start = x, diff = v - x }
   end
   self.inited = true
 end
@@ -143,6 +150,7 @@ function flux:to(obj, time, vars)
   return flux.add(self, tween.new(obj, time, vars))
 end
 
+flux.__call = flux.to
 
 function flux:update(deltatime)
   for i = #self, 1, -1 do
@@ -155,19 +163,23 @@ function flux:update(deltatime)
         t:init()
       end
       if t._onstart then
-        t._onstart()
+        t._onstart(t.obj, t)
         t._onstart = nil
       end
       t.progress = t.progress + t.rate * deltatime
       local p = t.progress
       local x = p >= 1 and 1 or flux.easing[t._ease](p)
       for k, v in pairs(t.vars) do
-        t.obj[k] = v.start + x * v.diff
+        if v.nonNumber then
+          if x == 1 then  t.obj[k] = v.final  end
+        else
+          t.obj[k] = v.start + x * v.diff
+        end
       end
-      if t._onupdate then t._onupdate() end
+      if t._onupdate then t._onupdate(t.obj, t) end
       if p >= 1 then
         flux.remove(self, i)
-        if t._oncomplete then t._oncomplete() end
+        if t._oncomplete then t._oncomplete(t.obj, t) end
       end
     end
   end

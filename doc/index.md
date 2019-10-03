@@ -78,6 +78,7 @@ Useful modules that were written by other people or just aren't required by the 
 * [Testing](lib/simple-test.md) - A simple test-runner.
 * [Math Patch](lib/math-patch.md) - Patches some missing functions into the default `math` library.
 * [Vec2 (x,y)](lib/vec2xy.md) - Vector2 operations using only x and y numbers, not tables or userdata.
+* [Flux](https://github.com/rxi/flux) - rxi's tweening lib with some [modifications](lib/flux-modifications.md).
 
 Contributors
 ------------
