@@ -19,7 +19,7 @@ These don't have to exist, but the scene-tree and some other modules will use th
 * **kx, ky** - Skew x and y.
 
 ### Misc Properties
-* **paused** - If the object (and its children) will get updates or not.
+* **timeScale** - Delta-time multiplier for this object and its descendants. Set to 0 to pause. Set to `nil` or 1 to do nothing.
 * **visible** - If the object (and its children) will be drawn or not.
 
 ### Scene-tree Properties

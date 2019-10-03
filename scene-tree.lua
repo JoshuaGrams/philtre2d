@@ -105,7 +105,8 @@ end
 
 local function _update(objects, dt)
 	for _,obj in pairs(objects) do
-		if not obj.paused then
+		if obj.timeScale ~= 0 then
+			if obj.timeScale then  dt = dt * obj.timeScale  end
 			if obj.children then
 				_update(obj.children, dt)
 			end
