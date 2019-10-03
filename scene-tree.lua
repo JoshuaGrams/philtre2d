@@ -154,6 +154,15 @@ function SceneTree.add(self, obj, parent)
 	initChild(self, obj, parent, i)
 end
 
+local function recursiveRemovePaths(tree, obj)
+	if obj.children then
+		for i,child in ipairs(obj.children) do
+			recursiveRemovePaths(tree, child)
+		end
+	end
+	tree.paths[obj.path] = nil
+end
+
 -- Take an object out of the tree. If, on `update`, you remove an
 -- ancestor, it and some of its descendants (the not-yet-processed
 -- siblings) may still get `update`d.
@@ -169,6 +178,7 @@ function SceneTree.remove(self, obj)
 	end
 	self.removed[obj] = true
 	self.paths[obj.path] = nil
+	recursiveRemovePaths(self, obj)
 end
 
 -- By default, doesn't re-parent obj until after the next update.
