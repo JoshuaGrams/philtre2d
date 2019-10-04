@@ -24,6 +24,7 @@ local function debugDraw(self)
 	love.graphics.line(cx, cy, cx + 10, cy + 0) -- X axis line to show rotation.
 
 	for i,f in ipairs(self.body:getFixtures()) do
+		love.graphics.setColor(r, g, b, alpha)
 		local s = f:getShape()
 		local shapeType = s:getType()
 		if shapeType == 'circle' then
