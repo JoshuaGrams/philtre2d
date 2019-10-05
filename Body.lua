@@ -10,6 +10,7 @@ Body.className = 'Body'
 local FULL_MASK_INT = 2^16 - 1
 local SLEEPING_ALPHA_MULT = 0.5
 local FILL_ALPHA_MULT = 0.3
+local SENSOR_ALPHA_MULT = 0.35
 
 local function debugDraw(self)
 	-- We're modifying the alpha value multiple times, so separate these and do it non-destructively.
@@ -24,6 +25,7 @@ local function debugDraw(self)
 	love.graphics.line(cx, cy, cx + 10, cy + 0) -- X axis line to show rotation.
 
 	for i,f in ipairs(self.body:getFixtures()) do
+		if f:isSensor() then  alpha = alpha * SENSOR_ALPHA_MULT  end
 		love.graphics.setColor(r, g, b, alpha)
 		local s = f:getShape()
 		local shapeType = s:getType()
