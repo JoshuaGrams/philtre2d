@@ -25,14 +25,14 @@ local function debugDraw(self)
 	love.graphics.line(cx, cy, cx + 10, cy + 0) -- X axis line to show rotation.
 
 	for i,f in ipairs(self.body:getFixtures()) do
-		if f:isSensor() then  alpha = alpha * SENSOR_ALPHA_MULT  end
-		love.graphics.setColor(r, g, b, alpha)
+		local sensorAlphaMult = f:isSensor() and SENSOR_ALPHA_MULT or 1
+		love.graphics.setColor(r, g, b, alpha * sensorAlphaMult)
 		local s = f:getShape()
 		local shapeType = s:getType()
 		if shapeType == 'circle' then
 			local x, y = s:getPoint()
 			love.graphics.circle('line', x, y, s:getRadius(), 24)
-			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
+			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT * sensorAlphaMult)
 			love.graphics.circle('fill', x, y, s:getRadius(), 24)
 		elseif shapeType == 'edge' or shapeType == 'chain' then
 			local points = {s:getPoints()}
@@ -40,7 +40,7 @@ local function debugDraw(self)
 		else
 			local points = {s:getPoints()}
 			love.graphics.polygon('line', points)
-			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT)
+			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT * sensorAlphaMult)
 			love.graphics.polygon('fill', points)
 		end
 	end
