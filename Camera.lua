@@ -129,7 +129,7 @@ end
 
 --##############################  Public Functions ##############################
 
-Camera.draw = false  -- Override Object's debug draw function.
+Camera.debugDraw = false  -- Override Object's debug draw function.
 
 function Camera.windowResizedAll(x, y, w, h)
 	for i,cam in ipairs(cameras) do
