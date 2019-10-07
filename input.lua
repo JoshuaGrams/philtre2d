@@ -35,9 +35,10 @@ local function use_physical(logical, device, input)
 		table.insert(dev[input].bindings, logical)
 		return true
 	else
+		local v = device == "text" and "" or 0
 		dev[input] = {
 			device = device, input = input,
-			value = 0, change = 0,
+			value = v, change = v,
 			bindings = {logical}
 		}
 		return false
@@ -94,7 +95,10 @@ local function update_logical(l)
 	for _,p in ipairs(l.physical) do
 		val = p.fn(val, unpack(p))
 	end
-	l.value, l.change = val, val - l.value
+	if l.device ~= 'text' then
+		l.change = val - l.value
+	end
+	l.value = val
 	-- Call objects that want input.
 	for _,o in pairs(O) do
 		o:call('input', l.name, l.value, l.change)
@@ -124,6 +128,10 @@ end
 
 local function axis_button_handler(val, phy, dir, lim)
 	return math.max(val, (dir*phy.value > lim) and 1 or 0)
+end
+
+local function text_handler(val, phy)
+	return phy.value
 end
 
 
@@ -162,10 +170,18 @@ local function button_from_axis(name, device, input, lim, dir)
 	return r
 end
 
+local function text(name, device, input)
+	local l = register_logical(name, device, input)
+	local r = use_physical(l, device, input)
+	table.insert(l.physical, {fn=text_handler, P[device][input]})
+	return r
+end
+
 local binder = {
 	axis = axis, button = button,
 	axis_from_buttons = axis_from_buttons,
-	button_from_axis = button_from_axis
+	button_from_axis = button_from_axis,
+	text = text
 }
 
 -- Private. Unbinds one logical action name.
@@ -276,7 +292,10 @@ local function phy(val, device, input)
 	-- If any logical inputs are registered to this physical input, update them.
 	local i = P[device] and P[device][input]
 	if i then
-		i.value, i.change = val, val - i.value
+		if device ~= 'text' then
+			i.change = val - i.value
+		end
+		i.value = val
 		for _,l in ipairs(i.bindings) do
 			update_logical(l)
 		end
@@ -301,6 +320,15 @@ end
 
 function callbacks.mousereleased(x, y, button)
 	phy(0, 'mouse', button)
+end
+
+function callbacks.wheelmoved(x, y)
+	if y ~= 0 then  phy(y, 'mouse', 'wheel y')  end
+	if x ~= 0 then  phy(x, 'mouse', 'wheel x')  end
+end
+
+function callbacks.textinput(t)
+	phy(t, 'text', 'text')
 end
 
 local function joy(j) return 'joystick' .. tostring(j:getID()) end
