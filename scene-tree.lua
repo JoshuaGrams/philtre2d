@@ -59,7 +59,7 @@ local function finalizeRemoved(objects)
 	end
 end
 
-function _moveChild(obj, oldParent, iChild)
+function _moveChild(obj, oldParent, iChild, newParent)
 	oldParent.children[iChild] = deletedMarker
 	obj.tree.compact[oldParent] = true
 	if not newParent.children then newParent.children = {} end
@@ -198,16 +198,16 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 	for k,c in ipairs(obj.parent.children) do
 		if c == obj then
 			if now then
-				_moveChild(obj, obj.parent, k)
+				_moveChild(obj, obj.parent, k, parent)
 			else
-				table.insert(self.reparents, {obj, obj.parent, k})
+				table.insert(self.reparents, {obj, obj.parent, k, parent})
 			end
 			self.compact[obj.parent] = true
 			obj.parent = parent
 			if obj.updateTransform == Object.TRANSFORM_REGULAR then
 				if keepWorld then
 					local m = {}
-					M.xM(obj._to_world, M.invert(newParent._to_world, m), m)
+					M.xM(obj._to_world, M.invert(parent._to_world, m), m)
 					obj.pos.x, obj.pos.y = m.x, m.y
 					obj.th, obj.sx, obj.sy, obj.kx, obj.ky = M.parameters(m)
 				else
