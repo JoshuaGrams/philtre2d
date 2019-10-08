@@ -26,8 +26,8 @@ end
 local deletedMarker = Object()
 
 local function initChild(tree, obj, parent, index)
-	if not obj._notInit then  return  end -- Prevent duplicate init in case of adding sibling inside init().
-	obj._notInit = nil
+	-- Prevent duplicate init
+	if obj.parent == parent then return end
 
 	obj.name = obj.name or tostring(index)
 	obj.path = parent.path .. '/' .. obj.name
@@ -175,7 +175,7 @@ function SceneTree.remove(self, obj)
 		if c == obj then
 			parent.children[i] = deletedMarker
 			self.compact[parent] = true
-			obj.parent, obj._notInit = nil, true
+			obj.parent = nil
 			break
 		end
 	end
