@@ -175,7 +175,7 @@ function SceneTree.remove(self, obj)
 		if c == obj then
 			parent.children[i] = deletedMarker
 			self.compact[parent] = true
-			obj.parent = nil
+			obj.parent, obj._notInit = nil, true
 			break
 		end
 	end
