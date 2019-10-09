@@ -39,6 +39,7 @@ end
 
 local function extend(parent, policy)
 	local class = {}
+	class.id = tostring(class):sub(1 + ("table: "):len())
 	implements(class, parent, policy)
 	-- Use the same table for metamethods and normal methods.
 	class.__index = class
