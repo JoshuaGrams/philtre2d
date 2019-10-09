@@ -257,8 +257,18 @@ function Camera.final(self)
 end
 
 -- zoom in or out by a percentage
-function Camera.zoomIn(self, z)
+function Camera.zoomIn(self, z, xScreen, yScreen)
+	local xWorld, yWorld
+	if xScreen and yScreen then
+		xWorld, yWorld = self:screenToWorld(xScreen, yScreen)
+	end
 	self.zoom = self.zoom * (1 + z)
+	if xScreen and yScreen then
+		local xScreen2, yScreen2 = self:worldToScreen(xWorld, yWorld)
+		local dx, dy = xScreen2 - xScreen, yScreen2 - yScreen
+		dx, dy = self:screenToWorld(dx, dy, true)
+		self.pos.x, self.pos.y = self.pos.x + dx, self.pos.y + dy
+	end
 end
 
 function Camera.shake(self, dist, dur, falloff)

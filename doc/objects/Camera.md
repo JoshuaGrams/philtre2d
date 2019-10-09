@@ -78,11 +78,13 @@ _RETURNS_
 * __x__ <kbd>number</kbd> - The corresponding screen x coordinate.
 * __y__ <kbd>number</kbd> - The corresponding screen y coordinate.
 
-### Camera.zoomIn(self, z)
-A convenience function to zoom the camera in or out by a percentage. Just sets the camera's `zoom` property to `zoom * (1 + z)`.
+### Camera.zoomIn(self, z, xScreen, yScreen)
+Zoom the camera in or out by a percentage. Sets the camera's `zoom` property to `zoom * (1 + z)`, and optionally zooms in at a position other than the camera center.
 
 _PARAMETERS_
 * __z__ <kbd>number</kbd> - The percent of the current zoom value to add or subtract.
+* __xScreen__ <kbd>number</kbd> - _optional_ - The zoom should be centered on this screen x coordinate (instead of the camera center).
+* __yScreen__ <kbd>number</kbd> - _optional_ - The zoom should be centered on this screen y coordinate (instead of the camera center).
 
 ### Camera.shake(self, dist, dur, falloff)
 Adds a shake to the camera. The shake will last for `dur` seconds, randomly offsetting the camera's position every frame by a maximum distance of +/-`dist`, and optionally rotating it as well. The shake effect will falloff to zero over its duration. By default it uses linear falloff. For each shake you can optionally specify the fallof function, as "linear" or "quadratic", or you can change the default by setting `Camera.shake_falloff`.
