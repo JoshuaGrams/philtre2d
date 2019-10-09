@@ -66,11 +66,11 @@ local function is_vec(v)
 	end
 end
 
-local function get_aspect_rect_in_win(aspect_ratio, win_x, win_y, viewport_align)
-	local s = math.min(win_x/aspect_ratio, win_y)
+local function letterbox(aspect_ratio, win_w, win_h, viewport_align)
+	local s = math.min(win_w/aspect_ratio, win_h)
 	local w, h = s*aspect_ratio, s
-	local x = (win_x - w) * viewport_align.x
-	local y = (win_y - h) * viewport_align.y
+	local x = (win_w - w) * viewport_align.x
+	local y = (win_h - h) * viewport_align.y
 	return x, y, w, h
 end
 
@@ -141,14 +141,14 @@ end
 function Camera.windowResized(self, x, y, w, h)
 	local vp_w, vp_h = self.vp.w, self.vp.h -- save last values
 	if self.aspect_ratio then -- Must enforce fixed aspect ratio before figuring zoom.
-		self.vp.x, self.vp.y, self.vp.w, self.vp.h = get_aspect_rect_in_win(self.aspect_ratio, w, h, self.viewport_align)
+		self.vp.x, self.vp.y, self.vp.w, self.vp.h = letterbox(self.aspect_ratio, w, h, self.viewport_align)
 	else
 		self.vp.x, self.vp.y, self.vp.w, self.vp.h = 0, 0, w, h
 	end
 	self.vp.half_w = self.vp.w/2;  self.vp.half_h = self.vp.h/2
 	self.zoom = get_zoom_for_new_window(self.zoom, self.scale_mode, vp_w, vp_h, self.vp.w, self.vp.h)
-	self.win_x = w;  self.win_y = h
-	self.half_win_x = w/2;  self.half_win_y = h/2
+	self.win_w = w;  self.win_h = h
+	self.half_win_w = w/2;  self.half_win_h = h/2
 end
 
 function Camera.update(self, dt)
@@ -224,7 +224,7 @@ end
 
 function Camera.screenToWorld(self, x, y, is_delta)
 	-- screen center offset
-	if not is_delta then x = x - self.half_win_x;  y = y - self.half_win_y end
+	if not is_delta then x = x - self.half_win_w;  y = y - self.half_win_h end
 	x, y = x/self.zoom, y/self.zoom -- scale
 	x, y = rotate(x, y, self.angle) -- rotate
 	-- translate
@@ -339,13 +339,13 @@ function Camera.setBounds(self, lt, rt, top, bot)
 	end
 end
 
-local bounds_vec_table = { tl=vec2(), tr=vec2(), bl=vec2(), br=vec2() } -- save the GC some work
+local tmp_corners = { tl=vec2(), tr=vec2(), bl=vec2(), br=vec2() } -- save the GC some work
 
 function Camera.enforceBounds(self)
 	if self.bounds then
 		local b = self.bounds
 		local vp = self.vp
-		local c = bounds_vec_table -- corners
+		local c = tmp_corners -- corners
 		-- get viewport corner positions in world space
 		c.tl.x, c.tl.y = self:screenToWorld(vp.x, vp.y) -- top left
 		c.tr.x, c.tr.y = self:screenToWorld(vp.x + vp.w, vp.y) -- top right
@@ -382,9 +382,9 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 	self.active = not inactive
 
 	self.zoom = 1
-	self.win_x, self.win_y = love.graphics.getDimensions()
-	self.half_win_x = self.win_x/2
-	self.half_win_y = self.win_y/2
+	self.win_w, self.win_h = love.graphics.getDimensions()
+	self.half_win_w = self.win_w/2
+	self.half_win_h = self.win_h/2
 	self.shakes = {}
 	self.shake_x, self.shake_y, self.shake_a = 0, 0, 0
 	self.follows = {}
@@ -393,12 +393,11 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 	-- Fixed aspect ratio - get viewport/scissor
 	local vp = {}
 	if fixed_aspect_ratio then
-		vp.x, vp.y, vp.w, vp.h = get_aspect_rect_in_win(self.aspect_ratio, self.win_x, self.win_y, self.viewport_align)
-		vp.half_w = vp.w/2;  vp.half_h = vp.h/2
+		vp.x, vp.y, vp.w, vp.h = letterbox(self.aspect_ratio, self.win_w, self.win_h, self.viewport_align)
 	else
-		vp.x, vp.y, vp.w, vp.h = 0, 0, self.win_x, self.win_y
-		vp.half_w = self.half_win_x;  vp.half_h = self.half_win_y
+		vp.x, vp.y, vp.w, vp.h = 0, 0, self.win_w, self.win_h
 	end
+	vp.half_w, vp.half_h = vp.w/2, vp.h/2
 	self.vp = vp
 
 	-- Figure zoom
