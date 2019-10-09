@@ -351,6 +351,27 @@ end
 
 local tmp_corners = { tl=vec2(), tr=vec2(), bl=vec2(), br=vec2() } -- save the GC some work
 
+function Camera.getViewportBounds(self)
+	local vp = self.vp
+	local c = tmp_corners -- corners
+	-- get viewport corner positions in world space
+	c.tl.x, c.tl.y = self:screenToWorld(vp.x, vp.y) -- top left
+	c.tr.x, c.tr.y = self:screenToWorld(vp.x + vp.w, vp.y) -- top right
+	c.bl.x, c.bl.y = self:screenToWorld(vp.x, vp.y + vp.h) -- bottom left
+	c.br.x, c.br.y = self:screenToWorld(vp.x + vp.w, vp.y + vp.h) -- bottom right
+	-- get world-aligned viewport bounding box
+	local w_lt = min(c.tl.x, c.tr.x, c.bl.x, c.br.x) -- world left
+	local w_rt = max(c.tl.x, c.tr.x, c.bl.x, c.br.x) -- world right
+	local w_top = min(c.tl.y, c.tr.y, c.bl.y, c.br.y) -- world top
+	local w_bot = max(c.tl.y, c.tr.y, c.bl.y, c.br.y) -- world botom
+	local w_w, w_h = w_rt - w_lt, w_bot - w_top -- world width, height
+	return {
+		x0 = w_lt, y0 = w_top,
+		x1 = w_rt, y1 = w_bot,
+		w = w_w, h = w_h
+	}
+end
+
 function Camera.enforceBounds(self)
 	if self.bounds then
 		local b = self.bounds
