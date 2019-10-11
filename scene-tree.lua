@@ -173,6 +173,7 @@ end
 -- siblings) may still get `update`d.
 function SceneTree.remove(self, obj)
 	local parent = obj.parent
+	if not parent then  return  end -- obj is not in the tree or is a deletedMarker.
 	for i,c in ipairs(parent.children) do
 		if c == obj then
 			parent.children[i] = deletedMarker
