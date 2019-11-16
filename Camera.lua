@@ -16,6 +16,7 @@ Camera.shake_rot_mult = 0.001
 Camera.shake_freq = 8
 Camera.follow_lerp_speed = 3
 Camera.viewport_align = { x = 0.5, y = 0.5 }
+Camera.pivot = { x = 0.5, y = 0.5 }
 
 -- localize stuff
 local min = math.min
@@ -66,12 +67,24 @@ local function is_vec(v)
 	end
 end
 
-local function letterbox(aspect_ratio, win_w, win_h, viewport_align)
-	local s = math.min(win_w/aspect_ratio, win_h)
-	local w, h = s*aspect_ratio, s
-	local x = (win_w - w) * viewport_align.x
-	local y = (win_h - h) * viewport_align.y
-	return x, y, w, h
+function set_viewport(camera, x, y, w, h)
+	local vp = camera.vp
+	local aspect = camera.aspect_ratio
+	local align = camera.viewport_align
+	local pivot = camera.pivot
+	if aspect then  -- letterbox
+		vp.w = math.min(w, h * aspect)
+		vp.h = vp.w / aspect
+		vp.x = x + (w - vp.w) * align.x
+		vp.y = y + (h - vp.h) * align.y
+	else
+		vp.x, vp.y, vp.w, vp.h = x, y, w, h
+	end
+	vp.pivot = {
+		x = vp.x + vp.w * pivot.x,
+		y = vp.y + vp.h * pivot.y
+	}
+	return vp
 end
 
 local function decipher_zoom_or_area(zoom_or_area)
@@ -89,19 +102,19 @@ local function decipher_zoom_or_area(zoom_or_area)
 	return -- invalid value, returns nil
 end
 
-local function get_zoom_for_new_window(z, scale_mode, old_x, old_y, new_x, new_y)
+local function update_zoom_after_resize(z, scale_mode, old_w, old_h, new_w, new_h)
 	if scale_mode == "expand view" then
 		return z
 	elseif scale_mode == "fixed area" then
-		local new_a = new_x * new_y
-		local old_a = old_x * old_y
+		local new_a = new_w * new_h
+		local old_a = old_w * old_h
 		return z * sqrt(new_a / old_a) -- zoom is the scale on both axes, hence the square root
 	elseif scale_mode == "fixed width" then
-		return z * new_x / old_x
+		return z * new_w / old_w
 	elseif scale_mode == "fixed height" then
-		return z * new_y / old_y
+		return z * new_h / old_h
 	else
-		error("Camera - get_zoom_for_new_window() - invalid scale mode: " .. tostring(scale_mode))
+		error("Camera - update_zoom_after_resize() - invalid scale mode: " .. tostring(scale_mode))
 	end
 end
 
@@ -131,24 +144,17 @@ end
 
 Camera.debugDraw = false  -- Override Object's debug draw function.
 
-function Camera.windowResizedAll(x, y, w, h)
+function Camera.setAllViewports(x, y, w, h)
 	for i,cam in ipairs(cameras) do
-		cam:windowResized(x, y, w, h)
+		cam:setViewport(x, y, w, h)
 	end
 end
 
--- x and y not used yet - TODO
-function Camera.windowResized(self, x, y, w, h)
+function Camera.setViewport(self, x, y, w, h)
 	local vp_w, vp_h = self.vp.w, self.vp.h -- save last values
-	if self.aspect_ratio then -- Must enforce fixed aspect ratio before figuring zoom.
-		self.vp.x, self.vp.y, self.vp.w, self.vp.h = letterbox(self.aspect_ratio, w, h, self.viewport_align)
-	else
-		self.vp.x, self.vp.y, self.vp.w, self.vp.h = 0, 0, w, h
-	end
-	self.vp.half_w = self.vp.w/2;  self.vp.half_h = self.vp.h/2
-	self.zoom = get_zoom_for_new_window(self.zoom, self.scale_mode, vp_w, vp_h, self.vp.w, self.vp.h)
-	self.win_w = w;  self.win_h = h
-	self.half_win_w = w/2;  self.half_win_h = h/2
+	-- Must enforce fixed aspect ratio before figuring zoom.
+	set_viewport(self, x, y, w, h)
+	self.zoom = update_zoom_after_resize(self.zoom, self.scale_mode, vp_w, vp_h, self.vp.w, self.vp.h)
 end
 
 function Camera.update(self, dt)
@@ -205,26 +211,33 @@ end
 
 function Camera.applyTransform(self)
 	love.graphics.push()
-	-- center view on camera - offset by viewport offset + half viewport
-	love.graphics.translate(self.vp.x + self.vp.half_w, self.vp.y + self.vp.half_h)
+	-- start at viewport pivot point
+	love.graphics.origin()
+	love.graphics.translate(self.vp.pivot.x, self.vp.pivot.y)
 	-- view rot and translate are negative because we're really transforming the world
 	love.graphics.rotate(-self.angle - self.shake_a)
 	love.graphics.scale(self.zoom, self.zoom)
 	love.graphics.translate(-self.pos.x - self.shake_x, -self.pos.y - self.shake_y)
 
-	if self.aspect_ratio then
-		love.graphics.setScissor(self.vp.x, self.vp.y, self.vp.w, self.vp.h)
+	local vp = self.vp
+	local w, h = love.graphics.getDimensions()
+	if vp.x ~= 0 or vp.y ~= 0 or vp.w ~= w or vp.h ~= h then
+		self.oldScissor = {love.graphics.getScissor()}
+		love.graphics.setScissor(vp.x, vp.y, vp.w, vp.h)
 	end
 end
 
 function Camera.resetTransform(self)
 	love.graphics.pop()
-	if self.aspect_ratio then love.graphics.setScissor() end
+	if self.oldScissor then
+		love.graphics.setScissor(unpack(self.oldScissor))
+		self.oldScissor = nil
+	end
 end
 
 function Camera.screenToWorld(self, x, y, is_delta)
 	-- screen center offset
-	if not is_delta then x = x - self.half_win_w;  y = y - self.half_win_h end
+	if not is_delta then x = x - self.vp.pivot.x;  y = y - self.vp.pivot.y end
 	x, y = x/self.zoom, y/self.zoom -- scale
 	x, y = rotate(x, y, self.angle) -- rotate
 	-- translate
@@ -236,7 +249,7 @@ function Camera.worldToScreen(self, x, y, is_delta)
 	if not is_delta then x = x - self.pos.x;  y = y - self.pos.y end
 	x, y = rotate(x, y, -self.angle)
 	x, y = x*self.zoom, y*self.zoom
-	if not is_delta then x = x + self.vp.x + self.vp.half_w;  y = y + self.vp.y + self.vp.half_h end
+	if not is_delta then x = x + self.vp.pivot.x;  y = y + self.vp.pivot.y end
 	return x, y
 end
 
@@ -413,23 +426,12 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 	self.active = not inactive
 
 	self.zoom = 1
-	self.win_w, self.win_h = love.graphics.getDimensions()
-	self.half_win_w = self.win_w/2
-	self.half_win_h = self.win_h/2
 	self.shakes = {}
 	self.shake_x, self.shake_y, self.shake_a = 0, 0, 0
 	self.follows = {}
 	self.follow_count = 0
-
-	-- Fixed aspect ratio - get viewport/scissor
-	local vp = {}
-	if fixed_aspect_ratio then
-		vp.x, vp.y, vp.w, vp.h = letterbox(self.aspect_ratio, self.win_w, self.win_h, self.viewport_align)
-	else
-		vp.x, vp.y, vp.w, vp.h = 0, 0, self.win_w, self.win_h
-	end
-	vp.half_w, vp.half_h = vp.w/2, vp.h/2
-	self.vp = vp
+	self.vp = {}
+	set_viewport(self, 0, 0, love.graphics.getDimensions())
 
 	-- Figure zoom
 	local vx, vy = decipher_zoom_or_area(zoom_or_area)
@@ -442,7 +444,7 @@ function Camera.set(self, x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ra
 		-- we want to zoom so the specified area fits the window. Use "fixed area" mode
 		-- instead to get a nice fit regardless of proportion differences.
 		local sm = self.scale_mode == "expand view" and "fixed area" or self.scale_mode
-		self.zoom = get_zoom_for_new_window(1, sm, vx, vy, self.vp.w, self.vp.h)
+		self.zoom = update_zoom_after_resize(1, sm, vx, vy, self.vp.w, self.vp.h)
 	end
 
 	if self.active then Camera.current = self end

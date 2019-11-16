@@ -4,7 +4,7 @@ Camera
 Basic Usage
 -----------
 
-First, add a camera to your scene tree. Second, in `love.draw()`, add `Camera.current:applyTransform()` before you draw world-space objects, and `Camera.current:resetTransform()` afterward. Lastly, in `love.resize(w, h)`, call `Camera.windowResizedAll(0, 0, w, h)`.
+First, add a camera to your scene tree. Second, in `love.draw()`, add `Camera.current:applyTransform()` before you draw world-space objects, and `Camera.current:resetTransform()` afterward. Lastly, in `love.resize(w, h)`, call `Camera.setAllViewports(0, 0, w, h)`.
 
 Constructor
 -----------
@@ -26,8 +26,8 @@ _PARAMETERS_
 Methods
 -------
 
-### Camera.windowResizedAll(x, y, w, h)
-Updates all cameras for the new window size. This may alter the zoom of your cameras, depending on their scale mode. ("expand view" mode cameras keep the same zoom.) Call this function on the Camera _module_. You _can_ also call it on a camera object, but that doesn't make a lot of sense. Note it does not take a `self` parameter.
+### Camera.setAllViewports(x, y, w, h)
+Set the viewport of all cameras. All arguments are in pixels: they are unaffected by any transform that may be set. This may alter the zoom of your cameras, depending on their scale mode. ("expand view" mode cameras keep the same zoom.) Call this function on the Camera _module_. You _can_ also call it on a camera object, but that doesn't make a lot of sense. Note it does not take a `self` parameter.
 
 _PARAMETERS_
 * __x__ <kbd>number</kbd> - Unused. Will be for setting a custom viewport position.
@@ -35,8 +35,8 @@ _PARAMETERS_
 * __w__ <kbd>number</kbd> - The new width of the window.
 * __h__ <kbd>number</kbd> - The new height of the window.
 
-### Camera.windowResized(self, x, y, w, h)
-Updates this camera for the new window size.
+### Camera.setViewport(self, x, y, w, h)
+Updates this camera's viewport, possibly changing its zoom. All arguments are in pixels: they are unaffected by any transform that may be set.
 
 _PARAMETERS_
 * __x__ <kbd>number</kbd> - Unused. Will be for setting a custom viewport position.
@@ -178,6 +178,11 @@ _DEFAULT:_ 3
 
 Default lerp speed for following.
 
+#### Camera.pivot
+_DEFAULT:_ { x = 0.5, y = 0.5 }
+
+Positions the center of rotation and scaling as a fraction of the camera's viewport. The default of 0.5, 0.5 means the view will rotate around the center of the viewport. Setting it to 0, 0 would cause the view to rotate around and scale from the top left corner of the viewport. Changes will not take effect until you call `Camera.setViewport`.
+
 #### Camera.viewport_align
 _DEFAULT:_ { x = 0.5, y = 0.5 }
 
@@ -199,4 +204,8 @@ The zoom multiplier of the camera. Higher values mean the camera is zoomed in, l
 The viewport properties that the camera is using. This is a table with the following properties:
 * __x, y__ - The x and y offset of the viewport, from the top left corner of the window. Will be 0, 0 for non-fixed-aspect-ratio cameras.
 * __w, h__ - The width and height of the viewport. Will be equal to the window dimensions for non-fixed-aspect-ratio cameras.
-* __half_w, half_h__ - Half of `w` and `h`. Used by the camera to center rendering in its viewport.
+
+#### self.pivot
+_DEFAULT:_ `Camera.pivot` (center of viewport).
+
+Positions the center of rotation and scaling as a fraction of the camera's viewport. If not set, `Camera.pivot` will be used instead. Changes will not take effect until you call `Camera.setViewport`.
