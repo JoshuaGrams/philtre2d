@@ -125,16 +125,16 @@ function SceneTree.update(self, dt)
 	finalizeAndReparent(self)
 end
 
-local function collectVisible(tree, objects)
+function SceneTree.collectVisible(tree, objects)
 	finalizeAndReparent(tree)
 	local draw_order = tree.draw_order
-	for _,obj in pairs(objects) do
+	for _,obj in pairs(objects or tree.children) do
 		if obj.visible then
 			obj:updateTransform()
 			draw_order:saveCurrentLayer()
 			draw_order:addObject(obj)
 			if obj.children then
-				collectVisible(tree, obj.children)
+				tree:collectVisible(obj.children)
 			end
 			draw_order:restoreCurrentLayer()
 		end
@@ -142,7 +142,7 @@ local function collectVisible(tree, objects)
 end
 
 function SceneTree.draw(self, groups)
-	collectVisible(self, self.children)
+	self:collectVisible(self.children)
 	self.draw_order:draw(groups)
 	self.draw_order:clear()
 end

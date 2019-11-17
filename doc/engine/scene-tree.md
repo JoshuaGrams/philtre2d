@@ -33,7 +33,18 @@ _PARAMETERS_
 * __dt__ <kbd>number</kbd> - Delta time for this frame.
 
 ### SceneTree.draw(tree, layerGroups)
-Calls `updateTransform` on all objects, collects the visible objects into the draw order, and `draw`s the given `layerGroups`.
+Calls `updateTransform` on all objects, collects the visible objects into the draw order, `draw`s the given `layerGroups`, and then clears the draw order. If you want to draw multiple sets of layer groups in separate calls, you should do this yourself instead:
+
+```lua
+scene:collectVisible()
+Camera.current:applyTransform()
+scene.draw_order:draw('game')
+Camera.current:resetTransform()
+scene.draw_order:draw('gui')
+scene.draw_order:clear()
+```
+
+Note that if you can draw your layer groups in a single call (`scene:draw({'game', 'gui'})`) then you can still just use draw. You only need the extra code if you require camera changes or other code *between* layer groups.
 
 ### SceneTree.get(tree, path)
 Gets the object at the specified path.
@@ -52,3 +63,6 @@ _PARAMETERS_
 * __parent__ <kbd>Object</kbd> - _optional_ - The object to reparent `obj` to. Defaults to the scene tree root.
 * __keepWorld__ <kbd>bool</kbd> - _optional_ - Modify the object's local coordinates so that its world coordinates stay the same. Only has an effect for objects with `TRANSFORM_REGULAR`.
 * __now__ <kbd>bool</kbd> - _optional_ - Move the object immediately. This may cause it to get two callbacks for the current frame, or none at all.
+
+### SceneTree.collectVisible(tree)
+Collects the visible objects into `scene.draw_order`.
