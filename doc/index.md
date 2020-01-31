@@ -70,6 +70,8 @@ Objects
 
 * [Layout Objects](objects/Layout.md) - GUI helpers for laying out boxes.
 
+* [GUI Objects](objects/Gui.md) - Alternate GUI layout objects.
+
 Libraries
 ---------
 
