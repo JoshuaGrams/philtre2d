@@ -54,7 +54,6 @@ end
 
 function TextNode.set(self, text, font, x, y, angle, w, ax, ay, px, py, hAlign, resizeMode)
 	TextNode.super.set(self, x, y, angle, w, nil, ax, ay, px, py)
-	self.name = TextNode.className
 	self.resizeModeX = resizeMode or self.resizeModeX
 	self.resizeModeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text

@@ -152,7 +152,6 @@ local setMode = Node._setMode
 
 function Node.set(self, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
 	Node.super.set(self, x, y, angle)
-	self.name = Node.className
 	self.w, self.h = w or 100, h or 100
 	self.originalW, self.originalH = self.w, self.h
 	self.ax, self.ay = ax or 0, ay or 0 -- anchor
