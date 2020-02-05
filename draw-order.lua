@@ -30,6 +30,7 @@ function DrawOrder.set(self, groups, default)
 end
 
 function DrawOrder.draw(self, groups)
+	assert(groups, 'DrawOrder.draw - Must specify which group(s) to draw.')
 	if type(groups) ~= 'table' then
 		groups = { groups or onlyGroup }
 	end
