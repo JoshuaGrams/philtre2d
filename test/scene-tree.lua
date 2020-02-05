@@ -14,6 +14,8 @@ end
 return {
 	"SceneTree/Object",
 	setup = function() return SceneTree() end,
+
+	-- Check for duplicate init when adding sibling on init.
 	function(scene)
 		local initOrder = {}
 		local function init(o)
@@ -31,6 +33,7 @@ return {
 		end
 
 		scene:add(container)
-		T.is(table.concat(initOrder, ' '), '/Object/a /Object/c /Object/b /Object', "Adding a sibling in init should not cause objects to be initialized more than once.")
-	end
+		T.is(table.concat(initOrder, ' '), '/Object/a /Object/c /Object/b /Object',
+			"Adding a sibling in init should not cause objects to be initialized more than once.")
+	end,
 }

@@ -44,8 +44,8 @@ local function initChild(tree, obj, parent, index)
 	obj:updateTransform()
 
 	if obj.children then
-		for i,c in pairs(obj.children) do
-			initChild(tree, c, obj, i)
+		for i,child in pairs(obj.children) do
+			initChild(tree, child, obj, i)
 		end
 	end
 
@@ -126,26 +126,21 @@ function SceneTree.update(self, dt)
 	finalizeAndReparent(self)
 end
 
-function SceneTree.collectVisible(tree, objects)
-	finalizeAndReparent(tree)
-	local draw_order = tree.draw_order
+function SceneTree.updateTransforms(tree, objects)
 	for _,obj in pairs(objects or tree.children) do
 		if obj.visible then
 			obj:updateTransform()
-			draw_order:saveCurrentLayer()
-			draw_order:addObject(obj)
 			if obj.children then
-				tree:collectVisible(obj.children)
+				tree:updateTransforms(obj.children)
 			end
-			draw_order:restoreCurrentLayer()
 		end
 	end
 end
 
 function SceneTree.draw(self, groups)
-	self:collectVisible(self.children)
+	finalizeAndReparent(self)
+	self:updateTransforms()
 	self.draw_order:draw(groups)
-	self.draw_order:clear()
 end
 
 -- This sets all the transforms, which seems like a waste,
@@ -158,6 +153,9 @@ function SceneTree.add(self, obj, parent)
 	local i = 1 + #parent.children
 	parent.children[i] = obj
 	initChild(self, obj, parent, i)
+
+	-- Add to draw-order - after whole branch is init so visibility inheritance happens easily.
+	self.draw_order:addObject(obj)
 end
 
 local function recursiveRemovePaths(tree, obj)
@@ -175,8 +173,11 @@ end
 function SceneTree.remove(self, obj)
 	local parent = obj.parent
 	if not parent then  return  end -- obj is not in the tree or is a deletedMarker.
-	for i,c in ipairs(parent.children) do
-		if c == obj then
+
+	self.draw_order:removeObject(obj) -- before nullifying any parent references so we can find the right layer.
+
+	for i,child in ipairs(parent.children) do
+		if child == obj then
 			parent.children[i] = deletedMarker
 			self.compact[parent] = true
 			obj.parent = nil
@@ -186,6 +187,7 @@ function SceneTree.remove(self, obj)
 	self.removed[obj] = true
 	self.paths[obj.path] = nil
 	recursiveRemovePaths(self, obj)
+
 end
 
 -- By default, doesn't re-parent obj until after the next update.
@@ -201,6 +203,7 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 	end
 	for k,c in ipairs(obj.parent.children) do
 		if c == obj then
+			self.draw_order:removeObject(obj) -- before parent changes - remove from old layers
 			if now then
 				_moveChild(obj, obj.parent, k, parent)
 			else
@@ -208,6 +211,7 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 			end
 			self.compact[obj.parent] = true
 			obj.parent = parent
+			self.draw_order:addObject(obj) -- after parent changes - add to new layers
 			if obj.updateTransform == Object.TRANSFORM_REGULAR then
 				if keepWorld then
 					local m = {}

@@ -79,6 +79,22 @@ function Object.debugDraw(self, layer)
 	end
 end
 
+function Object.setVisible(self, visible)
+	if visible and not self.visible then
+		self.visible = true -- Before removing or the drawOrder will skip it.
+		self.tree.draw_order:showObject(self)
+	elseif self.visible and not visible then
+		self.tree.draw_order:removeObject(self)
+		self.visible = false -- After removing or the drawOrder will skip it.
+	end
+end
+
+function Object.setLayer(self, layer)
+	if layer == self.layer then  return  end
+	self.tree.draw_order:moveObject(self, layer)
+	self.layer = layer
+end
+
 function Object.set(self, x, y, angle, sx, sy, kx, ky)
 	self.name = self.className
 	self.pos = { x = x or 0, y = y or 0 }
