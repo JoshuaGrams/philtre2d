@@ -23,7 +23,9 @@ local function check(test, setup, teardown)
 		test(context)
 		if teardown then teardown(context) end
 	elseif type(test) == 'string' then
+		print("\n")
 		note(test)
+		print(string.rep("-", #test + 2))
 	elseif type(test) == 'table' then
 		for i,t in ipairs(test) do
 			check(t, test.setup, test.teardown)
@@ -34,6 +36,7 @@ end
 -- Must be called exactly once, either at the beginning
 -- or at the end.
 local function plan(n)
+	print("\nTest Summary:\n-------------")
 	if n then
 		print("1.." .. n)
 	else
@@ -42,6 +45,8 @@ local function plan(n)
 			local msg = tostring(failed) .. " of "
 			msg = msg .. tostring(tested) .. " tests failed!"
 			note(msg)
+		else
+			print("all tests passed.")
 		end
 	end
 end
