@@ -14,17 +14,17 @@ function SliceNode.draw(self)
 	local m = self.margins
 	local s = self.scale
 
-	love.graphics.draw(self.img, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
-	love.graphics.draw(self.img, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
-	love.graphics.draw(self.img, self.quadBl, -w2, h2-m.bot, 0, s, s) -- Bottom Left
-	love.graphics.draw(self.img, self.quadBr, w2-m.rt, h2-m.bot, 0, s, s) -- Bottom Right
+	love.graphics.draw(self.image, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
+	love.graphics.draw(self.image, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
+	love.graphics.draw(self.image, self.quadBl, -w2, h2-m.bot, 0, s, s) -- Bottom Left
+	love.graphics.draw(self.image, self.quadBr, w2-m.rt, h2-m.bot, 0, s, s) -- Bottom Right
 
-	love.graphics.draw(self.img, self.quadTop, -w2+m.lt, -h2, 0, self.innerSX, s) -- Top
-	love.graphics.draw(self.img, self.quadBot, -w2+m.lt, h2-m.bot, 0, self.innerSX, s) -- Bottom
-	love.graphics.draw(self.img, self.quadLt, -w2, -h2+m.top, 0, s, self.innerSY) -- Left
-	love.graphics.draw(self.img, self.quadRt, w2-m.rt, -h2+m.top, 0, s, self.innerSY) -- Right
+	love.graphics.draw(self.image, self.quadTop, -w2+m.lt, -h2, 0, self.innerSX, s) -- Top
+	love.graphics.draw(self.image, self.quadBot, -w2+m.lt, h2-m.bot, 0, self.innerSX, s) -- Bottom
+	love.graphics.draw(self.image, self.quadLt, -w2, -h2+m.top, 0, s, self.innerSY) -- Left
+	love.graphics.draw(self.image, self.quadRt, w2-m.rt, -h2+m.top, 0, s, self.innerSY) -- Right
 
-	love.graphics.draw(self.img, self.quadC, -w2+m.lt, -h2+m.top, 0, self.innerSX, self.innerSY) -- Center
+	love.graphics.draw(self.image, self.quadC, -w2+m.lt, -h2+m.top, 0, self.innerSX, self.innerSY) -- Center
 end
 
 local function debugDraw(self)
@@ -89,7 +89,7 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, ax, ay, px
 	elseif image.type and image:type() == 'Image' then
 		image = image
 	end
-	self.img = image
+	self.image = image
 	local lt, top, qw, qh = 0, 0, 0, 0
 	local imgW, imgH
 
@@ -98,9 +98,9 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, ax, ay, px
 		lt, top, qw, qh = quad:getViewport()
 	elseif quadType == 'table' then
 		lt, top, qw, qh = unpack(quad)
-		imgW, imgH = self.img:getDimensions()
+		imgW, imgH = self.image:getDimensions()
 	else
-		qw, qh = self.img:getDimensions()
+		qw, qh = self.image:getDimensions()
 		imgW, imgH = qw, qh
 	end
 
