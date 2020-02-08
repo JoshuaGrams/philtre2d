@@ -1,21 +1,24 @@
 local new = {
-	root = '',
-	loaded = { image = {}, font = {}, audio = {} }
+	rootPath = '',
+	loaded = { image = {}, font = {}, audio = {} },
+	paramsFor = {} -- Keys: loaded assets, Values: The original parameters used to load them.
 }
 
-local function create(kind, fn, filename, ...)
-	local existing = new.loaded[kind]
+local function create(assetType, fn, filename, ...)
+	local existing = new.loaded[assetType]
 	local keys = {filename, ...}
 	for i=1,#keys-1 do
 		local key = keys[i]
 		if not existing[key] then existing[key] = {} end
 		existing = existing[key]
 	end
-	local key = keys[#keys]
-	if not existing[key] then
-		existing[key] = fn(new.root .. filename, ...)
+	local finalKey = keys[#keys]
+	if not existing[finalKey] then
+		local asset = fn(new.rootPath .. filename, ...)
+		existing[finalKey] = asset
+		new.paramsFor[asset] = keys
 	end
-	return existing[key]
+	return existing[finalKey]
 end
 
 function new.image(filename)
