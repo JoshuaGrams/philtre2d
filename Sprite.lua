@@ -50,7 +50,7 @@ function Sprite.set(self, image, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	Sprite.super.set(self, x, y, angle, sx, sy, kx, ky)
 	self.name = 'Sprite'
 	if type(image) == 'string' then
-		image = love.graphics.newImage(image)
+		image = new.image(image)
 	elseif image.type and image:type() == 'Image' then
 		image = image
 	end

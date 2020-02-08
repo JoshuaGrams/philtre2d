@@ -50,7 +50,7 @@ function Quad.set(self, image, quad, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	assert(quad, 'Quad() - second argument must be a quad or {x, y, w, h}.')
 	Quad.super.set(self, x, y, angle, sx, sy, kx, ky)
 	if type(image) == 'string' then
-		image = love.graphics.newImage(image)
+		image = new.image(image)
 	end
 	self.image = image
 	local t, l, w, h
