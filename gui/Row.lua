@@ -189,8 +189,8 @@ function Row.init(self)
 	Row.super.init(self)
 end
 
-function Row.set(self, spacing, homogeneous, children, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
-	Row.super.set(self, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
+function Row.set(self, spacing, homogeneous, children, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+	Row.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
 	self.startChildren, self.endChildren = {}, {}

@@ -69,7 +69,7 @@ function SliceNode._updateInnerSize(self)
 	self.innerSY = self.innerH/self.innerQuadH
 end
 
-function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, ax, ay, px, py, resizeMode)
+function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax, ay, resizeMode)
 	local mCount = #margins
 	local m
 	if mCount == 1 then -- One value, all are equal.
@@ -80,7 +80,7 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, ax, ay, px
 		m = { lt=margins[1], rt=margins[2], top=margins[3], bot=margins[4] }
 	end
 	self.margins = m
-	SliceNode.super.set(self, x, y, angle, w, h, ax, ay, px, py, resizeMode, (m.lt + m.rt)/2, (m.top + m.bot)/2)
+	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, (m.lt + m.rt)/2, (m.top + m.bot)/2)
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}
 

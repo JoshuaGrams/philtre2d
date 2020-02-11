@@ -55,8 +55,8 @@ function Mask.setOffset(self, x, y)
 	recursiveSetOffset(self.children, x, y)
 end
 
-function Mask.set(self, stencilFunc, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
-	Mask.super.set(self, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
+function Mask.set(self, stencilFunc, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+	Mask.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	stencilFunc = stencilFunc or defaultStencilFunc
 	self.stencilFunc = function()  stencilFunc(self)  end
 end

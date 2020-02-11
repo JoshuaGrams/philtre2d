@@ -150,7 +150,7 @@ function Node._setMode(self, key, key2, val, default)
 end
 local setMode = Node._setMode
 
-function Node.set(self, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
+function Node.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	Node.super.set(self, x, y, angle)
 	self.w, self.h = w or 100, h or 100
 	self.originalW, self.originalH = self.w, self.h

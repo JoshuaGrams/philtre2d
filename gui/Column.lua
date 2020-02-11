@@ -189,8 +189,8 @@ function Column.init(self)
 	Column.super.init(self)
 end
 
-function Column.set(self, spacing, homogeneous, children, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
-	Column.super.set(self, x, y, angle, w, h, ax, ay, px, py, resizeMode, padX, padY)
+function Column.set(self, spacing, homogeneous, children, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+	Column.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
 	self.startChildren, self.endChildren = {}, {}
