@@ -101,8 +101,9 @@ function Node.parentResized(self, originalW, originalH, newW, newH, scale, ox, o
 	local lastW, lastH, lastScale = self.innerW, self.innerH, self.scale
 	self.scale = scale
 	self:_updateInnerSize()
-	if self.children then
-		if self.innerW ~= lastW or self.innerH ~= lastH or self.scale ~= lastScale then
+	if self.innerW ~= lastW or self.innerH ~= lastH or self.scale ~= lastScale then
+		self:updateTransform()
+		if self.children then
 			self:_updateChildren()
 		end
 	end
