@@ -53,8 +53,7 @@ function TextNode.draw(self)
 end
 
 function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, resizeMode)
-	TextNode.super.set(self, x, y, angle, w, nil, px, py, ax, ay)
-	self.resizeModeX = resizeMode or self.resizeModeX
+	TextNode.super.set(self, x, y, angle, w, nil, px, py, ax, ay, resizeMode)
 	self.resizeModeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text
 	if type(font) == 'table' then -- {filename, size}
