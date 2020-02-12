@@ -129,9 +129,9 @@ end
 function Node.init(self)
 	local p = self.parent
 	if p.innerW and p.innerH and p.origInnerW and p.origInnerH then
-		self:parentResized(p.origInnerW, p.origInnerH, p.innerW, p.innerH, p.scale or 1)
+		self:call("parentResized", p.origInnerW, p.origInnerH, p.innerW, p.innerH, p.scale or 1)
 	elseif p.w and p.h and p.originalW and p.originalH then
-		self:parentResized(p.originalW, p.originalH, p.w, p.h, p.scale or 1)
+		self:call("parentResized", p.originalW, p.originalH, p.w, p.h, p.scale or 1)
 	end
 end
 
