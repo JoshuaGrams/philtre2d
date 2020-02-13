@@ -2,6 +2,7 @@ local Class = require 'philtre.lib.base-class'
 
 local Commands = Class:extend()
 
+-- `commands` is `{ name = {perform, undo} }`.
 function Commands.set(self, commands)
 	self.commands = commands
 	self.past, self.future = {}, {}
