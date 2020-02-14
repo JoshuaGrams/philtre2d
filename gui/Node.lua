@@ -65,17 +65,17 @@ function Node._updateInnerSize(self)
 	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2
 end
 
-function Node._updateChildren(self)
+function Node._updateChildren(self, forceUpdate)
 	for i,child in ipairs(self.children) do
 		child:call(
 			'parentResized',
 			self.origInnerW, self.origInnerH,
-			self.innerW, self.innerH, self.scale
+			self.innerW, self.innerH, self.scale, nil, nil, forceUpdate
 		)
 	end
 end
 
-function Node.parentResized(self, originalW, originalH, newW, newH, scale, ox, oy)
+function Node.parentResized(self, originalW, originalH, newW, newH, scale, ox, oy, forceUpdate)
 	if scale ~= self.scale then
 		local relScale = scale / self.scale
 		self.pos.x = self.pos.x * relScale -- Scale offset from anchor point.
@@ -101,10 +101,11 @@ function Node.parentResized(self, originalW, originalH, newW, newH, scale, ox, o
 	local lastW, lastH, lastScale = self.innerW, self.innerH, self.scale
 	self.scale = scale
 	self:_updateInnerSize()
-	if self.innerW ~= lastW or self.innerH ~= lastH or self.scale ~= lastScale then
-		self:updateTransform()
+	local didChange = self.innerW ~= lastW or self.innerH ~= lastH or self.scale ~= lastScale
+	if didChange or forceUpdate then
+		self:updateTransform() -- So scripts get a correct transform on .parentResized.
 		if self.children then
-			self:_updateChildren()
+			self:_updateChildren(forceUpdate)
 		end
 	end
 end
@@ -163,7 +164,7 @@ function Node.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, pad
 	self.padX, self.padY = padX or 0, padY or padX or 0
 	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2
 	self.origInnerW, self.origInnerH = self.innerW, self.innerH
-	self.debugColor = {math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.25}
+	self.debugColor = {math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.15}
 	self.scale = 1
 end
 

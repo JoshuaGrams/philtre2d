@@ -70,18 +70,18 @@ local function getTotalGreedyChildrenWidth(self)
 	return iterateOverChildren(self, _sumGreedyWidths, 0)
 end
 
-local function allocateChild(self, child, x, y, w, h)
+local function allocateChild(self, child, x, y, w, h, forceUpdate)
 	if not child.originalW or not child.originalH then
 		child.originalW, child.originalH = child.obj.originalW, child.obj.originalH
 	end
 	child.obj:call(
 		"parentResized",
 		child.originalW, child.originalH,
-		w, h, self.scale, x, y
+		w, h, self.scale, x, y, forceUpdate
 	)
 end
 
-local function allocateHomogeneousRow(self)
+local function allocateHomogeneousRow(self, forceUpdate)
 	local h = self.innerH
 	local y = 0
 
@@ -94,19 +94,19 @@ local function allocateHomogeneousRow(self)
 	local leftEdgeX = -self.innerW / 2 -- No spacing at ends, only in between.
 	for _,child in ipairs(self.startChildren) do
 		local x = leftEdgeX + w / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		leftEdgeX = leftEdgeX + w + self.spacing
 	end
 
 	local rightEdgeX = self.innerW / 2
 	for _,child in ipairs(self.endChildren) do
 		local x = rightEdgeX - w / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		rightEdgeX = rightEdgeX - w - self.spacing
 	end
 end
 
-local function allocateHeterogeneousRow(self)
+local function allocateHeterogeneousRow(self, forceUpdate)
 	local h = self.innerH
 	local y = 0
 
@@ -127,7 +127,7 @@ local function allocateHeterogeneousRow(self)
 			w = w + child.obj.originalW * extraWidthFactor
 		end
 		local x = leftEdgeX + w / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		leftEdgeX = leftEdgeX + w + self.spacing
 	end
 
@@ -138,16 +138,16 @@ local function allocateHeterogeneousRow(self)
 			w = w + child.obj.originalW * extraWidthFactor
 		end
 		local x = rightEdgeX - w / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		rightEdgeX = rightEdgeX - w - self.spacing
 	end
 end
 
-function Row._updateChildren(self)
+function Row._updateChildren(self, forceUpdate)
 	if self.homogeneous then
-		allocateHomogeneousRow(self)
+		allocateHomogeneousRow(self, forceUpdate)
 	else
-		allocateHeterogeneousRow(self)
+		allocateHeterogeneousRow(self, forceUpdate)
 	end
 	for i,child in ipairs(self.children) do
 		-- Allocate any children not in the row as a normal Node.
@@ -155,7 +155,7 @@ function Row._updateChildren(self)
 			child:call(
 				'parentResized',
 				self.origInnerW, self.origInnerH,
-				self.innerW, self.innerH, self.scale, 0, 0 -- clear parentOffsetX/Y
+				self.innerW, self.innerH, self.scale, 0, 0, forceUpdate -- clear parentOffsetX/Y
 			)
 		end
 	end

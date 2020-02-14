@@ -70,18 +70,18 @@ local function getTotalGreedyChildrenHeight(self)
 	return iterateOverChildren(self, _sumGreedyHeights, 0)
 end
 
-local function allocateChild(self, child, x, y, w, h)
+local function allocateChild(self, child, x, y, w, h, forceUpdate)
 	if not child.originalW or not child.originalH then
 		child.originalW, child.originalH = child.obj.originalW, child.obj.originalH
 	end
 	child.obj:call(
 		"parentResized",
 		child.originalW, child.originalH,
-		w, h, self.scale, x, y
+		w, h, self.scale, x, y, forceUpdate
 	)
 end
 
-local function allocateHomogeneousColumn(self)
+local function allocateHomogeneousColumn(self, forceUpdate)
 	local w = self.innerW
 	local x = 0
 
@@ -94,19 +94,19 @@ local function allocateHomogeneousColumn(self)
 	local topEdgeY = -self.innerH / 2 -- No spacing at ends, only in between.
 	for _,child in ipairs(self.startChildren) do
 		local y = topEdgeY + h / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		topEdgeY = topEdgeY + h + self.spacing
 	end
 
 	local botEdgeY = self.innerH / 2
 	for _,child in ipairs(self.endChildren) do
 		local y = botEdgeY - h / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		botEdgeY = botEdgeY - h - self.spacing
 	end
 end
 
-local function allocateHeterogeneousColumn(self)
+local function allocateHeterogeneousColumn(self, forceUpdate)
 	local w = self.innerW
 	local x = 0
 
@@ -127,7 +127,7 @@ local function allocateHeterogeneousColumn(self)
 			h = h + child.obj.originalH * extraHeightFactor
 		end
 		local y = topEdgeY + h / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		topEdgeY = topEdgeY + h + self.spacing
 	end
 
@@ -138,24 +138,24 @@ local function allocateHeterogeneousColumn(self)
 			h = h + child.obj.originalH * extraHeightFactor
 		end
 		local y = botEdgeY - h / 2
-		allocateChild(self, child, x, y, w, h)
+		allocateChild(self, child, x, y, w, h, forceUpdate)
 		botEdgeY = botEdgeY - h - self.spacing
 	end
 end
 
-function Column._updateChildren(self)
+function Column._updateChildren(self, forceUpdate)
 	if self.homogeneous then
-		allocateHomogeneousColumn(self)
+		allocateHomogeneousColumn(self, forceUpdate)
 	else
-		allocateHeterogeneousColumn(self)
+		allocateHeterogeneousColumn(self, forceUpdate)
 	end
 	for i,child in ipairs(self.children) do
-		-- Allocate any children not in the row as a normal Node.
+		-- Allocate any children -not in the row- as if we were a normal Node.
 		if not self.rowChildren[child] then
 			child:call(
 				'parentResized',
 				self.origInnerW, self.origInnerH,
-				self.innerW, self.innerH, self.scale, 0, 0 -- clear parentOffsetX/Y
+				self.innerW, self.innerH, self.scale, 0, 0, forceUpdate -- clear parentOffsetX/Y
 			)
 		end
 	end
