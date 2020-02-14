@@ -99,13 +99,14 @@ function Layer.draw(self)
 			end
 			local maskObj = params[2].maskObject
 			if curMaskObj ~= maskObj then
+				if curMaskObj then -- There may already be a mask applied - disable it.
+					applyMaskObjectTransform(curMaskObj)
+					curMaskObj:disableMask()
+					love.graphics.pop()
+				end
 				if maskObj then
 					applyMaskObjectTransform(maskObj)
 					maskObj:enableMask()
-					love.graphics.pop()
-				elseif curMaskObj then
-					applyMaskObjectTransform(curMaskObj)
-					curMaskObj:disableMask()
 					love.graphics.pop()
 				end
 				curMaskObj = maskObj
@@ -113,6 +114,12 @@ function Layer.draw(self)
 			params[1](unpack(params, 2))
 			if pushed then  love.graphics.pop()  end
 		end
+	end
+	-- The last object in the layer may have a mask. If so, we need to disable it.
+	if curMaskObj then
+		applyMaskObjectTransform(curMaskObj)
+		curMaskObj:disableMask()
+		love.graphics.pop()
 	end
 end
 
