@@ -66,8 +66,8 @@ function Commands.undo(self)
 		local undo = self.commands[name][2]
 		undo(unpack(undoArgs))
 		table.insert(self.future, command)
+		return name, undoArgs
 	end
-	return command ~= nil
 end
 
 function Commands.redo(self, future)
@@ -77,8 +77,8 @@ function Commands.redo(self, future)
 		local perform = self.commands[name][1]
 		perform(unpack(args))
 		table.insert(self.past, command)
+		return name, args
 	end
-	return command ~= nil
 end
 
 return Commands
