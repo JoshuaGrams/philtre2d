@@ -42,17 +42,12 @@ function Mask.init(self)
 	self:setMaskOnChildren()
 end
 
-local function recursiveSetOffset(objects, x, y)
-	for i,obj in ipairs(objects) do
-		obj.parentOffsetX, obj.parentOffsetY = x, y
-		if obj.children then
-			recursiveSetOffset(obj.children, x, y)
+function Mask.setOffset(self, x, y)
+	if self.children then
+		for i,child in ipairs(self.children) do
+			child.parentOffsetX, child.parentOffsetY = x, y
 		end
 	end
-end
-
-function Mask.setOffset(self, x, y)
-	recursiveSetOffset(self.children, x, y)
 end
 
 function Mask.set(self, stencilFunc, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
