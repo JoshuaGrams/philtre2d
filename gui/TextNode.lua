@@ -11,18 +11,13 @@ local validHAlign = { center = true, left = true, right = true, justify = true }
 function TextNode._onRescale(self, relScale)
 	self.fontSize = self.fontSize * relScale
 	self.font = new.font(self.fontFilename, self.fontSize)
-	-- Don't update height until after width may be resized and wrapping will change.
-	self.shouldUpdateHeight = true
 	if self.resizeModeX == 'none' then  self.w = self.w * relScale  end
 end
 
 function TextNode._updateInnerSize(self)
-	if self.shouldUpdateHeight then
-		self.shouldUpdateHeight = nil
-		local fontHeight = self.font:getHeight()
-		local textW, lines = self.font:getWrap(self.text, self.w)
-		self.h = fontHeight * #lines
-	end
+	local fontHeight = self.font:getHeight()
+	local textW, lines = self.font:getWrap(self.text, self.w)
+	self.h = fontHeight * #lines
 	self.innerW, self.innerH = self.w, self.h -- No padding.
 end
 
