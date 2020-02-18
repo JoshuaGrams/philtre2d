@@ -46,6 +46,7 @@ function Commands.chooseFuture(self, n)
 end
 
 function Commands.perform(self, name, ...)
+	assert(self.commands[name], "Commands.perform - There is no command named '" .. tostring(name) .. "' .")
 	local perform = self.commands[name][1]
 	local undoArgs = { perform(...) }
 	saveAlternateFuture(self)
