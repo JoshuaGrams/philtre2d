@@ -93,13 +93,23 @@ return {
 		T.is(drawn, "1", "parent layer changed, child with layer set is unmoved...")
 	end,
 	function(scene)
-		local parent = Object()
-		local child = Object()
+		local parent, child = Object(), Object()
 		parent.children = { child }
 		scene:add(parent)
 		scene:update(0)
 		scene:remove(child)
-		local success = pcall(scene.remove, scene, parent)
-		T.ok(success, "can remove child and then parent in same frame without hanging on the deletedMarker.")
+		local success, err = pcall(scene.remove, scene, parent)
+		T.is(err, nil, "can remove child and then parent in same frame without hanging on the deletedMarker.")
+	end,
+	function(scene)
+		local parent, child = Object(), Object()
+		parent.children = { child }
+		scene:add(parent)
+		scene:update(0)
+
+		scene:remove(parent)
+		local success, err = pcall(scene.remove, scene, child)
+		T.is(err, nil, "can remove parent and then child in same frame even though grandparent will be nil.")
+		-- If any ancestor reference is nil then DrawOrder can't recurse up to find the layer.
 	end
 }

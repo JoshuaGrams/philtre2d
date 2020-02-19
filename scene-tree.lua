@@ -172,6 +172,7 @@ end
 -- ancestor, it and some of its descendants (the not-yet-processed
 -- siblings) may still get `update`d.
 function SceneTree.remove(self, obj)
+	if not self.paths[obj.path] then  return  end -- obj is not in the tree.
 	local parent = obj.parent
 	if not parent then  return  end -- obj is not in the tree or is a deletedMarker.
 
@@ -188,7 +189,6 @@ function SceneTree.remove(self, obj)
 	self.removed[obj] = true
 	self.paths[obj.path] = nil
 	recursiveRemovePaths(self, obj)
-
 end
 
 -- By default, doesn't re-parent obj until after the next update.
