@@ -25,8 +25,9 @@ function SceneTree.set(self, groups, default)
 end
 
 local deletedMarker = Object()
-deletedMarker.name = "deletedMarker" -- So you have some way tell what it is.
-deletedMarker.path = {} -- Prevents crash if you remove a branch with deletedMarkers in it.
+deletedMarker.name = "deletedMarker"
+local markermt = {__tostring = function() return "DELETED MARKER"  end}
+deletedMarker.path = setmetatable({}, markermt) -- Prevents crash if you remove a branch with deletedMarkers in it.
 
 local function initChild(tree, obj, parent, index)
 	-- Prevent duplicate init
