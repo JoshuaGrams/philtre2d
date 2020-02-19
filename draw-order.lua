@@ -120,6 +120,7 @@ end
 
 local function removeObject(self, object)
 	if not object.visible then  return  end
+	if object.name == "deletedMarker" and not object.drawIndex then  return  end
 	self:saveCurrentLayer()
 	self.layer = self.layers[object.layer] or self.layer
 	self.layer:removeObject(object)

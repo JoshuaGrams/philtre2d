@@ -91,5 +91,15 @@ return {
 		o2:setLayer("c")
 		draw("b")
 		T.is(drawn, "1", "parent layer changed, child with layer set is unmoved...")
+	end,
+	function(scene)
+		local parent = Object()
+		local child = Object()
+		parent.children = { child }
+		scene:add(parent)
+		scene:update(0)
+		scene:remove(child)
+		local success = pcall(scene.remove, scene, parent)
+		T.ok(success, "can remove child and then parent in same frame without hanging on the deletedMarker.")
 	end
 }
