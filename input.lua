@@ -286,7 +286,7 @@ local function phy(val, device, input)
 	-- Send all raw physical input to any objects registered for it.
 	for _,o in pairs(R) do
 		if not o.paused then
-			o.input({device, input}, val)
+			o:call('input', device, input, val)
 		end
 	end
 	-- If any logical inputs are registered to this physical input, update them.
