@@ -2,11 +2,11 @@
 local PI = math.pi
 local TWO_PI = PI*2
 local random = love.math.random -- or math.random
+local floor = math.floor
 
 math.round = function(x, interval)
-	if interval then return math.round(x / interval) * interval end
-	local r = x % 1
-	return r >= 0.5 and (x - r + 1) or (x - r)
+	if interval then return floor(x / interval + 0.5) * interval end
+	return floor(x + 0.5)
 end
 
 math.sign = function(x)
