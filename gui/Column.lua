@@ -17,7 +17,7 @@ local function addChild(self, obj, dir, isGreedy, index)
 	elseif dir == 'end' then  list = self.endChildren  end
 	index = math.min(#list + 1, math.max(0, index or #list + 1))
 	table.insert(list, index, child)
-	self.rowChildren[obj] = true
+	self.rowChildren[obj] = list
 end
 
 local function removeChild(self, obj)
@@ -169,6 +169,14 @@ end
 function Column.remove(self, obj)
 	removeChild(self, obj)
 	self:_updateChildren()
+end
+
+function Column.getChildIndex(self, obj)
+	local list = self.rowChildren[obj]
+	if not list then  return  end
+	for i,childData in ipairs(list) do
+		if childData.obj == obj then  return i  end
+	end
 end
 
 Column.refresh = Column._updateChildren
