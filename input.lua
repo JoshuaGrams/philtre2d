@@ -282,11 +282,11 @@ end
 
 -- This is always called for every input that the device receives.
 -- Binder functions register logical AND physical input.
-local function phy(val, device, input)
+local function phy(val, device, input, isrepeat)
 	-- Send all raw physical input to any objects registered for it.
 	for _,o in pairs(R) do
 		if not o.paused then
-			o:call('input', device, input, val)
+			o:call('input', device, input, val, isrepeat)
 		end
 	end
 	-- If any logical inputs are registered to this physical input, update them.
@@ -304,9 +304,9 @@ end
 
 local callbacks = {}
 
-function callbacks.keypressed(k, s)
-	phy(1, 'key', k)
-	phy(1, 'scancode', s)
+function callbacks.keypressed(k, s, isrepeat)
+	phy(1, 'key', k, isrepeat)
+	phy(1, 'scancode', s, isrepeat)
 end
 
 function callbacks.keyreleased(k, s)
