@@ -15,7 +15,8 @@ end
 function Node.TRANSFORM_ANCHORED_PIVOT(s) -- anchor + self from pivot * parent
 	local m = s._to_world
 	local pivotX, pivotY = s.w * s.px/2, s.h * s.py/2
-	local x, y = rotateVec(s.pos.x - pivotX, s.pos.y - pivotY, s.angle)
+	pivotX, pivotY = rotateVec(pivotX, pivotY, s.angle)
+	local x, y = s.pos.x - pivotX, s.pos.y - pivotY
 	x, y = s.anchorPos.x + x, s.anchorPos.y + y
 	x, y = x + s.parentOffsetX, y + s.parentOffsetY
 	m = matrix.new(x, y, s.angle, 1, 1, 0, 0, m)
