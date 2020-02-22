@@ -37,6 +37,11 @@ function Mask.setMaskOnChildren(self, objects)
 	end
 end
 
+function Mask._updateInnerSize(self)
+	self.innerW = math.max(0, self.w - self.padX*2)
+	self.innerH = math.max(0, self.h - self.padY*2)
+end
+
 function Mask.init(self)
 	Mask.super.init(self)
 	self:setMaskOnChildren()
