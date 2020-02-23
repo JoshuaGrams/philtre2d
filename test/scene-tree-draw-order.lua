@@ -101,6 +101,17 @@ return {
 		T.is(drawn, "", "add to hidden parent, child not drawn")
 	end,
 	function(scene)
+		local init = function(self)
+			local o3 = mod(Object(), {name = 3, draw = customDraw})
+			scene:add(o3, self)
+		end
+		local script = {init = init}
+		local o1 = mod(Object(), {name = 1, draw = customDraw, script = {script}})
+		scene:add(o1)
+		draw(scene, "a")
+		T.is(drawn, "31", "add children on init, they don't get drawn twice")
+	end,
+	function(scene)
 		local parent, child = Object(), Object()
 		parent.children = { child }
 		scene:add(parent)

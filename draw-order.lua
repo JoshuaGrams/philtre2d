@@ -95,7 +95,7 @@ local function getInheritedVisibility(tree, obj)
 end
 
 local function addObject(self, object)
-	if object.visible then
+	if object.visible and not object.drawIndex then
 		self:saveCurrentLayer()
 		self.layer = self.layers[object.layer] or self.layer
 		self.layer:addObject(object)

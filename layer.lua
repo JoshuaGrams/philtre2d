@@ -41,6 +41,7 @@ function Layer.removeObject(self, object)
 	local item = self[i]
 	assert(item and item[2] == object, "Layer.removeObject - Object '" .. tostring(object) .. "' is not in this layer. " .. tostring(self))
 
+	object.drawIndex = nil
 	-- Don't table.remove or object drawIndices will not match their place in the list (needed for removing other objects).
 	-- Don't set to nil or it will break iteration.
 	self[i] = false
