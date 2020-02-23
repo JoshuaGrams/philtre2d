@@ -50,8 +50,8 @@ _PARAMETERS_
 
 _NODE METHODS_
 
-* __parentResized(originalW, originalH, newW, newH, scale, ox, oy)__
-	* `originalW`, `originalH` - The original, designed, width/height of the parent node (or the screen in the case of a root node).
+* __parentResized(designW, designH, newW, newH, scale, ox, oy)__
+	* `designW`, `designH` - The original, designed width/height of the parent node (or the screen in the case of a root node).
 	* `newW`, `newH` - The new, current width/height of the parent node or screen.
 	* `scale` - The scale factor to apply to all child nodes.
 	* `ox`, `oy` - _optional_ - An extra position offset. The node will act as if its parent's position was offset by these values. Used by nodes that automatically position multiple child nodes (i.e. Row/Column nodes).
@@ -88,11 +88,11 @@ An invisible node that automatically arranges its children in a horizontal row.
 
 _PARAMETERS_
 * __spacing__ <kbd>number</kbd> - _optional_ - The amount of extra space to allocate between children (but not at the ends). Defaults to 0.
-* __homogeneous__ <kbd>bool</kbd> - _optional_ - If `true`, divides up the available space equally between all children. If `false`, allocates each child space based on its original width and allocates any extra space between `greedy` children (or leaves it empty if there are none). Defaults to false.
+* __homogeneous__ <kbd>bool</kbd> - _optional_ - If `true`, divides up the available space equally between all children. If `false`, allocates each child space based on its design width and allocates any extra space between `greedy` children (or leaves it empty if there are none). Defaults to false.
 * __children__ <kbd>table</kbd> - _optionoal_ - A list of settings for each child that should be arranged in the row. Each item should have the following format: {`obj`, `dir`, `isGreedy`, `index`}. Any children in the scene-tree that are not indicated in the list will be allocated the full inner width/height of the Row, like a normal Node.
 	* `obj` - The child object. This can also be a number, in which case the Row's child of that index will be used (if it exists).
 	* `dir` - _optional_ - Which side of the Row to align the child to: "start" or "end" (defaults to "start"/left).
-	* `isGreedy` - _optional_ - Whether this child wants extra space or not. Extra space is divided up between greedy children proportional to their original width. Irrelevant for homogeneous rows. Defaults to false.
+	* `isGreedy` - _optional_ - Whether this child wants extra space or not. Extra space is divided up between greedy children proportional to their design width. Irrelevant for homogeneous rows. Defaults to false.
 	* `index` - _optional_ - An override for the list index to place this child at. The child with the lowest index is placed closest to the end of the row (whichever end its `dir` is set to).
 
 ### Column(spacing, homogeneous, children, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)

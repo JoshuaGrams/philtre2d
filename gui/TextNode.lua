@@ -60,7 +60,7 @@ function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, 
 	local fontHeight = self.font:getHeight()
 	local w, lines = self.font:getWrap(self.text, self.w)
 	self.h = fontHeight * #lines
-	self.originalH, self.origInnerH, self.innerH = self.h, self.h, self.h
+	self.designH, self.designInnerH, self.innerH = self.h, self.h, self.h
 	self.hAlign = validHAlign[hAlign] and hAlign or 'left'
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

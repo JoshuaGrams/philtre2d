@@ -36,22 +36,22 @@ function Node.hitCheck(self, x, y)
 end
 
 Node._scaleFuncs = { -- Get the new absolute scale.
-	none = function(self, originalW, originalH, newW, newH)
+	none = function(self, designW, designH, newW, newH)
 		return 1, 1
 	end,
-	fit = function(self, originalW, originalH, newW, newH)
-		local s = math.min(newW/originalW, newH/originalH)
+	fit = function(self, designW, designH, newW, newH)
+		local s = math.min(newW/designW, newH/designH)
 		return s, s
 	end,
-	zoom = function(self, originalW, originalH, newW, newH)
-		local s = math.max(newW/originalW, newH/originalH)
+	zoom = function(self, designW, designH, newW, newH)
+		local s = math.max(newW/designW, newH/designH)
 		return s, s
 	end,
-	stretch = function(self, originalW, originalH, newW, newH)
-		return newW/originalW, newH/originalH
+	stretch = function(self, designW, designH, newW, newH)
+		return newW/designW, newH/designH
 	end,
-	fill = function(self, originalW, originalH, newW, newH)
-		return newW/self.originalW, newH/self.originalH
+	fill = function(self, designW, designH, newW, newH)
+		return newW/self.designW, newH/self.designH
 	end
 }
 local scaleFuncs = Node._scaleFuncs
@@ -70,13 +70,13 @@ function Node._updateChildren(self, forceUpdate)
 	for i,child in ipairs(self.children) do
 		child:call(
 			'parentResized',
-			self.origInnerW, self.origInnerH,
+			self.designInnerW, self.designInnerH,
 			self.innerW, self.innerH, self.scale, nil, nil, forceUpdate
 		)
 	end
 end
 
-function Node.parentResized(self, originalW, originalH, newW, newH, scale, ox, oy, forceUpdate)
+function Node.parentResized(self, designW, designH, newW, newH, scale, ox, oy, forceUpdate)
 	if scale ~= self.scale then
 		local relScale = scale / self.scale
 		self.pos.x = self.pos.x * relScale -- Scale offset from anchor point.
@@ -89,12 +89,12 @@ function Node.parentResized(self, originalW, originalH, newW, newH, scale, ox, o
 	end
 
 	if self.resizeModeX ~= 'none' then
-		local sx, _ = scaleFuncs[self.resizeModeX](self, originalW, originalH, newW, newH)
-		self.w = self.originalW * sx
+		local sx, _ = scaleFuncs[self.resizeModeX](self, designW, designH, newW, newH)
+		self.w = self.designW * sx
 	end
 	if self.resizeModeY ~= 'none' then
-		local _, sy = scaleFuncs[self.resizeModeY](self, originalW, originalH, newW, newH)
-		self.h = self.originalH * sy
+		local _, sy = scaleFuncs[self.resizeModeY](self, designW, designH, newW, newH)
+		self.h = self.designH * sy
 	end
 
 	self.anchorPos.x, self.anchorPos.y = newW * self.ax/2, newH * self.ay/2
@@ -131,10 +131,10 @@ end
 
 function Node.init(self)
 	local p = self.parent
-	if p.innerW and p.innerH and p.origInnerW and p.origInnerH then
-		self:call("parentResized", p.origInnerW, p.origInnerH, p.innerW, p.innerH, p.scale or 1)
-	elseif p.w and p.h and p.originalW and p.originalH then
-		self:call("parentResized", p.originalW, p.originalH, p.w, p.h, p.scale or 1)
+	if p.innerW and p.innerH and p.designInnerW and p.designInnerH then
+		self:call("parentResized", p.designInnerW, p.designInnerH, p.innerW, p.innerH, p.scale or 1)
+	elseif p.w and p.h and p.designW and p.designH then
+		self:call("parentResized", p.designW, p.designH, p.w, p.h, p.scale or 1)
 	end
 end
 
@@ -156,7 +156,7 @@ local setMode = Node._setMode
 function Node.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	Node.super.set(self, x, y, angle)
 	self.w, self.h = w or 100, h or 100
-	self.originalW, self.originalH = self.w, self.h
+	self.designW, self.designH = self.w, self.h
 	self.ax, self.ay = ax or 0, ay or 0 -- anchor
 	self.px, self.py = px or 0, py or 0 -- pivot
 	self.parentOffsetX, self.parentOffsetY = 0, 0 -- parent offset - for auto-arranging nodes.
@@ -164,7 +164,7 @@ function Node.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, pad
 	setMode(self, 'resizeModeX', 'resizeModeY', resizeMode, DEFAULT_RESIZE_MODE)
 	self.padX, self.padY = padX or 0, padY or padX or 0
 	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2
-	self.origInnerW, self.origInnerH = self.innerW, self.innerH
+	self.designInnerW, self.designInnerH = self.innerW, self.innerH
 	self.debugColor = {math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.15}
 	self.scale = 1
 end

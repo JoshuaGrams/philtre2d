@@ -82,7 +82,7 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax
 	end
 	self.margins = m
 	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
-	-- super.set sets self.innerW/H, origInnerW/H.
+	-- super.set sets self.innerW/H, designInnerW/H.
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}
 

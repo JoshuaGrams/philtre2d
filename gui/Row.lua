@@ -55,7 +55,7 @@ local function getGreedyChildrenCount(self)
 end
 
 local function _sumWidths(child, val)
-	return val + child.obj.originalW
+	return val + child.obj.designW
 end
 
 local function getTotalChildrenWidth(self)
@@ -63,7 +63,7 @@ local function getTotalChildrenWidth(self)
 end
 
 local function _sumGreedyWidths(child, val)
-	if child.isGreedy then  return val + child.obj.originalW  end
+	if child.isGreedy then  return val + child.obj.designW  end
 end
 
 local function getTotalGreedyChildrenWidth(self)
@@ -71,12 +71,12 @@ local function getTotalGreedyChildrenWidth(self)
 end
 
 local function allocateChild(self, child, x, y, w, h, forceUpdate)
-	if not child.originalW or not child.originalH then
-		child.originalW, child.originalH = child.obj.originalW, child.obj.originalH
+	if not child.designW or not child.designH then
+		child.designW, child.designH = child.obj.designW, child.obj.designH
 	end
 	child.obj:call(
 		"parentResized",
-		child.originalW, child.originalH,
+		child.designW, child.designH,
 		w, h, self.scale, x, y, forceUpdate
 	)
 end
@@ -122,9 +122,9 @@ local function allocateHeterogeneousRow(self, forceUpdate)
 
 	local leftEdgeX = -self.innerW / 2
 	for _,child in ipairs(self.startChildren) do
-		local w = child.obj.originalW * squashFactor
+		local w = child.obj.designW * squashFactor
 		if child.isGreedy then
-			w = w + child.obj.originalW * extraWidthFactor
+			w = w + child.obj.designW * extraWidthFactor
 		end
 		local x = leftEdgeX + w / 2
 		allocateChild(self, child, x, y, w, h, forceUpdate)
@@ -133,9 +133,9 @@ local function allocateHeterogeneousRow(self, forceUpdate)
 
 	local rightEdgeX = self.innerW / 2
 	for _,child in ipairs(self.endChildren) do
-		local w = child.obj.originalW * squashFactor
+		local w = child.obj.designW * squashFactor
 		if child.isGreedy then
-			w = w + child.obj.originalW * extraWidthFactor
+			w = w + child.obj.designW * extraWidthFactor
 		end
 		local x = rightEdgeX - w / 2
 		allocateChild(self, child, x, y, w, h, forceUpdate)
@@ -154,7 +154,7 @@ function Row._updateChildren(self, forceUpdate)
 		if not self.rowChildren[child] then
 			child:call(
 				'parentResized',
-				self.origInnerW, self.origInnerH,
+				self.designInnerW, self.designInnerH,
 				self.innerW, self.innerH, self.scale, 0, 0, forceUpdate -- clear parentOffsetX/Y
 			)
 		end

@@ -55,7 +55,7 @@ local function getGreedyChildrenCount(self)
 end
 
 local function _sumHeights(child, val)
-	return val + child.obj.originalH
+	return val + child.obj.designH
 end
 
 local function getTotalChildrenHeight(self)
@@ -63,7 +63,7 @@ local function getTotalChildrenHeight(self)
 end
 
 local function _sumGreedyHeights(child, val)
-	if child.isGreedy then  return val + child.obj.originalH  end
+	if child.isGreedy then  return val + child.obj.designH  end
 end
 
 local function getTotalGreedyChildrenHeight(self)
@@ -71,12 +71,12 @@ local function getTotalGreedyChildrenHeight(self)
 end
 
 local function allocateChild(self, child, x, y, w, h, forceUpdate)
-	if not child.originalW or not child.originalH then
-		child.originalW, child.originalH = child.obj.originalW, child.obj.originalH
+	if not child.designW or not child.designH then
+		child.designW, child.designH = child.obj.designW, child.obj.designH
 	end
 	child.obj:call(
 		"parentResized",
-		child.originalW, child.originalH,
+		child.designW, child.designH,
 		w, h, self.scale, x, y, forceUpdate
 	)
 end
@@ -122,9 +122,9 @@ local function allocateHeterogeneousColumn(self, forceUpdate)
 
 	local topEdgeY = -self.innerH / 2
 	for _,child in ipairs(self.startChildren) do
-		local h = child.obj.originalH * squashFactor
+		local h = child.obj.designH * squashFactor
 		if child.isGreedy then
-			h = h + child.obj.originalH * extraHeightFactor
+			h = h + child.obj.designH * extraHeightFactor
 		end
 		local y = topEdgeY + h / 2
 		allocateChild(self, child, x, y, w, h, forceUpdate)
@@ -133,9 +133,9 @@ local function allocateHeterogeneousColumn(self, forceUpdate)
 
 	local botEdgeY = self.innerH / 2
 	for _,child in ipairs(self.endChildren) do
-		local h = child.obj.originalH * squashFactor
+		local h = child.obj.designH * squashFactor
 		if child.isGreedy then
-			h = h + child.obj.originalH * extraHeightFactor
+			h = h + child.obj.designH * extraHeightFactor
 		end
 		local y = botEdgeY - h / 2
 		allocateChild(self, child, x, y, w, h, forceUpdate)
@@ -154,7 +154,7 @@ function Column._updateChildren(self, forceUpdate)
 		if not self.rowChildren[child] then
 			child:call(
 				'parentResized',
-				self.origInnerW, self.origInnerH,
+				self.designInnerW, self.designInnerH,
 				self.innerW, self.innerH, self.scale, 0, 0, forceUpdate -- clear parentOffsetX/Y
 			)
 		end
