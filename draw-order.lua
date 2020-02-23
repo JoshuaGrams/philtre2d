@@ -109,13 +109,15 @@ local function addObject(self, object)
 end
 
 function DrawOrder.addObject(self, object)
-	self:saveCurrentLayer()
-	local layerName = getInheritedLayerName(object.tree, object)
-	self.layer = self.layers[layerName] or self.layer
+	if getInheritedVisibility(object.tree, object) then
+		self:saveCurrentLayer()
+		local layerName = getInheritedLayerName(object.tree, object)
+		self.layer = self.layers[layerName] or self.layer
 
-	addObject(self, object)
+		addObject(self, object)
 
-	self:restoreCurrentLayer()
+		self:restoreCurrentLayer()
+	end
 end
 
 local function removeObject(self, object)
