@@ -13,18 +13,18 @@ function SliceNode.draw(self)
 	local w2, h2 = self.w/2, self.h/2
 	local m = self.margins
 	local s = self.scale
-
+	-- Draw corners
 	love.graphics.draw(self.image, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
 	love.graphics.draw(self.image, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
 	love.graphics.draw(self.image, self.quadBl, -w2, h2-m.bot, 0, s, s) -- Bottom Left
 	love.graphics.draw(self.image, self.quadBr, w2-m.rt, h2-m.bot, 0, s, s) -- Bottom Right
-
-	love.graphics.draw(self.image, self.quadTop, -w2+m.lt, -h2, 0, self.innerSX, s) -- Top
-	love.graphics.draw(self.image, self.quadBot, -w2+m.lt, h2-m.bot, 0, self.innerSX, s) -- Bottom
-	love.graphics.draw(self.image, self.quadLt, -w2, -h2+m.top, 0, s, self.innerSY) -- Left
-	love.graphics.draw(self.image, self.quadRt, w2-m.rt, -h2+m.top, 0, s, self.innerSY) -- Right
-
-	love.graphics.draw(self.image, self.quadC, -w2+m.lt, -h2+m.top, 0, self.innerSX, self.innerSY) -- Center
+	-- Draw sides
+	love.graphics.draw(self.image, self.quadTop, -w2+m.lt, -h2, 0, self.sliceSX, s) -- Top
+	love.graphics.draw(self.image, self.quadBot, -w2+m.lt, h2-m.bot, 0, self.sliceSX, s) -- Bottom
+	love.graphics.draw(self.image, self.quadLt, -w2, -h2+m.top, 0, s, self.sliceSY) -- Left
+	love.graphics.draw(self.image, self.quadRt, w2-m.rt, -h2+m.top, 0, s, self.sliceSY) -- Right
+	-- Draw center
+	love.graphics.draw(self.image, self.quadC, -w2+m.lt, -h2+m.top, 0, self.sliceSX, self.sliceSY) -- Center
 end
 
 local function debugDraw(self)
@@ -61,15 +61,16 @@ function SliceNode._onRescale(self, relScale)
 end
 
 function SliceNode._updateInnerSize(self)
+	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2 -- Normal node padding.
 	local m = self.margins
 	m.lt2, m.rt2, m.top2, m.bot2 = m.lt/2, m.rt/2, m.top/2, m.bot/2
-	self.innerW = self.w - self.margins.lt - self.margins.rt
-	self.innerH = self.h - self.margins.top - self.margins.bot
-	self.innerSX = self.innerW/self.innerQuadW
-	self.innerSY = self.innerH/self.innerQuadH
+	local innerSliceW = self.w - self.margins.lt - self.margins.rt
+	local innerSliceH = self.h - self.margins.top - self.margins.bot
+	self.sliceSX = innerSliceW/self.innerQuadW
+	self.sliceSY = innerSliceH/self.innerQuadH
 end
 
-function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax, ay, resizeMode)
+function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	local mCount = #margins
 	local m
 	if mCount == 1 then -- One value, all are equal.
@@ -80,7 +81,8 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax
 		m = { lt=margins[1], rt=margins[2], top=margins[3], bot=margins[4] }
 	end
 	self.margins = m
-	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, (m.lt + m.rt)/2, (m.top + m.bot)/2)
+	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+	-- super.set sets self.innerW/H, origInnerW/H.
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}
 
@@ -109,8 +111,6 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax
 	local innerTop, innerBot = top + m.top, bot - m.bot
 	local innerW, innerH = qw - m.lt - m.rt, qh - m.top - m.bot
 	self.innerQuadW, self.innerQuadH = innerW, innerH
-	-- self.innerW, self.innerH = innerW, innerH
-	-- self.origInnerW, self.origInnerH = innerW, innerH
 
 	-- Make 4 corner quads.
 	self.quadTl = love.graphics.newQuad(lt, top, m.lt, m.top, imgW, imgH)
