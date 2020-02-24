@@ -81,6 +81,8 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax
 		m = { lt=margins[1], rt=margins[2], top=margins[3], bot=margins[4] }
 	end
 	self.margins = m
+	padX = padX or (m.lt + m.rt)/2 -- Use slice margins for default padding.
+	padY = padY or padX or (m.top + m.bot)/2
 	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	-- super.set sets self.innerW/H, designInnerW/H.
 	self.blendMode = 'alpha'
