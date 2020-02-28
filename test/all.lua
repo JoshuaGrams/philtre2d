@@ -13,7 +13,7 @@ T.check(require(base .. 'test.layer'))
 T.check(require(base .. 'test.depth-list'))
 T.check(require(base .. 'test.scene-tree-draw-order'))
 T.check(require(base .. 'test.random'))
-T.check(require(base .. 'test.input'))
+-- T.check(require(base .. 'test.input'))
 T.check(require(base .. 'test.physics'))
 T.check(require(base .. 'test.physics-with-body'))
 

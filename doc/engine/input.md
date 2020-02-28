@@ -1,145 +1,147 @@
+
 Input
 =====
 
-The input manager maps physical inputs (key presses, gamepad
-sticks, etc.) to logical inputs (move horizontally, jump, and so
-on).  It knows about two kinds of inputs: axes and buttons.  An
-axis provides an analog value between -1 and 1 (except for
-gamepad triggers which don't go below 0), while a button gives a
-digital value which is either 0 or 1.
-
-It doesn't handle text or mouse input yet.
-
-You can bind multiple physical inputs to a single logical input
-(alternate controls) and they will be combined in a sensible
-way.  You can also convert between input types, binding two
-buttons as a logical axis, or an axis as a logical button (using
-a threshold and direction).
-
-Overview
---------
-
-Start the input manager with `init`, `bind` physical inputs to
-logical ones, `enable` callbacks on objects, and you're good to
-go.
-
-* `Input.init()`
-* `Input.bind({{name, type, dev, inp}, ...}, replace_old)`
-* `Input.unbind(bindings)`
-* `Input.unbind_all()`
-* `Input.enable(object, raw)`
-* `Input.disable(object)`
-* `Input.disable_all()`
-* `Input.to_physical(name) -> {{device, input}, ...}`
-* `Input.to_logical(device, input) -> {name, ...}`
-* `Input.get(name)`
-
+Converts "raw" inputs to bound "actions" and lets you handle keyboard and gamepad input in a simple, uniform way. Can bind 0-or-1 "button" actions or -1 to +1 "axis" inputs to almost any raw input including unlimited input-combos, and binds "text" and "mouseMoved" inputs separately.
 
 Setup
 -----
 
-* `Input.init()` - hook the input manager up to LÖVE's input
-  callbacks.  This leaves your existing callbacks intact,
-  calling them before its own.
+Philtre automatically requires the module into the global: `Input`.
 
-Binding
--------
+Call init() to hook up the love input callbacks, bind some actions, and enable() input on your objects.
 
-* `Input.bind(bindings, replace_old)` - `bindings` is a list of
-  bindings, `replace_old` tells it whether to remove old
-  bindings for the given logical inputs or to simply add to
-  them.
+```lua
+function love.load()
+   Input.init()
+   Input.bindAxis("left", "right", "move x")
 
----
+   scene = SceneTree()
 
-Each binding is a list: `{name, type, device, input}`:
+   local myObj = Object()
+   Input.enable(myObj)
+   -- `myObj` Will need an "input" function (or a script with one)
+   -- to actually respond to input.
 
-
-### `name`
-The name of the logical input. The identifier that you will use in your game for this action or axis, regardless of which 'physical' input it is bound to.
-
-### `type`
-A string giving the logical input type:
- * `axis`
- * `button`
- * `axis_from_buttons`
- * `button_from_axis`
-
-Note that `axis_from_buttons` takes *two* `device`/`input` pairs. The first is the positive direction, the second the negative direction.  `button_from_axis` takes an optional threshold (always positive) and direction (1 or -1).  If not given, the threshold defaults to 0.5 and the direction to 1.
-
-### `device`
-The device name:
- * `key`
- * `scancode`
- * `joystick#` (`joystick1`, `joystick2`, etc.)
- * `mouse` (For mouse buttons. Mouse movement is not supported yet.)
-
-### `input`
-The button or axis within the device. Keys and scancodes have the usual LÖVE names. Mouse buttons have the usual numbers. Joysticks have `axis#`, `button#`, `hat#left`, `hat#right`, `hat#up`, and `hat#down`. If a joystick is recognized as a gamepad, then you can also access its inputs by LÖVE gamepad input names.
-
-* [List of key constants](https://love2d.org/wiki/KeyConstant)
-* [List of scancodes](https://love2d.org/wiki/Scancode)
-* [List of gamepad buttons](https://love2d.org/wiki/GamepadButton)
-* [List of axes](https://love2d.org/wiki/GamepadAxis).
-
----
-
-To remove bindings you can use:
- * `Input.unbind(bindings)` or `Input.unbind_all()`.
-   * `bindings` can be either a single logical input name (string), a table of string names, or a table of tables with strings as their first argument (like you would have used with `Input.bind()`).
-
-Enable & Disable Input
-----------------------
-
-* `Input.enable(object, raw)` - Registers an object to receive
-  input callbacks.  The object *must* have an `input` method.
-  By default you will get only logical inputs (`input(name,
-  value, change)`).  If `raw` is true, you will get only raw
-  physical events instead (`input(device, input, value)`).  To
-  get both, you must call `enable` twice.
-
-* `Input.disable(object)` - Object stops receiving input
-  callbacks of any type.
-
-* `Input.disable_all()` - Disable input callbacks for all
-  objects.
+   scene:add(myObj)
+end
+```
 
 Input Callback
 --------------
 
-Each object that has input enabled requires this callback.
+The object or one of its scripts must have an "input" function to respond to input. All of the extra raw inputs from the original love callbacks are passed on, so there is a rather long conglomeration of arguments:
+
+> `function input(actionName, value, change, isRepeat, x, y, dx, dy, isTouch, presses)`
+
+All actions will send the `actionName` and most will send `value` and `change`. Text input only sends `value` and not `change`. Mouse movement only sends `x`, `y`, `dx`, and `dy`. Whether any other arguments are present or not will depend on what raw input triggered the action.
+
+* Scancodes and keys will send `isRepeat`.
+* Mouse buttons will send `x`, `y`, `isTouch`, and `presses`.
+* Mouse wheel movements will send `dx` and `dy`.
+
+Groups
+------
+
+Raw input is collected and sent out to any number of group objects. The input module itself is a group and the group methods can be called on it with the . syntax. Each group is completely separate, with its own bindings and actions.
+
+Create a new group by calling the module.
+> `local group = Input()`
+
+Binding
+-------
+
+Bindings are made with string inputs/input-combos and action names. Each input type (button, axis, text, and mouseMoved) is bound with a separate function.
+
+Each input in a combo is defined by a "device" and an "id". The device is optional (defaults to scancode) and separated from the id by a colon(:).
+
+Example:
+> `Input.bindButton("ctrl shift m:1", "superClick")`
+> `Input.bindButton("j1:leftx-", "left")` -- An optional sign for raw axis inputs.
+
+### Devices
+
+* scancode - The default.
+* key - `"key:"` or `"k:"`.
+* mouse - `"mouse:"` or `"m:"`.
+* joystick or gamepad - `"joy#:"` or `"j#:"`.
+   * Replace the `"#"` with the device ID index (1, 2, 3, etc.).
+
+### IDs
+
+The input "id" is the [Scancode](https://love2d.org/wiki/Scancode), [KeyConstant](https://love2d.org/wiki/KeyConstant), mouse button index (a number), mouse "wheelx" or "wheely", [GamepadButton](https://love2d.org/wiki/GamepadButton), [GamepadAxis](https://love2d.org/wiki/GamepadAxis), joystick button (a number), joystick axis ("axis1", "axis2", etc.), or joystick hat ("hat1", "hat2", etc.).
+
+There are also a few "virtual" key IDs: "ctrl", "alt", "shift", and "enter". These are combined from the left and right modifier keys, or from "return" and "kpenter" in the case of "enter".
+
+### Direction Sign
+
+Raw inputs that are an axis (mouse wheel, gamepad/joystick axes) will have a direction assigned to them when bound. This can be designated with a "+" or "-" after the ID. The input binding will only respond to that "side" of the axis.
+
+> Pushing a gamepad joystick up is negative, down is positive.
+
+### Binding Functions
+
+group:__bindButton(combo, actionName)__
+
+group:__bindAxis(combo1, combo2, actionName)__
+
+`combo1` is for the negative direction, `combo2` for the positive. These both need to be defined, even for joystick axes (for now anywyay).
+
+> `bindAxis("j1:leftx-", "j1:leftx", "player x")`
+
+group:__bindMouseMoved(actionName)__
+
+group:__bindText(actionName)__
+
+group:__bindMultiple(t)__
+
+Takes a sequence of sequences of binding arguments, starting with a "binding type" string—one of the following: "button", "axis", "text", or "mouseMoved", and then the appropriate arguments for that type.
 
 ```lua
--- For bound 'logical' input.
-function object.input(self, name, value, change)
+local bindings = {
+   { "button", "enter", "confirm" }
+   { "axis", "left", "right", "move x"},
+   { "text", "text" },
+   { "mouseMoved", "updateCursor" },
+}
+Input.bindMultiple(bindings)
 ```
 
-Get Current Input
------------------
+### Un-Binding Functions
 
-* `Input.get(name) -> {name, value, change}` - Returns a table
-  with the current state of a named logical input (or `nil` if
-  there is no binding for the specified `name`).
+Unbinding is pretty similar to binding, but there are a couple of different ways to specify exactly what gets unbound (which are only relevant if you have multiple combos bound to a one action, or vice versa).
 
-Convert Between Input Types
----------------------------
+1. If both a `combo` and an `actionName` are given, then that action will be unbound from that combo.
+2. If only a `combo` is given, then all actions bound to that combo will be unbound.
+3. If only an `actionName` is given, then all combos linked to that action will be unbound (but those combos may still be bound to other actions).
 
-* `Input.to_physical(name) -> {{device, input}, ...}` - Return a
-  list of the physical inputs that are bound to the named
-  logical input.
+group:__unbindButton(combo, actionName)__
 
-* `Input.to_logical(device, input) -> {name, ...}` - Return a
-  list of the logical inputs which are using the given physical
-  input.
+group:__unbindAxis(combo1, combo2, actionName)__
+
+group:__unbindMouseMoved(actionName)__
+
+group:__unbindText(actionName)__
 
 
-Todo
-----
+### Other Functions
 
-* Test multiple logical inputs using a single physical input.
+group:__get(actionName)__
 
-* Test `to_logical` and `to_physical`.
+Gets the current value of the action, and a current press count for buttons (if the action has multiple bindings).
 
-* Mouse input
+group:__getRaw(device, id)__
 
-* Text input
+Gets the latest raw input value for a device and id.
+
+group:__enable(obj, pos)__
+
+Enable input for an object. The `pos` argument can be "top", or "bottom" to specify the object's place in the input stack (defaults to "top").
+
+group:__enableRaw(obj)__
+
+Enable raw input on an object. It will get all inputs. This uses a separate list from the usual input stack.
+
+group:__disable(obj)__
+
+Disable normal and raw input for an object.
