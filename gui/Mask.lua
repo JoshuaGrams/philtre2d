@@ -31,7 +31,7 @@ function Mask.setMaskOnChildren(self, objects)
 	if not self.children then  return  end
 	for i,obj in ipairs(objects or self.children) do
 		obj.maskObject = self
-		if obj.children then
+		if obj.children and not obj:is(Mask) then
 			Mask.setMaskOnChildren(self, obj.children)
 		end
 	end
