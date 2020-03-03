@@ -17,8 +17,9 @@ end
 function TextNode._updateInnerSize(self)
 	local fontHeight = self.font:getHeight()
 	local textW, lines = self.font:getWrap(self.text, self.w)
-	lines = lines == 0 and 1 or lines -- Don't let lines be zero. (as it would be with an empty string.)
-	self.h = fontHeight * #lines
+	local lineCount = #lines
+	lineCount = lineCount == 0 and 1 or lineCount -- Don't let line-count be zero. (as it would be with an empty string.)
+	self.h = fontHeight * lineCount
 	self.innerW, self.innerH = self.w, self.h -- No padding.
 end
 
