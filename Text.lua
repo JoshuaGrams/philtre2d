@@ -14,10 +14,10 @@ function Text.draw(s)
 	local oy = vOffset[s.vAlign] * s.font:getHeight()
 	if s.wrapLimit then
 		local ox = hOffset[s.hAlign] * s.wrapLimit
-		love.graphics.printf(s.text, 0, 0, s.wrapLimit, s.hAlign, s.angle, 1, 1, ox, oy, s.kx, s.ky)
+		love.graphics.printf(s.text, 0, 0, s.wrapLimit, s.hAlign, 0, 1, 1, ox, oy, s.kx, s.ky)
 	else
 		local ox = hOffset[s.hAlign] * s.font:getWidth(s.text)
-		love.graphics.print(s.text, 0, 0, s.angle, 1, 1, ox, oy, s.kx, s.ky)
+		love.graphics.print(s.text, 0, 0, 0, 1, 1, ox, oy, s.kx, s.ky)
 	end
 end
 
