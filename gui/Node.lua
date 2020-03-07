@@ -84,6 +84,7 @@ function Node.parentResized(self, designW, designH, newW, newH, scale, ox, oy, f
 		self:_onRescale(relScale)
 	end
 
+	local lastOX, lastOY = self.parentOffsetX, self.parentOffsetY
 	if ox and oy then
 		self.parentOffsetX, self.parentOffsetY = ox, oy
 	end
@@ -103,6 +104,7 @@ function Node.parentResized(self, designW, designH, newW, newH, scale, ox, oy, f
 	self.scale = scale
 	self:_updateInnerSize()
 	local didChange = self.innerW ~= lastW or self.innerH ~= lastH or self.scale ~= lastScale
+	didChange = didChange or lastOX ~= ox or lastOY ~= oy
 	if didChange or forceUpdate then
 		self:updateTransform() -- So scripts get a correct transform on .parentResized.
 		if self.children then
