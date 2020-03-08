@@ -16,8 +16,8 @@ M.new = function(x, y, radians, sx, sy, kx, ky, m)
 	local sy_kx, sx_ky = sy*kx, sx*ky
 
 	m = m or {}
-	m.ux, m.uy = cos*sx - sin*sy_kx, sin*sx + cos*sy_kx
-	m.vx, m.vy = -sin*sy + cos*sx_ky, cos*sy + sin*sx_ky
+	m.ux, m.uy = cos*sx - sin*sx_ky, sin*sx + cos*sx_ky
+	m.vx, m.vy = -sin*sy + cos*sy_kx, cos*sy + sin*sy_kx
 	m.x, m.y = x, y
 	return m
 end
@@ -90,7 +90,7 @@ M.parameters = function(m)
 		th = math.atan2(m.uy, m.ux)
 		sx = math.sqrt(u2)
 		sy = (m.ux * m.vy - m.uy * m.vx) / sx
-		ky = (m.ux * m.vx + m.uy * m.vy) / u2
+		kx = (m.ux * m.vx + m.uy * m.vy) / u2
 	end
 	return th, sx, sy, kx, ky
 end
