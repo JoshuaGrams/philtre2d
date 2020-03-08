@@ -13,11 +13,13 @@ M.new = function(x, y, radians, sx, sy, kx, ky, m)
 	sy, ky = sy or sx, ky or 0
 	radians = radians or 0
 	local cos, sin = math.cos(radians), math.sin(radians)
-	local sy_kx, sx_ky = sy*kx, sx*ky
+	local ux, uy =  cos*sx, sin*sx
+	local vx, vy = -sin*sy, cos*sy
+	local ku, kv = kx, ky  -- rename for readability.
 
 	m = m or {}
-	m.ux, m.uy = cos*sx - sin*sx_ky, sin*sx + cos*sx_ky
-	m.vx, m.vy = -sin*sy + cos*sy_kx, cos*sy + sin*sy_kx
+	m.ux, m.uy = ux + kv*vx, uy + kv*vy
+	m.vx, m.vy = vx + ku*ux, vy + ku*uy
 	m.x, m.y = x, y
 	return m
 end
