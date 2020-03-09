@@ -67,16 +67,14 @@ function Layer.refreshIndices(self)
 	end
 end
 
+-- Use this to avoid creating a new one each time.
+local tempTransform = love.math.newTransform()
+
 -- Reset to origin and apply object's to-world transform.
 local function applyMaskObjectTransform(obj)
 	love.graphics.push()
-	love.graphics.origin()
-	local m = obj._to_world
-	local th, sx, sy, kx, ky = M.parameters(m)
-	love.graphics.translate(m.x, m.y)
-	love.graphics.rotate(th)
-	love.graphics.scale(sx, sy)
-	love.graphics.shear(kx, ky)
+	local t = M.toTransform(obj._to_world, tempTransform)
+	love.graphics.replaceTransform(t)
 end
 
 function Layer.draw(self)
@@ -91,12 +89,9 @@ function Layer.draw(self)
 			local pushed
 			if curMatrix ~= params.m then
 				curMatrix, pushed = params.m, true
-				local th, sx, sy, kx, ky = M.parameters(curMatrix)
+				local t = M.toTransform(curMatrix, tempTransform)
 				love.graphics.push()
-				love.graphics.translate(curMatrix.x, curMatrix.y)
-				love.graphics.rotate(th)
-				love.graphics.scale(sx, sy)
-				love.graphics.shear(kx, ky)
+				love.graphics.applyTransform(t)
 			end
 			local maskObj = params[2].maskObject
 			if curMaskObj ~= maskObj then

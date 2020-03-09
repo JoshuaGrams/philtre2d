@@ -97,4 +97,9 @@ M.parameters = function(m)
 	return th, sx, sy, kx, ky
 end
 
+function M.toTransform(m, t)
+	t:setMatrix(m.ux, m.vx, 0, m.x,  m.uy, m.vy, 0, m.y,  0, 0, 1, 0,  0, 0, 0, 1)
+	return t
+end
+
 return M
