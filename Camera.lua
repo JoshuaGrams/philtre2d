@@ -379,8 +379,8 @@ function Camera.getViewportBounds(self)
 	local w_bot = max(c.tl.y, c.tr.y, c.bl.y, c.br.y) -- world botom
 	local w_w, w_h = w_rt - w_lt, w_bot - w_top -- world width, height
 	return {
-		x0 = w_lt, y0 = w_top,
-		x1 = w_rt, y1 = w_bot,
+		lt = w_lt, top = w_top,
+		rt = w_rt, bot = w_bot,
 		w = w_w, h = w_h
 	}
 end
