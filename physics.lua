@@ -135,7 +135,10 @@ return {
 	setCategoryNames = setCategoryNames,
 	getCategoriesBitmask = getCategoriesBitmask,
 	getMaskBitmask = getMaskBitmask,
-	isInCategory = isInCategory, shouldCollide = shouldCollide,
-	atPoint = atPoint, touchingBox = touchingBox, raycast = raycast,
+	isInCategory = isInCategory,
+	shouldCollide = shouldCollide,
+	touchingBox = touchingBox,
+	atPoint = atPoint,
+	raycast = raycast,
 	getWorld = getWorld,
 }

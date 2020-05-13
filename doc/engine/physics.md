@@ -13,41 +13,26 @@ When Bodies are init they search up the tree for the nearest World (reporting an
 Module Functions
 ----------------
 
-### physics.setCategories(...)
+### physics.setCategoryNames(...)
 Saves a table mapping string names to physics category indices (1-16). Pass in up to 16 different strings (as individual arguments).
 
-### physics.categories(...)
-Gets a list of category indices from mapped category names. Pass in up to 16 different strings (as individual arguments).
+### physics.getCategoriesBitmask(...)
+Takes a list of category names and returns the bitmask matching all of them.
 
-_RETURNS_
-* __categories__ <kbd>table</kbd> - A table of category indices corresponding to the category names given. You can give this directly to the `Body` constructor for a shape's 'categories' or 'masks' property, or the `Body.setMask` method.
+### physics.getMaskBitmask(...)
+Takes a list of category names and returns a bitmask with all categories enabled _except_ those specified.
 
-### physics.categoriesExcept(...)
-Gets the opposite of `physics.categories`: a list of all category indices _except_ the ones corresponding to the category names given. Pass in up to 16 different strings (as individual arguments).
+### physics.isInCategory(bitmask, category)
+Takes a bitmask and a category name, returns true if the bitmask has that category enabled.
 
-_RETURNS_
-* __categories__ <kbd>table</kbd> - A table of category indices corresponding to all the category names _not_ given. You can give this directly to the `Body` constructor for a shape's 'categories' or 'masks' property, or the `Body.setMask` method.
+### physics.shouldCollide(catsA, maskA, catsB, maskB)
+Takes two sets of Category and Mask bitmasks and check if they intersect--if two objects with those categories and masks should collide.
 
-### physics.categoryIndex(category_name)
-Gets the corresponding index of a named category. Can be useful for checking collision results.
-
-_PARAMETERS_
-* __category_name__ <kbd>string</kbd> - The physics category name to get the matching index of.
-
-_RETURNS_
-* __index__ <kbd>number</kbd> - The category index.
-
-### physics.getWorld(obj)
-Traverses up the scene-tree to find the nearest physics world. Useful for getting the right world to use for `physics.touchingBox()` and `physics.atPoint()`.
-
-_PARAMETERS_
-* __obj__ <kbd>Object</kbd> - The Object in the scene-tree to start search from. (It starts by checking its parent.)
-
-_RETURNS_
-* __world__ <kbd>userdata | nil</kbd> - The nearest Love2D world object, or `nil` if none was found.
+> Note: You can get the bitmasks from a fixture with
+`categories, mask = Fixture:getFilterData()`.
 
 ### physics.touchingBox(lt, rt, top, bot, world)
-Gets a list of any fixtures whose Axis-Aligned Bounding Box overlaps the AABBs you specify. It does _not_ check against the actual shapes of fixtures, only AABB to AABB.
+Gets a list of any fixtures whose Axis-Aligned Bounding Box overlaps the AABB you specify. It does _not_ check against the actual shapes of fixtures, only AABB to AABB.
 > Note: You can get the actual Object that a fixture belongs to with `fixture:getUserData()`.
 
 _PARAMETERS_
@@ -67,3 +52,29 @@ _PARAMETERS_
 
 _RETURNS_
 * __results__ <kbd>table | nil</kbd> - A list table of all the overlapping fixtures, or `nil` if there are none.
+
+### physics.raycast(x1, y1, x2, y2, world, mode, categories, mask)
+Queries a ray from (x1, y1) to (x2, y2). `mode` can be "any", "all", or "closest".
+
+* "any" - returns true if anything was hit, otherwise nil.
+* "all" - returns nil or an array of all hit results, in the following format:
+* "closest" - returns nil, or the single hit result closest to the start of the ray.
+
+Hit results are in a dictionary format:
+```
+{
+	fixture = the hit fixture.
+	x, y = the position of the contact.
+	xn, yn = the normal of the hit edge.
+	fraction = the fractional distance of the hit along the ray vector.
+}
+```
+
+### physics.getWorld(object)
+Searches up the tree starting with `object`'s parent for the nearest World ancestor. Useful for getting the right world to use for `physics.touchingBox()` and `physics.atPoint()`.
+
+_PARAMETERS_
+* __object__ <kbd>Object</kbd> - The Object in the scene-tree to start search from. (It starts by checking its parent.)
+
+_RETURNS_
+* __world__ <kbd>userdata | nil</kbd> - The nearest Love2D world object, or `nil` if none was found.
