@@ -113,7 +113,8 @@ end
 
 return {
 	check = check, plan = plan,
-	ok = ok, is = is, has = has,
+	ok = ok, areOK = areOK,
+	is = is, has = has,
 	isNearly = isNearly,
 	note = note, bail = bail
 }
