@@ -34,9 +34,12 @@ local function initChild(tree, obj, parent, index)
 	if obj.parent == parent then return end
 
 	obj.name = obj.name or tostring(index)
-	obj.path = parent.path .. '/' .. obj.name
-	if tree.paths[obj.path] then -- Append index if identical path exists.
-		obj.path = obj.path .. index
+	local basePath = parent.path .. '/' .. obj.name
+	obj.path = basePath
+	while tree.paths[obj.path] do
+		obj.path = basePath .. index
+		index = index + 1
+		if index > #parent.children * 3/2 then index = 1 end
 	end
 	tree.paths[obj.path] = obj
 	obj.tree = tree
