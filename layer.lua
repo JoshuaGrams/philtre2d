@@ -4,6 +4,8 @@ local M = require(base .. 'matrix')
 
 local Layer = Class:extend()
 
+local EMPTY = false
+
 function Layer.__tostring(self)
 	return "Layer: " .. self.id
 end
@@ -42,10 +44,11 @@ function Layer.removeObject(self, object)
 	assert(item and item[2] == object, "Layer.removeObject - Object '" .. tostring(object) .. "' is not in this layer. " .. tostring(self))
 
 	object.drawIndex = nil
+
 	-- Don't table.remove or object drawIndices will not match their place in the list (needed for removing other objects).
-	-- Don't set to nil or it will break iteration.
-	self[i] = false
-	-- False elements will be removed in refreshIndices().
+	-- Don't set to nil or it will break iteration/table-length operator.
+	self[i] = EMPTY
+	-- Empty elements will be removed in refreshIndices() before next draw.
 	self.dirty = true
 	-- Leave self.n as-is so added objects won't overwrite existing ones. It will be updated in refreshIndices().
 end
@@ -54,7 +57,7 @@ end
 function Layer.refreshIndices(self)
 	if self.dirty then
 		for i=1,#self do
-			while self[i] == false do -- May be consecutive false elements that get moved up each table.remove.
+			while self[i] == EMPTY do -- May be consecutive empty elements that get moved up each table.remove.
 				table.remove(self, i)
 				self.n = self.n - 1
 			end
