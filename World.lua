@@ -59,25 +59,20 @@ function World.debugDraw(self, layer)
 	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
-local fix = {}
-local obj = {}
-
-local function handleContact(type, a, b, contact, normImpulse, tanImpulse)
-	if a:isDestroyed() or b:isDestroyed() then
+local function handleContact(type, fixtA, fixtB, contact, normImpulse, tanImpulse)
+	if fixtA:isDestroyed() or fixtB:isDestroyed() then
 		return
 	end
-	fix[0], fix[1] = a, b -- Index fixtures so we can flip them easily.
-	obj[0], obj[1] = a:getUserData(), b:getUserData()
-	-- Pass the call to both objects and any scripts they have. (using Object.call)
-	for i=0,1 do
-		local o = obj[i]
-		-- print(type, "\n", o, "\n", obj[1-i], "\n", fix[i], fix[1-i], contact, normImpulse, tanImpulse)
-		if o then
-			-- First fixture is the `self` fixture, second is the `other` fixture.
-			o:call(type, fix[i], fix[1-i], obj[1-i], contact, normImpulse, tanImpulse)
-		else
-			print(type .. ' - WARNING: Object "' .. obj[i] .. '" does not exist.')
-		end
+	local objA, obB = fixtA:getUserData(), fixtB:getUserData()
+	if objA then
+		objA:call(type, fixtA, fixtB, objB, contact, normImpulse, tanImpulse)
+	else
+		print(type .. ' - WARNING: Object "' .. objA .. '" does not exist.')
+	end
+	if objB then
+		objB:call(type, fixtB, fixtA, objA, contact, normImpulse, tanImpulse)
+	else
+		print(type .. ' - WARNING: Object "' .. objB .. '" does not exist.')
 	end
 end
 
