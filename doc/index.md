@@ -43,7 +43,7 @@ Engine
 
 * [Matrix](engine/matrix.md) - Transformations (rotate, scale, skew, translate) represented as 3x3 matrices (2D homogeneous coordinates).
 
-* [Physics](engine/physics.md) - Some physics utility functions.  For now, manages named collision groups. TODO: raycasts, point checks.
+* [Physics](engine/physics.md) - Helpers for managing named categories, and doing world queries(raycasts, etc.).
 
 Objects
 -------
@@ -57,7 +57,7 @@ Objects
 * Sprite - Object containing an image.
 	* `Sprite(image, x, y, angle, sx, sy, color, ox, oy, kx, ky)`
 	* `image` can be either a string (filename) or a love2d Texture object (image or canvas).
-* Quad - Object containing a sub-image.
+* Quad - Object containing a sub-image (for use with sprite sheets).
 	* `Quad(image, quad, x, y, angle, sx, sy, color, ox, oy, kx, ky)`
 	* As above, `image` can be a string (filename) or an image.
 	* `quad` can be a table (`{x, y, w, h}`) or a quad created with `love.graphics.newQuad`).
@@ -93,16 +93,9 @@ Coding conventions are in the [guide for contributors](contributing.md).
 Todo
 ----
 
-* Automated tests.
-* Start on editor.
-* Finish and test box-model GUI system.
-* Figure out a nice way to handle drawing layer groups at different times
-   and manage optional debug layers.
-* ~~Input man~~ager. - Some stuff left on this?
-    * Mouse movement.
-* Make a better version of Hump.timer/chrono?
-* Sound object.
+* Improve coverage of automated tests.
+* Work on editor: https://github.com/rgrams/editor.
 * Particle Emitter.
-* Physics Joint object.
-* Add ray cast and point check functions to the `physics` module.
-* Documentation Generator.
+* Finish and test box-model GUI system?
+* Physics Joint object?
+* Documentation Generator?
