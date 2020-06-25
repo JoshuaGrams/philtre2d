@@ -2,7 +2,7 @@
 Input
 =====
 
-Converts "raw" inputs to bound "actions" and lets you handle keyboard and gamepad input in a simple, uniform way. Can bind 0-or-1 "button" actions or -1 to +1 "axis" inputs to almost any raw input including unlimited input-combos, and binds "text" and "mouseMoved" inputs separately.
+Converts "raw" inputs to bound "actions" and lets you handle keyboard and gamepad input in a simple, unified way. Can bind 0-or-1 "button" actions or analog -1 to +1 "axis" inputs. Can bind actions to almost any raw input including unlimited input-combos. Binds "text" and "mouseMoved" inputs separately.
 
 Setup
 -----
@@ -53,7 +53,7 @@ Binding
 
 Bindings are made with string inputs/input-combos and action names. Each input type (button, axis, text, and mouseMoved) is bound with a separate function.
 
-Each input in a combo is defined by a "device" and an "id". The device is optional (defaults to scancode) and separated from the id by a colon(:).
+Each input in a combo is separated by a space and defined by a "device" and an "ID". The device is optional (defaults to scancode) and separated from the ID by a colon(:).
 
 Example:
 > `Input.bindButton("ctrl shift m:1", "superClick")`
@@ -69,7 +69,16 @@ Example:
 
 ### IDs
 
-The input "id" is the [Scancode](https://love2d.org/wiki/Scancode), [KeyConstant](https://love2d.org/wiki/KeyConstant), mouse button index (a number), mouse "wheelx" or "wheely", [GamepadButton](https://love2d.org/wiki/GamepadButton), [GamepadAxis](https://love2d.org/wiki/GamepadAxis), joystick button (a number), joystick axis ("axis1", "axis2", etc.), or joystick hat ("hat1", "hat2", etc.).
+The input "ID" is the:
+* [Scancode](https://love2d.org/wiki/Scancode)
+* [KeyConstant](https://love2d.org/wiki/KeyConstant)
+* Mouse button index (a number: 1 = left, 2 = right, 3 = middle, etc.)
+* Mouse "wheelx" or "wheely"
+* [GamepadButton](https://love2d.org/wiki/GamepadButton)
+* [GamepadAxis](https://love2d.org/wiki/GamepadAxis)
+* Joystick button (a number)
+* Joystick axis ("axis1", "axis2", etc.)
+* or joystick hat ("hat1", "hat2", etc.).
 
 There are also a few "virtual" key IDs: "ctrl", "alt", "shift", and "enter". These are combined from the left and right modifier keys, or from "return" and "kpenter" in the case of "enter".
 
@@ -77,7 +86,7 @@ There are also a few "virtual" key IDs: "ctrl", "alt", "shift", and "enter". The
 
 Raw inputs that are an axis (mouse wheel, gamepad/joystick axes) will have a direction assigned to them when bound. This can be designated with a "+" or "-" after the ID. The input binding will only respond to that "side" of the axis.
 
-> Pushing a gamepad joystick up is negative, down is positive.
+> NOTE: Pushing a gamepad joystick up is negative, down is positive.
 
 ### Binding Functions
 
@@ -128,11 +137,11 @@ group:__unbindText(actionName)__
 
 group:__get(actionName)__
 
-Gets the current value of the action, and a current press count for buttons (if the action has multiple bindings).
+Gets the current value of the action, and a current press count for buttons (in case the action has multiple bindings).
 
 group:__getRaw(device, id)__
 
-Gets the latest raw input value for a device and id.
+Gets the latest raw input value for a device and an ID.
 
 group:__enable(obj, pos)__
 
