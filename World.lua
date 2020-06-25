@@ -67,12 +67,12 @@ local function handleContact(type, fixtA, fixtB, contact, normImpulse, tanImpuls
 	if objA then
 		objA:call(type, fixtA, fixtB, objB, contact, normImpulse, tanImpulse)
 	else
-		print(type .. ' - WARNING: Object "' .. objA .. '" does not exist.')
+		print(type .. ' - WARNING: Object "' .. tostring(objA) .. '" does not exist.')
 	end
 	if objB then
 		objB:call(type, fixtB, fixtA, objA, contact, normImpulse, tanImpulse)
 	else
-		print(type .. ' - WARNING: Object "' .. objB .. '" does not exist.')
+		print(type .. ' - WARNING: Object "' .. tostring(objB) .. '" does not exist.')
 	end
 end
 
