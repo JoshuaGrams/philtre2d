@@ -1,7 +1,7 @@
 Scene Tree
 ==========
 
-The scene tree tracks objects and manages transforms and local coordinates for child objects. It manages updating all its child objects and adding them to the draw order. This module is 'stateful'. There is only one scene tree.
+The scene tree tracks objects and manages transforms and local coordinates for child objects. It manages updating all its child objects and adding them to the draw order.
 
 Basic Usage
 -----------
