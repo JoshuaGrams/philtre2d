@@ -63,7 +63,7 @@ local function handleContact(type, fixtA, fixtB, contact, normImpulse, tanImpuls
 	if fixtA:isDestroyed() or fixtB:isDestroyed() then
 		return
 	end
-	local objA, obB = fixtA:getUserData(), fixtB:getUserData()
+	local objA, objB = fixtA:getUserData(), fixtB:getUserData()
 	if objA then
 		objA:call(type, fixtA, fixtB, objB, contact, normImpulse, tanImpulse)
 	else
