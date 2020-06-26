@@ -19,15 +19,8 @@ function SceneTree.set(self, groups, default)
 	self.children = {}
 	self.path = ''
 	self.paths = {}
-	self.removed = {}    -- finalize after next update
-	self.reparents = {}  -- to complete after next update
-	self.compact = {}    -- renumber children after next update
+	self.movedFrom = {}  -- Maps child -> old parent.
 end
-
-local deletedMarker = Object()
-deletedMarker.name = "deletedMarker"
-local markermt = {__tostring = function() return "DELETED MARKER"  end}
-deletedMarker.path = setmetatable({}, markermt) -- Prevents crash if you remove a branch with deletedMarkers in it.
 
 local function initChild(tree, obj, parent, index)
 	-- Prevent duplicate init
@@ -59,57 +52,33 @@ local function initChild(tree, obj, parent, index)
 	obj:call('init')
 end
 
-local function finalizeRemoved(objects)
-	for obj,_ in pairs(objects) do
-		objects[obj] = nil
-		obj:callRecursive('final')
-	end
-end
-
-function _moveChild(obj, oldParent, iChild, newParent)
-	oldParent.children[iChild] = deletedMarker
-	obj.tree.compact[oldParent] = true
-	if not newParent.children then newParent.children = {} end
-	table.insert(newParent.children, obj)
-end
-
--- Actually swap obj between new and old parents' child lists.
-local function finishReparenting(moves)
-	for key,v in pairs(moves) do
-		_moveChild(unpack(v))
-		moves[key] = nil
-	end
-end
-
-local function compact(list, skip)
-	local j = 1
-	for i,v in ipairs(list) do
-		if v == skip then
-			list[i] = nil
+local function compactChildren(parent, movedFrom)
+	local children = parent.children
+	-- Loop over *all* current children.
+	local j = 1  -- new index
+	for i,obj in ipairs(children) do
+		if movedFrom[obj] == parent then
+			-- Remove it, then finalize or insert into new parent.
+			movedFrom[obj], children[i] = nil, nil
+			if obj.parent then
+				obj.parent.children = obj.parent.children or {}
+				table.insert(obj.parent.children, obj)
+			else
+				obj:callRecursive('final')
+			end
 		else
-			if i ~= j then list[i], list[j] = nil, v end
+			-- Not removed: slide it up to fill any gap.
+			if i ~= j then
+				children[i], children[j] = nil, obj
+			end
 			j = j + 1
 		end
 	end
 end
 
-local function compactChildren(objects)
-	for obj,_ in pairs(objects) do
-		local n = #obj.children
-		compact(obj.children, deletedMarker)
-		objects[obj] = nil
-	end
-end
-
 local function finalizeAndReparent(tree)
-	if next(tree.removed) then
-		finalizeRemoved(tree.removed)
-	end
-	if next(tree.reparents) then
-		finishReparenting(tree.reparents)
-	end
-	if next(tree.compact) then
-		compactChildren(tree.compact)
+	for _,parent in pairs(tree.movedFrom) do
+		compactChildren(parent, tree.movedFrom)
 	end
 end
 
@@ -171,25 +140,24 @@ local function recursiveRemovePaths(tree, obj)
 	tree.paths[obj.path] = nil
 end
 
+local function find(list, value)
+	for i,v in ipairs(list) do
+		if v == value then return i end
+	end
+end
+
 -- Take an object out of the tree. If, on `update`, you remove an
 -- ancestor, it and some of its descendants (the not-yet-processed
 -- siblings) may still get `update`d.
 function SceneTree.remove(self, obj)
 	if not self.paths[obj.path] then  return  end -- obj is not in the tree.
-	local parent = obj.parent
-	if not parent then  return  end -- obj is not in the tree or is a deletedMarker.
+	local parent = obj.parent or self.movedFrom[obj]
+	if not (parent and find(parent.children, obj)) then return  end -- obj is not in the tree.
 
 	self.draw_order:removeObject(obj) -- before nullifying any parent references so we can find the right layer.
 
-	for i,child in ipairs(parent.children) do
-		if child == obj then
-			parent.children[i] = deletedMarker
-			self.compact[parent] = true
-			obj.parent = nil
-			break
-		end
-	end
-	self.removed[obj] = true
+	self.movedFrom[obj] = self.movedFrom[obj] or obj.parent
+	obj.parent = nil
 	self.paths[obj.path] = nil
 	recursiveRemovePaths(self, obj)
 end
@@ -205,31 +173,28 @@ function SceneTree.setParent(self, obj, parent, keepWorld, now)
 		print('Tried to set_parent to current parent: ' .. parent.path)
 		return
 	end
-	for k,c in ipairs(obj.parent.children) do
-		if c == obj then
-			self.draw_order:removeObject(obj) -- before parent changes - remove from old layers
-			if now then
-				_moveChild(obj, obj.parent, k, parent)
-			else
-				table.insert(self.reparents, {obj, obj.parent, k, parent})
-			end
-			self.compact[obj.parent] = true
-			obj.parent = parent
-			self.draw_order:addObject(obj) -- after parent changes - add to new layers
-			if obj.updateTransform == Object.TRANSFORM_REGULAR then
-				if keepWorld then
-					local m = {}
-					M.xM(obj._to_world, M.invert(parent._to_world, m), m)
-					obj.pos.x, obj.pos.y = m.x, m.y
-					obj.th, obj.sx, obj.sy, obj.kx, obj.ky = M.parameters(m)
-				else
-					obj:updateTransform()
-				end
-			end
-			return
+	local i = find(obj.parent.children, obj)
+	if not i then
+		error('scene.setParent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
+	end
+	self.draw_order:removeObject(obj) -- before parent changes - remove from old layers
+	if now then
+		table.remove(obj.parent.children, i)
+	else
+		self.movedFrom[obj] = self.movedFrom[obj] or obj.parent
+	end
+	obj.parent = parent
+	self.draw_order:addObject(obj) -- after parent changes - add to new layers
+	if obj.updateTransform == Object.TRANSFORM_REGULAR then
+		if keepWorld then
+			local m = {}
+			M.xM(obj._to_world, M.invert(parent._to_world, m), m)
+			obj.pos.x, obj.pos.y = m.x, m.y
+			obj.th, obj.sx, obj.sy, obj.kx, obj.ky = M.parameters(m)
+		else
+			obj:updateTransform()
 		end
 	end
-	error('scene.setParent - could not find child "' .. obj.path .. '" in parent ("' .. parent.path .. '") child list.')
 end
 
 -- TODO - make an object-based relative-path version?

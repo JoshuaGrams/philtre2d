@@ -38,8 +38,8 @@ function Layer.hasObject(self, object)
 end
 
 function Layer.removeObject(self, object)
+	if object.drawIndex == nil then return end
 	local i = object.drawIndex
-	assert(i, "Layer.removeObject - No `drawIndex` property on object: " .. tostring(object))
 	local item = self[i]
 	assert(item and item[2] == object, "Layer.removeObject - Object '" .. tostring(object) .. "' is not in this layer. " .. tostring(self))
 

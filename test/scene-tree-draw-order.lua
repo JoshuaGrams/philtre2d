@@ -118,7 +118,7 @@ return {
 		scene:update(0)
 		scene:remove(child)
 		local success, err = pcall(scene.remove, scene, parent)
-		T.is(err, nil, "can remove child and then parent in same frame without hanging on the deletedMarker.")
+		T.is(err, nil, "can remove child and then parent in same frame")
 	end,
 	function(scene)
 		local parent, child = Object(), Object()
@@ -128,7 +128,8 @@ return {
 
 		scene:remove(parent)
 		local success, err = pcall(scene.remove, scene, child)
-		T.is(err, nil, "can remove parent and then child in same frame even though grandparent will be nil.")
-		-- If any ancestor reference is nil then DrawOrder can't recurse up to find the layer.
+		T.is(err, nil, "can remove parent and then child in same frame")
+		-- Grandparent will be nil, and if any ancestor reference is nil
+		-- then DrawOrder can't recurse up to find the layer.
 	end
 }
