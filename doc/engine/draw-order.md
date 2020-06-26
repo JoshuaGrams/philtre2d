@@ -34,7 +34,7 @@ The scene tree clears the draw order and adds all the objects each frame, so the
 
 * `order:draw(groups)` - Draw the specified groups.  You can pass either a string or a list of strings (in order from top to bottom).  If you do not specify any groups, it will try to draw the group named `all` (which may not exist if you have defined your own groups).
 
-* `order:clear()` - Remove all objects.
+* `order:clear([layer_name])` - Remove all objects from a specified layer, or from all layers in all groups.
 
 * `order:addObject(object)` - An object may have a `layer` property giving a layer name.  If none is given, it will be added to the current layer.
 
