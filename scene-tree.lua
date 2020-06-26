@@ -41,7 +41,7 @@ local function initChild(tree, obj, parent, index)
 	obj:updateTransform()
 
 	if obj.children then
-		for i,child in pairs(obj.children) do
+		for i,child in ipairs(obj.children) do
 			initChild(tree, child, obj, i)
 		end
 	end
@@ -54,7 +54,7 @@ end
 
 local function compactChildren(parent, movedFrom)
 	local children = parent.children
-	-- Loop over *all* current children.
+	-- Loop over *all* current children, even if deleting or moving.
 	local j = 1  -- new index
 	for i,obj in ipairs(children) do
 		if movedFrom[obj] == parent then
@@ -83,7 +83,7 @@ local function finalizeAndReparent(tree)
 end
 
 local function _update(objects, dt)
-	for _,obj in pairs(objects) do
+	for _,obj in ipairs(objects) do
 		if obj.timeScale ~= 0 then
 			if obj.timeScale then  dt = dt * obj.timeScale  end
 			if obj.children then
@@ -100,7 +100,7 @@ function SceneTree.update(self, dt)
 end
 
 function SceneTree.updateTransforms(tree, objects)
-	for _,obj in pairs(objects or tree.children) do
+	for _,obj in ipairs(objects or tree.children) do
 		if obj.visible then
 			obj:updateTransform()
 			if obj.children then
