@@ -20,7 +20,8 @@ These don't have to exist, but the scene-tree and some other modules will use th
 
 ### Misc Properties
 * **timeScale** - Delta-time multiplier for this object and its descendants. Set to 0 to pause. Set to `nil` or 1 to do nothing.
-* **visible** - If the object (and its children) will be drawn or not.
+* **visible** - If this object is set visible or hidden (thus hiding all its children). Do NOT modify this value directly, use `Object.setVisible` instead.
+* **drawIndex** - This object's index within its draw layer. Do NOT modify this value directly. Will be `nil` if the object is not being drawn (if it or any of its ancestors is hidden). Can be used to check if this object is currently being drawn, or if it will be drawn above or below another object in the same layer. Objects with higher indices are drawn later (i.e., on top).
 
 ### Scene-tree Properties
 Scene-tree will add these to all objects when they are added to the tree.
@@ -36,6 +37,9 @@ Scene-tree will add these to all objects when they are added to the tree.
 Methods
 -------
 
+### Object.setVisible(self, visible)
+Will show or hide the object. Invisible objects will still get update() calls, but their transform will not be updated, and they will not be drawn.
+
 ### Object.call(self, func_name, ...)
 Attempts to call the named function on the object and any scripts that object may have.
 
@@ -43,7 +47,13 @@ Attempts to call the named function on the object and any scripts that object ma
 Recursively calls `Object.call` on the object and all of its descendants. Works from the bottom up (children are called before self).
 
 ### Object.debugDraw(self, layer)
-Unused by default. Uses `tree.draw_order:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`.
+Unused by default. Uses `tree.draw_order:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`. The debugDraw function will _not_ be automatically removed from the layer later, so you probably want to clear your debug layer every frame.
+```lua
+-- Inside love.draw():
+scene.draw_order:clear("physics debug")
+scene:callRecursive("debugDraw", "physics debug")
+-- scene:draw("world") etc...
+```
 
 ### Object.toWorld(obj, x, y, [w])
 Transforms a vector, local to `obj`, into world coordinates.
