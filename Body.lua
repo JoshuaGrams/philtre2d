@@ -50,33 +50,29 @@ function Body.debugDraw(self, layer)
 	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
-function Body.TRANSFORM_PHYSICS(self)
-	self.pos.x, self.pos.y = self.body:getPosition()
-	self.angle = self.body:getAngle()
-	Object.TRANSFORM_ABSOLUTE(self)
+function Body.TRANSFORM_DYNAMIC_PHYSICS(s)
+	s.pos.x, s.pos.y = s.body:getPosition()
+	s.angle = s.body:getAngle()
+	local m = s._to_world
+	m = matrix.new(s.pos.x, s.pos.y, s.angle, 1, 1, 0, 0, m) -- Don't allow scale or shear.
+	s._to_local = nil
 end
 
-function Body.update(self, dt)
-	if self.type == 'kinematic' or self.type == 'trigger' then
-		-- User-Controlled - update physics body to match scene-tree Object.
-		local newx, newy = self.parent:toWorld(self.pos.x, self.pos.y)
-		local th, sx, sy = matrix.parameters(self.parent._to_world)
-		local last = self.lastTransform
-		self.body:setPosition(newx, newy)
-		self.body:setAngle(self.angle + th)
-		self.body:setLinearVelocity(0, 0) -- Just to make sure this can't build up.
-	 	-- Bodies can't scale, set to inverted _to_world scale to enforce this.
-		self.sx, self.sy = 1/sx, 1/sy
-		-- Need to wake up the body if it's parent changes (or any ancestor).
-		if newx ~= last.x or newy ~= last.y or th ~= last.angle then
-			self.body:setAwake(true)
-		end
-		last.x, last.y, last.angle = newx, newy, th
-	else -- 'dynamic' or 'static'
-		-- Physics-Controlled - update scene-tree Object to match physics body.
-		self.pos.x, self.pos.y = self.body:getPosition()
-		self.angle = self.body:getAngle()
+function Body.TRANSFORM_KINEMATIC_PHYSICS(s)
+	local wx, wy = s.parent:toWorld(s.pos.x, s.pos.y)
+	local wAngle = s.angle + matrix.parameters(s.parent._to_world)
+	s.body:setPosition(wx, wy)
+	s.body:setAngle(wAngle)
+	-- Need to wake up the body if it's parent changes (or any ancestor).
+	local last = s.lastTransform
+	if wx ~= last.x or wy ~= last.y or wAngle ~= last.angle then
+		s.body:setAwake(true)
 	end
+	last.x, last.y, last.angle = wx, wy, wAngle
+	local m = s._to_world
+	-- Already transformed pos & angle to world space, don't allow scale or shear.
+	m = matrix.new(wx, wy, wAngle, 1, 1, 0, 0, m)
+	s._to_local = nil
 end
 
 local body_set_funcs = {
@@ -174,7 +170,9 @@ function Body.init(self)
 	self.inherit = nil
 
 	if self.type == 'dynamic' or self.type == 'static' then
-		self.updateTransform = Body.TRANSFORM_PHYSICS
+		self.updateTransform = Body.TRANSFORM_DYNAMIC_PHYSICS
+	else
+		self.updateTransform = Body.TRANSFORM_KINEMATIC_PHYSICS
 	end
 end
 
@@ -189,8 +187,10 @@ function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_tran
 	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
 	self.type = type
 	if self.type == 'dynamic' or self.type == 'static' then
-		self.updateTransform = Object.TRANSFORM_ABSOLUTE -- Change to TRANSFORM_PHYSICS after body is created.
+		-- Doesn't have a body until init, so can't use the physics updateTransform.
+		self.updateTransform = Object.TRANSFORM_ABSOLUTE
 	else
+		-- self.updateTransform == normal object transform (already inherited).
 		self.lastTransform = {}
 		-- Fix rotation on kinematic and trigger bodies to make sure it can't go crazy.
 		if body_prop then  body_prop.fixedRot = true
