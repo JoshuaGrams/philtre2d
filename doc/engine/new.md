@@ -11,17 +11,21 @@ Functions
 ---------
 
 ### new.image(filename)
-Loads an image. See: [love.graphics.newImage](https://love2d.org/wiki/love.graphics.newImage)
+Loads an image. See: [love.graphics.newImage](https://love2d.org/wiki/love.graphics.newImage) (the first variant only).
 
 **Returns:** [Image](https://love2d.org/wiki/Image) - Can be used with a Sprite or Quad, or drawn directly.
 
-### new.font(filename, size)
-Loads a font. See: [love.graphics.newFont](https://love2d.org/wiki/love.graphics.newFont)
+### new.font(filename, [size], [[hinting](https://love2d.org/wiki/HintingMode)], [dpiscale])
+Loads a font. See: [love.graphics.newFont](https://love2d.org/wiki/love.graphics.newFont) (the first two variants, possibly the third?).
+- `size` defaults to 12.
+- `hinting` defaults to "normal".
+- `dpiscale` defaults to [love.graphics.getDPIScale](https://love2d.org/wiki/love.graphics.getDPIScale)().
 
 **Returns:** [Font](https://love2d.org/wiki/Font) - Can be used with a Text object, or to set the current font with [love.graphics.setFont](https://love2d.org/wiki/love.graphics.setFont)
 
-### new.audio(filename)
-Loads a new audio Source. See: [love.audio.newSource](https://love2d.org/wiki/love.audio.newSource)
+### new.audio(filename, [[sourceType](https://love2d.org/wiki/SourceType)])
+Loads a new audio source. See: [love.audio.newSource](https://love2d.org/wiki/love.audio.newSource) (the first variant only).
+- `sourceType` defaults to "static".
 
 **Returns:** [Source](https://love2d.org/wiki/Source)
 

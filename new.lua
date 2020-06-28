@@ -25,12 +25,12 @@ function new.image(filename)
 	return create('image', love.graphics.newImage, filename)
 end
 
-function new.font(filename, size)
-	return create('font', love.graphics.newFont, filename, size)
+function new.font(filename, size, ...)
+	return create('font', love.graphics.newFont, filename, size or 12, ...)
 end
 
-function new.audio(filename)
-	return create('audio', love.graphics.newSource, filename)
+function new.audio(filename, sourceType)
+	return create('audio', love.audio.newSource, filename, sourceType or "static")
 end
 
 return new
