@@ -45,6 +45,8 @@ Engine
 
 * [Physics](engine/physics.md) - Helpers for managing named categories, and doing world queries(raycasts, etc.).
 
+* [New](engine/new.md) - A tiny helper module for loading and caching assets.
+
 Objects
 -------
 
