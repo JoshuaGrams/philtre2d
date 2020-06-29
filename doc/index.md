@@ -49,27 +49,27 @@ Engine
 
 Objects
 -------
-_Required arguments in **bold**._
+_Required arguments in **bold-italic**._
 
 * [Body](objects/Body.md) - Physics body object.
-	* Body(**type**, x, y, angle, **shapes**, prop, ignore_parent_transform)
+	* **Body(** **_type_**, x, y, angle, **_shapes_**, prop, ignore_parent_transform **)**
 * [Camera](objects/Camera.md) - Camera object.
-	* Camera(x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive)
+	* **Camera(** x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive **)**
 * [Object](objects/Object.md) - Base 'game object' class.
-	* Object(x, y, angle, sx, sy, kx, ky)
+	* **Object(** x, y, angle, sx, sy, kx, ky **)**
 * Sprite - Object containing an image.
-	* Sprite(**image**, x, y, angle, sx, sy, color, ox, oy, kx, ky)
+	* **Sprite(** **_image_**, x, y, angle, sx, sy, color, ox, oy, kx, ky **)**
 	* `image` can be either a string (filename) or a love2d Texture object (image or canvas).
 * Quad - Object containing a sub-image (for use with sprite sheets).
-	* Quad(**image**, **quad**, x, y, angle, sx, sy, color, ox, oy, kx, ky)
+	* **Quad(** **_image_**, **_quad_**, x, y, angle, sx, sy, color, ox, oy, kx, ky **)**
 	* As above, `image` can be a string (filename) or an image.
 	* `quad` can be a table (`{x, y, w, h}`) or a quad created with `love.graphics.newQuad`).
 * Text - Object for rendering text. No fancy scaling.
-	* Text(**text**, **font**, x, y, angle, wrap_limit, align, sx, sy, kx, ky)
+	* **Text(** **_text_**, **_font_**, x, y, angle, wrap_limit, align, sx, sy, kx, ky **)**
 	* `font` can be a table `{filename, size}` or an existing font object.
 	* `align` is a string: one of `left`, `center`, `right`, or `justify`.
 * [World](objects/World.md) - Object with its own physics world and callback handlers.
-	* World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)
+	* **World(** xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost **)**
 
 * [Layout Objects](objects/Layout.md) - GUI helpers for laying out boxes.
 
