@@ -100,8 +100,9 @@ local function addObject(self, object)
 		self.layer = self.layers[object.layer] or self.layer
 		self.layer:addObject(object)
 		if object.children then
-			for i,child in ipairs(object.children) do
-				addObject(self, child)
+			for i=1,object.children.maxn do
+				local child = object.children[i]
+				if child then  addObject(self, child)  end
 			end
 		end
 		self:restoreCurrentLayer()
@@ -127,8 +128,9 @@ local function removeObject(self, object)
 	self.layer = self.layers[object.layer] or self.layer
 	self.layer:removeObject(object)
 	if object.children then
-		for i,child in ipairs(object.children) do
-			removeObject(self, child)
+		for i=1,object.children.maxn do
+			local child = object.children[i]
+			if child then  removeObject(self, child)  end
 		end
 	end
 	self:restoreCurrentLayer()

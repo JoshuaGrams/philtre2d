@@ -56,11 +56,12 @@ function Object.call(self, func_name, ...)
 	end
 end
 
--- Calls method on self AFTER children.
+-- Bottom-up: calls method on self AFTER children.
 function Object.callRecursive(self, func_name, ...)
 	if self.children then
-		for i,child in ipairs(self.children) do
-			child:callRecursive(func_name, ...)
+		for i=1,self.children.maxn or #self.children do
+			local child = self.children[i]
+			if child then  child:callRecursive(func_name, ...)  end
 		end
 	end
 	self:call(func_name, ...)

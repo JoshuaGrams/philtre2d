@@ -109,7 +109,7 @@ return {
 		local o1 = mod(Object(), {name = 1, draw = customDraw, script = {script}})
 		scene:add(o1)
 		draw(scene, "a")
-		T.is(drawn, "31", "add children on init, they don't get drawn twice")
+		T.is(drawn, "13", "add children on init, they don't get drawn twice")
 	end,
 	function(scene)
 		local parent, child = Object(), Object()
@@ -121,15 +121,19 @@ return {
 		T.is(err, nil, "can remove child and then parent in same frame")
 	end,
 	function(scene)
-		local parent, child = Object(), Object()
-		parent.children = { child }
+		local objs = {}
+		local parent = Object()
 		scene:add(parent)
-		scene:update(0)
-
+		for i=1,10 do
+			objs[i] = mod(Object(), {draw = customDraw})
+			scene:add(objs[i], parent)
+		end
+		for i=4,7 do  scene:remove(objs[i])  end
 		scene:remove(parent)
-		local success, err = pcall(scene.remove, scene, child)
-		T.is(err, nil, "can remove parent and then child in same frame")
-		-- Grandparent will be nil, and if any ancestor reference is nil
-		-- then DrawOrder can't recurse up to find the layer.
+		draw(scene, "a")
+		T.is(drawn, "", "deleting middle children then deleting parent doesn't leave later children in draw order")
+		scene:add(parent)
+		draw(scene, "a")
+		T.is(drawn, string.rep("Object", 6), "re-adding parent with deleted middle children re-adds all children correctly")
 	end
 }
