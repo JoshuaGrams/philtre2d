@@ -339,9 +339,11 @@ function Camera.follow(self, obj, allowMultiFollow, weight, deadzone)
 end
 
 function Camera.unfollow(self, obj)
-	if obj and self.follows[obj] then -- remove specified object from list
-		self.follows[obj] = nil
-		self.follow_count = self.follow_count - 1
+	if obj then -- remove specified object from list
+		if self.follows[obj] then -- separate condition so it doesn't clear all if obj is not found
+			self.follows[obj] = nil
+			self.follow_count = self.follow_count - 1
+		end
 	else -- no object specified, clear follows
 		for k,v in pairs(self.follows) do self.follows[k] = nil end
 		self.follow_count = 0
