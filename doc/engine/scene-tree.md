@@ -68,10 +68,10 @@ _PARAMETERS_
 _RETURNS_
 * __obj__ <kbd>Object | nil</kbd> - The object at the specified path (or `nil` if none is found).
 
-### scene:setParent(obj, [parent], [keepWorld])
+### scene:setParent(obj, [parent], [keepWorldTransform])
 Moves an object in the scene tree from its current parent to another.
 
 _PARAMETERS_
 * __obj__ <kbd>Object</kbd> - The object to reparent.
 * __parent__ <kbd>Object</kbd> - _optional_ - The object to reparent `obj` to. Defaults to the scene tree root.
-* __keepWorld__ <kbd>bool</kbd> - _optional_ - Modify the object's local coordinates so that its world coordinates stay the same. Only has an effect for objects with `TRANSFORM_REGULAR`.
+* __keepWorldTransform__ <kbd>bool</kbd> - _optional_ - Modify the object's local coordinates so that its world coordinates stay the same. Only has an effect for objects with `TRANSFORM_REGULAR`.

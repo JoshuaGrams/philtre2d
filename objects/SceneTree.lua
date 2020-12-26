@@ -1,6 +1,8 @@
 local base = (...):gsub('objects%.SceneTree$', '')
 local Tree = require(base .. 'objects.Tree')
+local Object = require(base .. 'objects.Object')
 local DrawOrder = require(base .. 'render.draw-order')
+local matrix = require(base .. 'modules.matrix')
 
 local SceneTree = Tree:extend()
 
@@ -60,7 +62,18 @@ function SceneTree.remove(self, obj, skipCall)
 	SceneTree.super.remove(self, obj)
 end
 
-function SceneTree.setParent(self, obj, parent) -- TODO: keepWorldTransform
+function SceneTree.setParent(self, obj, parent, keepWorldTransform)
+	assert(obj.is and obj:is(Object), 'SceneTree.add: obj: '..tostring(obj)..' is not an Object.')
+	parent = parent or self
+	if parent ~= self then
+		assert(parent.is and parent:is(Object), 'SceneTree.add: parent: '..tostring(parent)..' is not an Object.')
+	end
+	if keepWorldTransform and obj.updateTransform == Object.TRANSFORM_REGULAR then
+		local m = {}
+		matrix.xM(obj._to_world, matrix.invert(parent._to_world, m), m)
+		obj.pos.x, obj.pos.y = m.x, m.y
+		obj.angle, obj.sx, obj.sy, obj.kx, obj.ky = matrix.parameters(m)
+	end
 	self.draw_order:removeObject(obj)
 	SceneTree.super.remove(self, obj)
 	SceneTree.super.add(self, obj, parent)
