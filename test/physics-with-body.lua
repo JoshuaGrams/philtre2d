@@ -1,12 +1,12 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local physics = require(base .. 'physics')
-local body = require(base .. 'Body')
-DrawOrder = require(base .. 'draw-order') -- SceneTree requires this as a global.
-local SceneTree = require(base .. 'scene-tree')
-local World = require(base .. 'World')
-local Body = require(base .. 'Body')
+local physics = require(base .. 'modules.physics')
+local body = require(base .. 'objects.Body')
+DrawOrder = require(base .. 'render.draw-order') -- SceneTree requires this as a global.
+local SceneTree = require(base .. 'objects.SceneTree')
+local World = require(base .. 'objects.World')
+local Body = require(base .. 'objects.Body')
 
 local scene, world
 

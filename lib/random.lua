@@ -3,7 +3,7 @@ local Random = {}
 local rnd = math.random
 
 function Random.range(lo, hi)
-	return lo + (hi - lo) * rnd() 
+	return lo + (hi - lo) * rnd()
 end
 
 function Random.near(center, diff)

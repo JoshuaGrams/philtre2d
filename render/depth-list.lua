@@ -1,5 +1,5 @@
-local base = (...):gsub('[^%.]+$', '')
-local Class = require(base .. 'lib.base-class')
+local base = (...):gsub('render%.depth%-list$', '')
+local Class = require(base .. 'modules.base-class')
 
 local DepthList = Class:extend()
 DepthList.className = 'DepthList'

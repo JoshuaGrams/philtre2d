@@ -1,5 +1,5 @@
-local base = (...):gsub('[^%.]+$', '')
-local Object = require(base .. 'Object')
+local base = (...):gsub('objects%.Quad$', '')
+local Object = require(base .. 'objects.Object')
 
 local Quad = Object:extend()
 

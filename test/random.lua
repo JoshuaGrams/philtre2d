@@ -1,6 +1,6 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require(base .. 'lib.simple-test')
-local Rnd = require(base .. 'random')
+local Rnd = require(base .. 'lib.random')
 
 
 return {

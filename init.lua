@@ -2,23 +2,23 @@
 
 local base = (...):gsub('%.init$', '.')
 
-matrix = require(base .. 'matrix')
-new = require(base .. 'new')
+matrix = require(base .. 'modules.matrix')
+new = require(base .. 'modules.new')
 
-SceneTree = require(base .. 'scene-tree')
-DrawOrder = require(base .. 'draw-order')
+SceneTree = require(base .. 'objects.SceneTree')
+DrawOrder = require(base .. 'render.draw-order')
 
-Input = require(base .. 'input')
-physics = require(base .. 'physics')
+Input = require(base .. 'modules.input')
+physics = require(base .. 'modules.physics')
 
 -- Objects
-Object = require(base .. 'Object')
-Sprite = require(base .. 'Sprite')
-Quad = require(base .. 'Quad')
-Body = require(base .. 'Body')
-World = require(base .. 'World')
-Camera = require(base .. 'Camera')
-Text = require(base .. 'Text')
+Object = require(base .. 'objects.Object')
+Sprite = require(base .. 'objects.Sprite')
+Quad = require(base .. 'objects.Quad')
+Body = require(base .. 'objects.Body')
+World = require(base .. 'objects.World')
+Camera = require(base .. 'objects.Camera')
+Text = require(base .. 'objects.Text')
 
 -- Note that `props` override values already on `obj`.  This is
 -- deliberate, so we can insert a file into a bigger scene and

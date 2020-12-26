@@ -1,7 +1,7 @@
-local base = (...):gsub('[^%.]+$', '')
-local M = require(base .. 'matrix')
-local Object = require(base .. 'Object')
-local DrawOrder = require(base .. 'draw-order')
+local base = (...):gsub('objects%.SceneTree$', '')
+local M = require(base .. 'modules.matrix')
+local Object = require(base .. 'objects.Object')
+local DrawOrder = require(base .. 'render.draw-order')
 
 local SceneTree = Object:extend()
 

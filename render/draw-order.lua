@@ -1,7 +1,7 @@
-local base = (...):gsub('[^%.]+$', '')
-local Class = require(base .. 'lib.base-class')
-local DepthList = require(base .. 'depth-list')
-local Layer = require(base .. 'layer')
+local base = (...):gsub('render%.draw%-order$', '')
+local Class = require(base .. 'modules.base-class')
+local DepthList = require(base .. 'render.depth-list')
+local Layer = require(base .. 'render.layer')
 
 local DrawOrder = Class:extend()
 

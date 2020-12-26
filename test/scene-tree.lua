@@ -1,8 +1,8 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local SceneTree = require(base .. 'scene-tree')
-local Object = require(base .. 'Object')
+local SceneTree = require(base .. 'objects.SceneTree')
+local Object = require(base .. 'objects.Object')
 
 local function mod(obj, props)
 	for name,prop in pairs(props) do

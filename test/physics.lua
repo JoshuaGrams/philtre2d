@@ -1,7 +1,7 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local physics = require(base .. 'physics')
+local physics = require(base .. 'modules.physics')
 
 return {
    "Physics",

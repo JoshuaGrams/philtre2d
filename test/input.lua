@@ -1,7 +1,7 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local input = require(base .. 'input')
+local input = require(base .. 'modules.input')
 
 local ltClickBinding = { 'left click', 'button', 'mouse', 1 }
 local binding1 = { 'action1', 'button', 'key', 'a' }

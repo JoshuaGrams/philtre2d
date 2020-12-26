@@ -1,7 +1,7 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require(base .. 'lib.simple-test')
 
-local Layout = require(base .. 'layout')
+local Layout = require(base .. 'objects.layout.all')
 
 local fitSize = {
 	"Fit Size",

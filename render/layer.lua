@@ -1,6 +1,6 @@
-local base = (...):gsub('[^%.]+$', '')
-local Class = require(base .. 'lib.base-class')
-local M = require(base .. 'matrix')
+local base = (...):gsub('render%.layer$', '')
+local Class = require(base .. 'modules.base-class')
+local M = require(base .. 'modules.matrix')
 
 local Layer = Class:extend()
 

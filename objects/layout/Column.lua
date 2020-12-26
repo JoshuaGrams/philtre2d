@@ -1,25 +1,8 @@
--- Place objects along a dimension.
---
--- A container has:
---
--- * spacing (number): units between elements (not at ends).
---
--- * homogeneous (boolean): place elements at equal intervals?
---
--- Each element within the container can have:
---
--- * request (function -> {w=#, h=#}): base size of element.
---
--- * extra ('none'/'space'/'stretch'): does this element want
---   more space, and what should we do with the extra?
---
--- * padding (number): units of space on either side.
+local base = (...):gsub('objects%.layout%.Column$', '')
+local Object = require(base .. 'objects.Object')
 
-local base = (...):gsub('[^%.]+.[^%.]+$', '')
-local Object = require(base .. 'Object')
-
-local Row = Object:extend()
-Row.className = 'Layout.Row'
+local Column = Object:extend()
+Column.className = 'Layout.Column'
 
 local noChildren = {}
 
@@ -37,13 +20,13 @@ local function add(self, obj, dir, extra, pad)
 	if not self.children then self.children = {} end
 	table.insert(self.children, child.obj)
 end
-Row.add = add
+Column.add = add
 
 local function increaseRequest(req, children)
 	for _,child in ipairs(children) do
 		local r = child.obj:request()
-		req.w = req.w + r.w + 2 * child.pad
-		req.h = math.max(req.h, r.h)
+		req.w = math.max(req.w, r.w)
+		req.h = req.h + r.h + 2 * child.pad
 	end
 end
 
@@ -52,44 +35,44 @@ local function request(self)
 	increaseRequest(req, self.startChildren)
 	increaseRequest(req, self.endChildren)
 	local n = #self.startChildren + #self.endChildren
-	req.w = req.w + self.spacing * (n - 1)
+	req.h = req.h + self.spacing * (n - 1)
 	self._req = req
 	return req
 end
-Row.request = request
+Column.request = request
 
 local function allocateChild(child, x, y, w, h)
 	local obj = child.obj
 	-- Subtract padding.
-	x = x + math.min(w, child.pad)
-	w = math.max(0, w - 2 * child.pad)
+	y = y + math.min(h, child.pad)
+	h = math.max(0, h - 2 * child.pad)
 	-- Account for extra unless child wants stretching.
 	if child.extra ~= 'stretch' then
 		local r = obj:request()
 		local rw, rh = r.w, r.h
 		local ex, ey = w - rw, h - rh
 		ex, ey = math.max(ex, 0), math.max(ey, 0)
-		x, w = x + 0.5 * ex, w - ex
+		y, h = y + 0.5 * ey, h - ey
 	end
 	obj:allocate(x, y, w, h)
 end
 
-local function allocateHomogeneousRow(self, x, y, w, h)
+local function allocateHomogeneousColumn(self, x, y, w, h)
 	local n = #self.startChildren + #self.endChildren
 	if n == 0 then return end
-	local a = math.max(0, w - self.spacing * (n - 1)) / n
+	local a = math.max(0, h - self.spacing * (n - 1)) / n
 
-	local left = 0
+	local top = 0
 	for _,c in ipairs(self.startChildren) do
-		allocateChild(c, left, 0, a, h)
-		left = math.min(w, left + a + self.spacing)
+		allocateChild(c, 0, top, w, a)
+		top = math.min(h, top + a + self.spacing)
 	end
 
-	local right = 0
+	local bottom = 0
 	for _,c in ipairs(self.endChildren) do
-		right = math.min(w, right + a)
-		allocateChild(c, w - right, 0, a, h)
-		right = math.min(w, right + self.spacing)
+		bottom = math.min(h, bottom + a)
+		allocateChild(c, 0, h - bottom, w, a)
+		bottom = math.min(h, bottom + self.spacing)
 	end
 end
 
@@ -104,65 +87,65 @@ local function extraCount(self)
 	return e
 end
 
-local function allocateHeterogeneousRow(self, x, y, w, h)
+local function allocateHeterogeneousColumn(self, x, y, w, h)
 	local n = #self.startChildren + #self.endChildren
 	if n == 0 then return end
 
 	local req = request(self)
 	local squashFactor
-	local extra = w - req.w
+	local extra = h - req.h
 	if extra >= 0 then
 		extra = extra / extraCount(self)
 	else
 		local space = self.spacing * (n - 1)
-		local allocated = math.max(0, w - space)
-		local requested = req.w - space
+		local allocated = math.max(0, h - space)
+		local requested = req.h - space
 		squashFactor = allocated / requested
 	end
 
-	local left = 0
+	local top = 0
 	for _,c in ipairs(self.startChildren) do
 		local r = c.obj:request()
 		local rw, rh = r.w, r.h
 		if squashFactor ~= nil then
-			rw = rw * squashFactor
+			rh = rh * squashFactor
 		elseif c.extra ~= 'none' then
-			rw = rw + extra
+			rh = rh + extra
 		end
-		local a = math.max(0, math.min(w - left, rw))
-		allocateChild(c, left, 0, a, h)
-		left = math.min(w, left + a + self.spacing)
+		local a = math.max(0, math.min(h - top, rh))
+		allocateChild(c, 0, top, w, a)
+		top = math.min(h, top + a + self.spacing)
 	end
 
-	local right = 0
+	local bottom = 0
 	for _,c in ipairs(self.endChildren) do
 		local r = c.obj:request()
 		local rw, rh = r.w, r.h
 		if squashFactor ~= nil then
-			rw = rw * squashFactor
+			rh = rh * squashFactor
 		elseif c.extra ~= 'none' then
-			rw = rw + extra
+			rh = rh + extra
 		end
-		local a = math.max(0, math.min(w - right, rw))
-		right = math.min(w, right + a)
-		allocateChild(c, w - right, 0, a, h)
-		right = math.min(w, right + self.spacing)
+		local a = math.max(0, math.min(h - bottom, rh))
+		bottom = math.min(h, bottom + a)
+		allocateChild(c, 0, h - bottom, w, a)
+		bottom = math.min(h, bottom + self.spacing)
 	end
 end
 
-function Row.allocate(self, x, y, w, h)
+function Column.allocate(self, x, y, w, h)
 	if self.homogeneous then
-		allocateHomogeneousRow(self, x, y, w, h)
+		allocateHomogeneousColumn(self, x, y, w, h)
 	else
-		allocateHeterogeneousRow(self, x, y, w, h)
+		allocateHeterogeneousColumn(self, x, y, w, h)
 	end
 	self.pos.x, self.pos.y = x, y
 end
 
-function Row.draw(self) end
+function Column.draw(self) end
 
-function Row.set(self, spacing, homogeneous, children)
-	Row.super.set(self)
+function Column.set(self, spacing, homogeneous, children)
+	Column.super.set(self)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
 	self.startChildren, self.endChildren = {}, {}
@@ -171,4 +154,4 @@ function Row.set(self, spacing, homogeneous, children)
 	end
 end
 
-return Row
+return Column

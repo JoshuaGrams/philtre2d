@@ -1,5 +1,5 @@
-local base = (...):gsub('[^%.]+.[^%.]+$', '')
-local Object = require(base .. 'Object')
+local base = (...):gsub('objects%.layout%.Fit$', '')
+local Object = require(base .. 'objects.Object')
 local Fit = Object:extend()
 Fit.className = 'Layout.Fit'
 
