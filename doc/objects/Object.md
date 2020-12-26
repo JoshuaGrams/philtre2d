@@ -38,7 +38,7 @@ Methods
 -------
 
 ### Object.setVisible(self, visible)
-Will show or hide the object. Invisible objects will still get update() calls, but their transform will not be updated, and they will not be drawn.
+Will show or hide the object. Invisible objects and their children will not be drawn, but they will still get `updateTransform` and `update` calls.
 
 ### Object.call(self, func_name, ...)
 Attempts to call the named function on the object and any scripts that object may have.
