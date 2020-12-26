@@ -16,7 +16,7 @@ These don't have to exist, but the scene-tree and some other modules will use th
 * **pos** - Position, {x=0, y=0}.
 * **sx, sy** - Scale x and y.
 * **angle** - Rotation angle in radians, clockwise.
-* **kx, ky** - Skew x and y.
+* **kx, ky** - Skew (or "shear") x and y. Default: 0, 0.
 
 ### Misc Properties
 * **timeScale** - Delta-time multiplier for this object and its descendants. Set to 0 to pause. Set to `nil` or 1 to do nothing.
@@ -95,7 +95,7 @@ Returns `'(' .. self.className .. '): path = ' .. tostring(self.path)`. New obje
 
 Transform functions
 -------------------
-`Object` also holds three different transform update functions to be used by itself and any child classes. Every object must have its `.updateTransform` property set to one of these, which will be called by `scene-tree` immediately before the object's children are init, and on every update immediately after the object's `update` is called.
+`Object` also holds three different transform update functions to be used by itself and any child classes. Objects in the Scene-Tree must have a `.updateTransform` method to update their `_to_world` matrix, which the Scene-Tree will call on all objects before the `draw` callback.
 
 ### Object.TRANSFORM_REGULAR(self)
 The default. Sets the object's `_to_world` matrix to its parent's `_to_world` multiplied by its own, updated, local transform.

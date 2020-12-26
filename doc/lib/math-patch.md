@@ -1,7 +1,7 @@
 
 # Math Patch
 
-Patches some missing functions into the default `math` library.
+Patches some convenient functions into the default `math` library.
 
 ## Functions
 

@@ -1,6 +1,12 @@
 Philtre 2D
 ==========
 
+Download and install [Löve2D](https://love2d.org/). See also: [Löve2D Getting Started](https://love2d.org/wiki/Getting_Started).
+
+In your desired project folder, create a git repository:
+
+	git init
+
 Add to your git project as a submodule:
 
 	git submodule add -b master https://github.com/JoshuaGrams/philtre2d.git philtre
@@ -15,12 +21,14 @@ This will update `philtre` to point to the new upstream HEAD, and you'll need to
 
 -----
 
-Minimal usage:
+Minimal usage / "hello world" example:
 
 	require 'philtre.init'  -- Load all engine components into global variables.
 
 	function love.load()
 		scene = SceneTree()
+		local t = Text("hello world", love.graphics.newFont())
+		scene:add(t)
 	end
 
 	function love.update(dt)
@@ -46,6 +54,8 @@ Engine
 * [Physics](engine/physics.md) - Helpers for managing named categories, and doing world queries(raycasts, etc.).
 
 * [New](engine/new.md) - A tiny helper module for loading and caching assets.
+
+* [Scripts](engine/scripts.md) - Optional script system for objects in the tree.
 
 Objects
 -------
@@ -81,7 +91,7 @@ Libraries
 Useful modules that were written by other people or just aren't required by the engine itself.
 
 * [Testing](lib/simple-test.md) - A simple test-runner.
-* [Math Patch](lib/math-patch.md) - Patches some missing functions into the default `math` library.
+* [Math Patch](lib/math-patch.md) - Patches some convenient functions into the default `math` library.
 * [Vec2 (x,y)](lib/vec2xy.md) - Vector2 operations using only x and y numbers, not tables or userdata.
 * [Flux](https://github.com/rxi/flux) - rxi's tweening lib with some [modifications](lib/flux-modifications.md).
 
@@ -101,4 +111,3 @@ Todo
 * Particle Emitter.
 * Finish and test box-model GUI system?
 * Physics Joint object?
-* Documentation Generator?

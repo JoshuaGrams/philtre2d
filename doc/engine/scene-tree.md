@@ -17,11 +17,11 @@ Functions
 
 ### scene:add(obj, [parent])
 Adds an object to the tree. If no parent is specified it will be added at the root level (a child of the tree object). Each object added to the tree will be given the following properties:
- - `tree`: A reference to the SceneTree object.
- - `parent`: Its parent object reference.
- - `name`: Its existing name or a generated one, will be used in its `path`.
- - `_index`: Its child index.
- - `path`: Its address in the tree, used with `scene:get(path)`. You can use the `path` to check if an object is in the tree, since it will be cleared when the object is removed.
+ * `tree`: A reference to the SceneTree object.
+ * `parent`: Its parent object reference.
+ * `name`: Its existing name or a generated one, will be used in its `path`.
+ * `_index`: Its child index.
+ * `path`: Its address in the tree, used with `scene:get(path)`. You can use the `path` to check if an object is in the tree, since it will be cleared when the object is removed.
 
 Once the object and any children are added to the tree, `init` is called on each object, in bottom-up order.
 
