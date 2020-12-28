@@ -51,6 +51,7 @@ function SceneTree.add(self, obj, parent)
 			obj:call('init')
 		end
 	end
+	return obj
 end
 
 function SceneTree.remove(self, obj, skipCall)
