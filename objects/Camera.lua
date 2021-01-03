@@ -158,25 +158,8 @@ function Camera.setViewport(self, x, y, w, h)
 end
 
 function Camera.update(self, dt)
-	-- update follows
-	if self.follow_count > 0 then
-		-- average position of all follows
-		local total_weight = 0 -- total weight
-		local fx, fy = 0, 0
-		for obj,data in pairs(self.follows) do
-			if data.deadzone then
-				local ox, oy = get_offset_from_deadzone(self, obj, data.deadzone)
-				fx = fx + self.pos.x + ox*data.weight
-				fy = fy + self.pos.y + oy*data.weight
-			else
-				fx = fx + obj.pos.x*data.weight;  fy = fy + obj.pos.y*data.weight
-			end
-			total_weight = total_weight + data.weight
-		end
-		fx = fx / total_weight;  fy = fy / total_weight
-		fx, fy = lerpdt(self.pos.x, self.pos.y, fx, fy, self.follow_lerp_speed, dt)
-		self.pos.x, self.pos.y = fx, fy
-	end
+
+	self:updateFollows(dt)
 
 	self:enforceBounds()
 
@@ -347,6 +330,27 @@ function Camera.unfollow(self, obj)
 	else -- no object specified, clear follows
 		for k,v in pairs(self.follows) do self.follows[k] = nil end
 		self.follow_count = 0
+	end
+end
+
+function Camera.updateFollows(self, dt)
+	if self.follow_count > 0 then
+		-- average position of all follows
+		local total_weight = 0 -- total weight
+		local fx, fy = 0, 0
+		for obj,data in pairs(self.follows) do
+			if data.deadzone then
+				local ox, oy = get_offset_from_deadzone(self, obj, data.deadzone)
+				fx = fx + self.pos.x + ox*data.weight
+				fy = fy + self.pos.y + oy*data.weight
+			else
+				fx = fx + obj.pos.x*data.weight;  fy = fy + obj.pos.y*data.weight
+			end
+			total_weight = total_weight + data.weight
+		end
+		fx = fx / total_weight;  fy = fy / total_weight
+		fx, fy = lerpdt(self.pos.x, self.pos.y, fx, fy, self.follow_lerp_speed, dt)
+		self.pos.x, self.pos.y = fx, fy
 	end
 end
 
