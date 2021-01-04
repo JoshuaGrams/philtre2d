@@ -84,12 +84,6 @@ local body_set_funcs = {
 	gScale = 'setGravityScale'
 }
 
-local fixture_set_funcs = {
-	sensor = 'setSensor',
-	friction = 'setFriction',
-	restitution = 'setRestitution'
-}
-
 local shape_constructors = {
 	circle = love.physics.newCircleShape, -- radius OR x, y radius
 	rectangle = love.physics.newRectangleShape, -- width, height OR x, y, width, height, angle
@@ -101,27 +95,22 @@ local shape_constructors = {
 function Body.addFixture(self, data)
 	-- data[1] = shape type, data[2] = shape specs, any other keys = fixture props.
 	local shape = shape_constructors[data[1]](unpack(data[2]))
+	local density, sensor = data.density, data.sensor
 	if self.type == 'trigger' then
-		data.density = data.density or 0
-		data.sensor = true
+		density = density or 0
+		sensor = true
 	end
-	local f = love.physics.newFixture(self.body, shape, data.density)
-	data[1], data[2], data.density = nil, nil, nil -- Remove already used values.
+	local f = love.physics.newFixture(self.body, shape, density)
 	f:setUserData(self) -- Store self ref on each fixture for collision callbacks.
 
-	data.categories = data.categories or 1
-	data.mask = data.mask or FULL_MASK_INT
-	data.group = data.group or 0
-	f:setFilterData(data.categories, data.mask, data.group) -- With bitmasks, can only set them all together, not individually.
-	data.categories, data.mask, data.group = nil, nil, nil -- Remove already used values.
+	local cat = data.categories or 1
+	local mask = data.mask or FULL_MASK_INT
+	local group = data.group or 0
+	f:setFilterData(cat, mask, group) -- With bitmasks, can only set them all together, not individually.
 
-	for k,v in pairs(data) do
-		if fixture_set_funcs[k] then
-			f[fixture_set_funcs[k]](f, v)
-		else
-			error('Body.init (' .. tostring(self.path) .. ') - Invalid fixture-data key: "' .. k .. '".')
-		end
-	end
+	if sensor then  f:setSensor(sensor)  end
+	if data.friction then  f:setFriction(data.friction)  end
+	if data.restitution then  f:setRestitution(data.restitution)  end
 end
 
 function Body.init(self)
