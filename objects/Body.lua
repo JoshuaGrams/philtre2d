@@ -1,5 +1,6 @@
 local base = (...):gsub('objects%.Body$', '')
 local matrix = require(base .. 'modules.matrix')
+local physics = require(base .. 'modules.physics')
 local Object = require(base .. 'objects.Object')
 local World = require(base .. 'objects.World')
 
@@ -97,16 +98,6 @@ local shape_constructors = {
 	chain = love.physics.newChainShape, -- loop, points OR loop, x1, y1, x2, y2 ... no vert limit
 }
 
-local function getWorld(parent)
-	if not parent then
-		return
-	elseif parent.is and parent:is(World) and parent.world then
-		return parent.world
-	else
-		return getWorld(parent.parent)
-	end
-end
-
 function Body.addFixture(self, data)
 	-- data[1] = shape type, data[2] = shape specs, any other keys = fixture props.
 	local shape = shape_constructors[data[1]](unpack(data[2]))
@@ -134,9 +125,8 @@ function Body.addFixture(self, data)
 end
 
 function Body.init(self)
-	local world = getWorld(self.parent)
-	self.world = world
-	if not world then
+	self.world = physics.getWorld(self)
+	if not self.world then
 		error('Body.init (' .. tostring(self.path) .. ') - No parent World found. Bodies must be descendants of a World object.')
 	end
 
@@ -149,7 +139,7 @@ function Body.init(self)
 	end
 	-- Make body.
 	local bType = (self.type == 'trigger') and 'dynamic' or self.type
-	self.body = love.physics.newBody(world, self.pos.x, self.pos.y, bType)
+	self.body = love.physics.newBody(self.world, self.pos.x, self.pos.y, bType)
 	self.body:setAngle(self.angle)
 	if self.bodyData then
 		for k,v in pairs(self.bodyData) do
