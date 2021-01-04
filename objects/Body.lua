@@ -111,6 +111,8 @@ function Body.addFixture(self, data)
 	if sensor then  f:setSensor(sensor)  end
 	if data.friction then  f:setFriction(data.friction)  end
 	if data.restitution then  f:setRestitution(data.restitution)  end
+
+	return f
 end
 
 function Body.init(self)
