@@ -107,7 +107,7 @@ local function getWorld(parent)
 	end
 end
 
-local function makeFixture(self, data)
+function Body.addFixture(self, data)
 	-- data[1] = shape type, data[2] = shape specs, any other keys = fixture props.
 	local shape = shape_constructors[data[1]](unpack(data[2]))
 	if self.type == 'trigger' then
@@ -158,10 +158,10 @@ function Body.init(self)
 	end
 	-- Make shapes & fixtures.
 	if type(self.shapeData[1]) == 'string' then -- Only one fixture def.
-		makeFixture(self, self.shapeData)
+		self:addFixture(self.shapeData)
 	else
 		for i, data in ipairs(self.shapeData) do -- A list of fixture defs.
-			makeFixture(self, data)
+			self:addFixture(data)
 		end
 	end
 	-- Discard constructor data.
