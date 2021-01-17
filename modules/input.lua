@@ -318,30 +318,20 @@ function group.callAction(self, actionName, value, change, rawChange, ...)
 	return self.stack:call(actionName, value, change, rawChange, ...)
 end
 
-local function buttonHandler(self, binding, newVal, oldVal, isRepeat, x, y, dx, dy, isTouch, presses)
-	newVal, oldVal = floor(newVal + 0.5), floor(oldVal + 0.5)
-	local rawChange = newVal - oldVal -- -1, 0, or +1
+-- For axes and buttons.
+local function handler(self, binding, newVal, oldVal, isRepeat, x, y, dx, dy, isTouch, presses)
+	local rawChange
+	if binding.type == "button" then
+		newVal, oldVal = floor(newVal + 0.5), floor(oldVal + 0.5) -- Binding values always positive.
+		rawChange = newVal - oldVal -- -1, 0, or +1
+	else
+		rawChange = (newVal - oldVal) * binding.axisDir -- Axis values can switch to negative.
+	end
 	if rawChange ~= 0 or isRepeat then
 		for i,actionName in ipairs(binding.actions) do
 			local action = self.allActions[actionName]
 			action.total = action.total + rawChange
-			local newActionVal = min(1, action.total)
-			local change = newActionVal - action.value
-			action.value = newActionVal
-			local r = self:callAction(actionName, action.value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)
-			if r then  return r  end
-		end
-	end
-end
-
-local function axisHandler(self, binding, newVal, oldVal, isRepeat, x, y, dx, dy, isTouch, presses)
-	local rawChange = (newVal - oldVal) * binding.axisDir
-	newVal = newVal * binding.axisDir
-	if rawChange ~= 0 then
-		for i,actionName in ipairs(binding.actions) do
-			local action = self.allActions[actionName]
-			action.total = action.total + rawChange
-			local newActionVal = max(-1, min(1, action.total))
+			local newActionVal = max(-1, min(1, action.total)) -- Button values can't be negative anyway.
 			local change = newActionVal - action.value
 			action.value = newActionVal
 			local r = self:callAction(actionName, action.value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)
@@ -352,11 +342,8 @@ end
 
 local function updateBinding(self, binding, rawVal, ...)
 	local bindVal = modifiersArePressed(binding.modifiers) and rawVal or 0
-	-- Binding value always positive.
-	if binding.inputDir then  bindVal = max(0, bindVal * binding.inputDir)  end
-	local bindChange = bindVal - binding.value
+	if binding.inputDir then  bindVal = max(0, bindVal * binding.inputDir)  end -- Binding value always positive.
 	-- Send to handler even if change == 0.
-	local handler = binding.type == "button" and buttonHandler or axisHandler
 	local consumed = handler(self, binding, bindVal, binding.value, ...)
 	binding.value = bindVal
 	return consumed
