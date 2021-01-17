@@ -32,13 +32,18 @@ Input Callback
 
 The object or one of its scripts must have an "input" function to respond to input. All of the extra raw inputs from the original love callbacks are passed on, so there is a rather long conglomeration of arguments:
 
-> `function input(actionName, value, change, isRepeat, x, y, dx, dy, isTouch, presses)`
+> `function input(actionName, value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)`
 
-All actions will send the `actionName` and most will send `value` and `change`. Text input only sends `value` and not `change`. Mouse movement only sends `x`, `y`, `dx`, and `dy`. Whether any other arguments are present or not will depend on what raw input triggered the action.
+All actions will send the `actionName` and most will send `value`, `change`, and `rawChange`. Text input only sends `value` and not `change`. Mouse movement only sends `x`, `y`, `dx`, and `dy`. Whether any other arguments are present or not will depend on what raw input triggered the action.
 
 * Scancodes and keys will send `isRepeat`.
 * Mouse buttons will send `x`, `y`, `isTouch`, and `presses`.
 * Mouse wheel movements will send `dx` and `dy`.
+
+_PARAMETERS_
+* __`value`__ - The current action value. Is 0 or 1 for button inputs and -1 to +1 for axis inputs.
+* __`change`__ - The change in value since the last input. Will be +1 for button presses and -1 for button releases, or 0 for key-repeat inputs.
+* __`rawChange`__ - Will match `change` unless you have multiple raw inputs bound to the same action. For example: If you have two keys bound to the same "button" action, and you press both, the first press will give `change = 1` and the second will give `change = 0`, but the `rawChange` for both will be 1. Key-repeat inputs will have a `rawChange` of 0.
 
 Groups
 ------
@@ -57,6 +62,7 @@ Each input in a combo is separated by a space and defined by a "device" and an "
 
 Example:
 > `Input.bindButton("ctrl shift m:1", "superClick")`
+
 > `Input.bindButton("j1:leftx-", "left")` -- An optional sign for raw axis inputs.
 
 ### Devices
@@ -137,7 +143,10 @@ group:__unbindText(actionName)__
 
 group:__get(actionName)__
 
-Gets the current value of the action, and a current press count for buttons (in case the action has multiple bindings).
+_RETURNS:_ `value`, `total`
+
+* __`value`__ - The action's current value.
+* __`total`__ - The action's current _cumulative_ value (in case the action has multiple bindings). For example: if you have three keys bound to an action and they are all pressed, the cumulative value will be 3. Or if you have two joysticks bound to an axis and one is pressed all the way down and the other is pressed halfway down, the `total` will be 1.5 (while the `value` is clamped to 1).
 
 group:__getRaw(device, id)__
 

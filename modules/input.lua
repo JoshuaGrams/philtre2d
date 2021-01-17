@@ -31,7 +31,6 @@ local function newBinding(bindType, actions, modifiers, inputDir, axisDir, bList
 		actions = actions,
 		modifiers = modifiers,
 		value = 0,
-		presses = bindType == "button" and 0 or nil,
 		inputDir = inputDir, -- Axis limit dir.
 		axisDir = axisDir, -- Axis flip.
 		parentList = bList -- So it can remove itself.
@@ -42,7 +41,7 @@ end
 local function newAction()
 	local a = {
 		value = 0,
-		presses = 0,
+		total = 0,
 		bindings = {} -- Link back to bindings for easy removal.
 	}
 	return a
@@ -315,32 +314,37 @@ local function modifiersArePressed(modifiers)
 	return true
 end
 
-function group.callAction(self, actionName, value, change, ...)
-	return self.stack:call(actionName, value, change, ...)
+function group.callAction(self, actionName, value, change, rawChange, ...)
+	return self.stack:call(actionName, value, change, rawChange, ...)
 end
 
 local function buttonHandler(self, binding, newVal, oldVal, isRepeat, x, y, dx, dy, isTouch, presses)
 	newVal, oldVal = floor(newVal + 0.5), floor(oldVal + 0.5)
-	local change = newVal - oldVal -- -1, 0, or +1
-	if change ~= 0 or isRepeat then -- Hack workaround for keyrepeat.
+	local rawChange = newVal - oldVal -- -1, 0, or +1
+	if rawChange ~= 0 or isRepeat then
 		for i,actionName in ipairs(binding.actions) do
 			local action = self.allActions[actionName]
-			action.presses = action.presses + change
-			action.value = min(1, action.presses)
-			local r = self:callAction(actionName, action.value, change, isRepeat, x, y, dx, dy, isTouch, presses)
+			action.total = action.total + rawChange
+			local newActionVal = min(1, action.total)
+			local change = newActionVal - action.value
+			action.value = newActionVal
+			local r = self:callAction(actionName, action.value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)
 			if r then  return r  end
 		end
 	end
 end
 
 local function axisHandler(self, binding, newVal, oldVal, isRepeat, x, y, dx, dy, isTouch, presses)
-	local change = (newVal - oldVal) * binding.axisDir
+	local rawChange = (newVal - oldVal) * binding.axisDir
 	newVal = newVal * binding.axisDir
-	if change ~= 0 then
+	if rawChange ~= 0 then
 		for i,actionName in ipairs(binding.actions) do
 			local action = self.allActions[actionName]
-			action.value = action.value + change
-			local r = self:callAction(actionName, action.value, change, isRepeat, x, y, dx, dy, isTouch, presses)
+			action.total = action.total + rawChange
+			local newActionVal = max(-1, min(1, action.total))
+			local change = newActionVal - action.value
+			action.value = newActionVal
+			local r = self:callAction(actionName, action.value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)
 			if r then  return r  end
 		end
 	end
@@ -366,7 +370,7 @@ function group.mouseMoved(self, x, y, dx, dy)
 		for i,actionName in ipairs(actions) do
 			local action = self.allActions[actionName]
 			action.x, action.y = x, y
-			local r = self:callAction(actionName, value, change, isRepeat, x, y, dx, dy, isTouch, presses)
+			local r = self:callAction(actionName, value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)
 			if r then  return r  end
 		end
 	end
@@ -420,7 +424,7 @@ end
 
 function group.get(self, actionName)
 	local action = self.allActions[actionName]
-	if action then  return action.value, action.presses  end
+	if action then  return action.value, action.total  end
 end
 
 function group.getRaw(self, device, id)
@@ -477,6 +481,7 @@ local callbacks = {
 		mouseMoved(x, y, dx, dy, istouch)
 	end,
 	wheelmoved = function(x, y)
+		-- Treat mouse wheel like a button that's pressed and immediately released.
 		if x ~= 0 then
 			rawInput("mouse", "wheelx", sign(x), nil, nil, nil, x, 0) -- value, isRepeat, x, y, dx, dy
 			rawInput("mouse", "wheelx", 0, nil, nil, nil, x, 0)

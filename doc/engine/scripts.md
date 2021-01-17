@@ -23,7 +23,7 @@ Basic Engine Callbacks
 Input Callback
 --------------
 
-* __`input(self, actionName, value, change, isRepeat, x, y, dx, dy, isTouch, presses)`__ - Called once for every input event, if the object has input enabled. See [Input](input.md).
+* __`input(self, actionName, value, change, rawChange, isRepeat, x, y, dx, dy, isTouch, presses)`__ - Called once for every input event, if the object has input enabled. See [Input](input.md).
 
 Physics Callbacks
 -----------------
