@@ -268,8 +268,8 @@ function group.bindButton(self, combo, actionName)
 end
 
 function group.bindAxis(self, combo1, combo2, actionName)
-	bind(self, "axis", combo1, actionName, -1)
-	bind(self, "axis", combo2, actionName, 1)
+	if combo1 then  bind(self, "axis", combo1, actionName, -1)  end
+	if combo2 then  bind(self, "axis", combo2, actionName, 1)  end
 end
 
 function group.bindMouseMoved(self, actionName)
