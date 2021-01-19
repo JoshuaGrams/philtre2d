@@ -35,7 +35,7 @@ function SceneTree.getObjList(parent, topDown)
 	return list
 end
 
-function SceneTree.add(self, obj, parent)
+function SceneTree.add(self, obj, parent, atIndex)
 	assert(obj.is and obj:is(Object), 'SceneTree.add: obj: '..tostring(obj)..' is not an Object.')
 	assert(not obj.path, 'SceneTree.add: obj: '..tostring(obj)..' is already in the tree.')
 	parent = parent or self
@@ -43,7 +43,7 @@ function SceneTree.add(self, obj, parent)
 		assert(parent.is and parent:is(Object), 'SceneTree.add: parent: '..tostring(parent)..' is not an Object.')
 	end
 
-	local objList = SceneTree.super.add(self, obj, parent)
+	local objList = SceneTree.super.add(self, obj, parent, atIndex)
 	self.draw_order:addObject(obj)
 	for i=1,#objList do
 		local obj = objList[i]

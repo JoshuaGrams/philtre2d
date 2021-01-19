@@ -15,7 +15,7 @@ Each scene tree creates its own draw order, which can be accessed at `scene.draw
 Functions
 ---------
 
-### scene:add(obj, [parent])
+### scene:add(obj, [parent], [atIndex])
 Adds an object to the tree. If no parent is specified it will be added at the root level (a child of the tree object). Each object added to the tree will be given the following properties:
  * `tree`: A reference to the SceneTree object.
  * `parent`: Its parent object reference.
@@ -28,12 +28,21 @@ Once the object and any children are added to the tree, `init` is called on each
 _PARAMETERS_
 * __obj__ <kbd>Object</kbd> - The object to add.
 * __parent__ <kbd>Object</kbd> - _optional_ - The parent object to add it to. This defaults to the scene tree root if nothing is specified.
+* __atIndex__ <kbd>number</kbd> - _optional_ - The index at which to insert the object into the parent's child list. Must be > 0. Only needed if you specifically want to modify the child order. May modify the paths of any objects with non-unique names from this index up until the next empty space in the list. Doesn't affect the draw-order.
 
 ### scene:remove(obj)
 Removes the object from the tree. This will also remove the object's children down the tree. The object and its children will not be drawn or updated after this, they will just get a `final` callback. Removed branches of objects will remain intact, they can be re-added to the tree if desired.
 
 _PARAMETERS_
 * __obj__ <kbd>Object</kbd> - The object to remove.
+
+### scene:swap(parent, i1, i2)
+Swaps the positions of two items in a parent's child list. Will change the children's paths if they have non-unique names. Doesn't affect the draw-order.
+
+_PARAMETERS_
+* __parent__ <kbd>Object</kbd> - The parent whose children to swap.
+* __i1__ <kbd>number</kbd> - The index of the first child to swap.
+* __i2__ <kbd>number</kbd> - The index of the second child to swap.
 
 ### scene:update(dt)
 Updates the whole scene tree. This will call the `update` method of each object. Then it will call `final` on any removed objects and complete pending reparentings.
