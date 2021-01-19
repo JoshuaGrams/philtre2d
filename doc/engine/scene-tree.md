@@ -45,7 +45,7 @@ _PARAMETERS_
 * __i2__ <kbd>number</kbd> - The index of the second child to swap.
 
 ### scene:update(dt)
-Updates the whole scene tree. This will call the `update` method of each object. Then it will call `final` on any removed objects and complete pending reparentings.
+Updates the whole scene tree. This will call the `update` method of each object.
 
 _PARAMETERS_
 * __dt__ <kbd>number</kbd> - Delta time for this frame.
