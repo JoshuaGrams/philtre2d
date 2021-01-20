@@ -82,20 +82,16 @@ _PARAMETERS_
 * __image__ <kbd>string | Image</kbd> - An image filepath or Image object.
 * __color__ <kbd>table</kbd> - _optional_ - The image multiply color. Defaults to opaque white: {1, 1, 1, 1}.
 
-### Row(spacing, homogeneous, children, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+### Row(spacing, homogeneous, align, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 
 An invisible node that automatically arranges its children in a horizontal row.
 
 _PARAMETERS_
 * __spacing__ <kbd>number</kbd> - _optional_ - The amount of extra space to allocate between children (but not at the ends). Defaults to 0.
-* __homogeneous__ <kbd>bool</kbd> - _optional_ - If `true`, divides up the available space equally between all children. If `false`, allocates each child space based on its design width and allocates any extra space between `greedy` children (or leaves it empty if there are none). Defaults to false.
-* __children__ <kbd>table</kbd> - _optionoal_ - A list of settings for each child that should be arranged in the row. Each item should have the following format: {`obj`, `dir`, `isGreedy`, `index`}. Any children in the scene-tree that are not indicated in the list will be allocated the full inner width/height of the Row, like a normal Node.
-	* `obj` - The child object. This can also be a number, in which case the Row's child of that index will be used (if it exists).
-	* `dir` - _optional_ - Which side of the Row to align the child to: "start" or "end" (defaults to "start"/left).
-	* `isGreedy` - _optional_ - Whether this child wants extra space or not. Extra space is divided up between greedy children proportional to their design width. Irrelevant for homogeneous rows. Defaults to false.
-	* `index` - _optional_ - An override for the list index to place this child at. The child with the lowest index is placed closest to the end of the row (whichever end its `dir` is set to).
+* __homogeneous__ <kbd>bool</kbd> - _optional_ - If `true`, divides up the available space equally between all children. If `false`, allocates each child space based on its design width and allocates any extra space between any children with a truthy `isGreedy` property (or leaves it empty if there are none). Defaults to false.
+* __align__ <kbd>number</kbd> - _optional_ - -1 or 1. Controls which end of the row the children are aliged to. Defaults to -1 (left).
 
-### Column(spacing, homogeneous, children, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+### Column(spacing, homogeneous, align, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 
 The same as Row only vertical.
 
