@@ -29,10 +29,14 @@ end
 
 function Mask.setMaskOnChildren(self, objects)
 	if not self.children then  return  end
-	for i,obj in ipairs(objects or self.children) do
-		obj.maskObject = self
-		if obj.children and not obj:is(Mask) then
-			Mask.setMaskOnChildren(self, obj.children)
+	local children = objects or self.children
+	for i=1,children.maxn or #children do
+		local child = children[i]
+		if child then
+			child.maskObject = self
+			if child.children and not child:is(Mask) then
+				Mask.setMaskOnChildren(self, child.children)
+			end
 		end
 	end
 end
@@ -49,8 +53,9 @@ end
 
 function Mask.setOffset(self, x, y)
 	if self.children then
-		for i,child in ipairs(self.children) do
-			child.parentOffsetX, child.parentOffsetY = x, y
+		for i=1,self.children.maxn or #self.children do
+			local child = self.children[i]
+			if child then  child.parentOffsetX, child.parentOffsetY = x, y  end
 		end
 	end
 end
