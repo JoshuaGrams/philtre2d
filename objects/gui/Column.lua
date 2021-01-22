@@ -45,7 +45,7 @@ function Column.allocateHomogeneous(self, forceUpdate)
 	local h = math.max(0, availableSpace / childCount)
 
 	local startY = self.innerH/2 * self.align
-	local increment = (h + self.spacing) * self.align
+	local increment = (h + self.spacing) * -self.align
 	local x = 0
 
 	for i=1,self.children.maxn do

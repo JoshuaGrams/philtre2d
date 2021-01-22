@@ -16,7 +16,7 @@ function Row.allocateHomogeneous(self, forceUpdate)
 	local w = math.max(0, availableSpace / childCount)
 
 	local startX = self.innerW/2 * self.align
-	local increment = (w + self.spacing) * self.align
+	local increment = (w + self.spacing) * -self.align
 	local y = 0
 
 	for i=1,self.children.maxn do
