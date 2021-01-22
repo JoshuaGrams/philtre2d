@@ -44,15 +44,16 @@ function Column.allocateHomogeneous(self, forceUpdate)
 	local w = self.innerW
 	local h = math.max(0, availableSpace / childCount)
 
-	local startY = self.innerH/2 * self.align
-	local increment = (h + self.spacing) * -self.align
+	local startY = self.innerH/2 * self.dir
+	local increment = (h + self.spacing) * -self.dir
 	local x = 0
+	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local y = startY - h/2 * self.align
-			self:allocateChild(child, x, y, w, h, self.scale, forceUpdate)
+			local y = startY - h/2 * self.dir
+			self:allocateChild(child, x, y, w, h*percent, self.scale, forceUpdate)
 			startY = startY + increment
 		end
 	end
@@ -72,8 +73,9 @@ function Column.allocateHeterogeneous(self, forceUpdate)
 
 	local w = self.innerW
 
-	local startY = self.innerH/2 * self.align
+	local startY = self.innerH/2 * self.dir
 	local x = 0
+	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
 		local child = self.children[i]
@@ -81,9 +83,9 @@ function Column.allocateHeterogeneous(self, forceUpdate)
 			local childH = child.designH or child.h or 0
 			local h = childH * squashFactor
 			if child.isGreedy then  h = h + childH * greedFactor  end
-			local y = startY - h/2 * self.align
-			self:allocateChild(child, x, y, w, h, self.scale, forceUpdate)
-			startY = startY - (h + self.spacing) * self.align
+			local y = startY - h/2 * self.dir
+			self:allocateChild(child, x, y, w, h*percent, self.scale, forceUpdate)
+			startY = startY - (h + self.spacing) * self.dir
 		end
 	end
 end
@@ -98,11 +100,11 @@ end
 
 Column.refresh = Column._updateChildren
 
-function Column.set(self, spacing, homogeneous, align, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+function Column.set(self, spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	Column.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
-	self.align = align or -1
+	self.dir = dir or -1
 end
 
 return Column

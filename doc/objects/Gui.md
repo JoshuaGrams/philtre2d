@@ -82,16 +82,16 @@ _PARAMETERS_
 * __image__ <kbd>string | Image</kbd> - An image filepath or Image object.
 * __color__ <kbd>table</kbd> - _optional_ - The image multiply color. Defaults to opaque white: {1, 1, 1, 1}.
 
-### Row(spacing, homogeneous, align, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+### Row(spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 
 An invisible node that automatically arranges its children in a horizontal row.
 
 _PARAMETERS_
 * __spacing__ <kbd>number</kbd> - _optional_ - The amount of extra space to allocate between children (but not at the ends). Defaults to 0.
 * __homogeneous__ <kbd>bool</kbd> - _optional_ - If `true`, divides up the available space equally between all children. If `false`, allocates each child space based on its design width and allocates any extra space between any children with a truthy `isGreedy` property (or leaves it empty if there are none). Defaults to false.
-* __align__ <kbd>number</kbd> - _optional_ - -1 or 1. Controls which end of the row the children are aliged to. Defaults to -1 (left).
+* __dir__ <kbd>number</kbd> - _optional_ - -1 or 1. Controls which end of the row the children are aliged from. If -1, the first child we be at the left end of the Row and subsequent children will be space out to the right. If +1, the first child will be at the _right_ end of the Row, with subsequent children to the left. If it's a fraction, it will multiply how much of the Row's length is used. Defaults to -1 (left end).
 
-### Column(spacing, homogeneous, align, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+### Column(spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 
 The same as Row only vertical.
 
