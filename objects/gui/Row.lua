@@ -1,5 +1,5 @@
 local base = (...):gsub('[^%.]+$', '')
-local Column = require(base .. 'Node')
+local Column = require(base .. 'Column')
 
 local Row = Column:extend()
 Row.className = "Row"
