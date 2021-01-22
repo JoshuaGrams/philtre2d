@@ -102,7 +102,7 @@ function Column.set(self, spacing, homogeneous, align, x, y, angle, w, h, px, py
 	Column.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
-	self.align = self.align or -1
+	self.align = align or -1
 end
 
 return Column
