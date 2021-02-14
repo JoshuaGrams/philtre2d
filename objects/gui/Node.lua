@@ -18,7 +18,7 @@ function Node.TRANSFORM_ANCHORED_PIVOT(s) -- anchor + self from pivot * parent
 	pivotX, pivotY = rotateVec(pivotX, pivotY, s.angle)
 	local x, y = s.pos.x - pivotX, s.pos.y - pivotY
 	x, y = s.anchorPos.x + x, s.anchorPos.y + y
-	x, y = x + s.parentOffsetX, y + s.parentOffsetY
+	x, y = x + s.offsetX, y + s.offsetY
 	m = matrix.new(x, y, s.angle, 1, 1, 0, 0, m)
 	m = matrix.xM(m, s.parent._to_world, m)
 	s._to_local = nil
@@ -87,19 +87,12 @@ function Node.parentResized(self, designW, designH, newW, newH, scale, ox, oy, f
 		self:_onRescale(relScale)
 	end
 
-	local lastOX, lastOY = self.parentOffsetX, self.parentOffsetY
-	if ox and oy then
-		self.parentOffsetX, self.parentOffsetY = ox, oy
-	end
+	local lastOX, lastOY = self.offsetX, self.offsetY
+	self.offsetX, self.offsetY = ox or 0, oy or 0
 
-	if self.resizeModeX ~= 'none' then
-		local sx, _ = scaleFuncs[self.resizeModeX](self, designW, designH, newW, newH)
-		self.w = self.designW * sx
-	end
-	if self.resizeModeY ~= 'none' then
-		local _, sy = scaleFuncs[self.resizeModeY](self, designW, designH, newW, newH)
-		self.h = self.designH * sy
-	end
+	local sx, _ = scaleFuncs[self.resizeModeX](self, designW, designH, newW, newH)
+	local _, sy = scaleFuncs[self.resizeModeY](self, designW, designH, newW, newH)
+	self.w, self.h = self.designW * sx, self.designH * sy
 
 	self.anchorPos.x, self.anchorPos.y = newW * self.ax/2, newH * self.ay/2
 
@@ -143,35 +136,30 @@ function Node.init(self)
 	end
 end
 
-function Node._setMode(self, key, key2, val, default)
-	if not val then
-		self[key], self[key2] = default, default
-	elseif type(val) == 'table' then
-		self[key] = val[1] or val.x
-		assert(scaleFuncs[self[key]], 'Node: Invalid scale mode "' .. self[key] .. '".')
-		self[key2] = val[2] or val.y
-		assert(scaleFuncs[self[key2]], 'Node: Invalid scale mode "' .. self[key2] .. '".')
-	else
-		self[key], self[key2] = val, val
-		assert(scaleFuncs[val], 'Node: Invalid scale mode "' .. val .. '".')
-	end
-end
-local setMode = Node._setMode
-
 function Node.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
 	Node.super.set(self, x, y, angle)
 	self.w, self.h = w or 100, h or 100
-	self.designW, self.designH = self.w, self.h
-	self.ax, self.ay = ax or 0, ay or 0 -- anchor
-	self.px, self.py = px or 0, py or 0 -- pivot
-	self.parentOffsetX, self.parentOffsetY = 0, 0 -- parent offset - for auto-arranging nodes.
-	self.anchorPos = { x = 0, y = 0 }
-	setMode(self, 'resizeModeX', 'resizeModeY', resizeMode, DEFAULT_RESIZE_MODE)
+	self.px, self.py = px or 0, py or 0
+	self.ax, self.ay = ax or 0, ay or 0
 	self.padX, self.padY = padX or 0, padY or padX or 0
+	self.scale = 1
+
+	if not resizeMode then
+		self.resizeModeX, self.resizeModeY = DEFAULT_RESIZE_MODE, DEFAULT_RESIZE_MODE
+	elseif type(resizeMode) == "table" then
+		self.resizeModeX, self.resizeModeY = resizeMode[1], resizeMode[2]
+	else
+		self.resizeModeX, self.resizeModeY = resizeMode, resizeMode
+	end
+	assert(scaleFuncs[self.resizeModeX], 'Node: Invalid scale mode "' .. self.resizeModeX .. '".')
+	assert(scaleFuncs[self.resizeModeY], 'Node: Invalid scale mode "' .. self.resizeModeY .. '".')
+
+	self.anchorPos = { x = 0, y = 0 }
+	self.offsetX, self.offsetY = 0, 0
+	self.designW, self.designH = self.w, self.h
 	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2
 	self.designInnerW, self.designInnerH = self.innerW, self.innerH
 	self.debugColor = {math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.15}
-	self.scale = 1
 end
 
 return Node

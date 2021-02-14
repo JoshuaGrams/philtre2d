@@ -55,7 +55,7 @@ function Mask.setOffset(self, x, y)
 	if self.children then
 		for i=1,self.children.maxn or #self.children do
 			local child = self.children[i]
-			if child then  child.parentOffsetX, child.parentOffsetY = x, y  end
+			if child then  child.offsetX, child.offsetY = x, y  end
 		end
 	end
 end
