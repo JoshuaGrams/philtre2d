@@ -39,17 +39,17 @@ function Column.countChildren(self)
 	return count
 end
 
-function Column.allocateHomogeneous(self, forceUpdate)
+function Column.allocateHomogeneous(self, width, height, forceUpdate)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
 	local spacingSpace = self.spacing * (childCount - 1)
-	local availableSpace = self.innerH - spacingSpace
-	local w = self.innerW
+	local availableSpace = height - spacingSpace
+	local w = width
 	local h = math.max(0, availableSpace / childCount)
 
-	local startY = self.innerH/2 * self.dir
+	local startY = height/2 * self.dir
 	local increment = (h + self.spacing) * -self.dir
 	local x = 0
 	local percent = math.abs(self.dir)
@@ -64,21 +64,21 @@ function Column.allocateHomogeneous(self, forceUpdate)
 	end
 end
 
-function Column.allocateHeterogeneous(self, forceUpdate)
+function Column.allocateHeterogeneous(self, width, height, forceUpdate)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
 	local spacingSpace = self.spacing * (childCount - 1)
-	local availableSpace = self.innerH - spacingSpace
+	local availableSpace = height - spacingSpace
 	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals("designH", "h")
 	local squashFactor = math.min(1, availableSpace / totalChildH)
 	local extraH = math.max(0, availableSpace - totalChildH)
 	local greedFactor = extraH / totalGreedyChildH
 
-	local w = self.innerW
+	local w = width
 
-	local startY = self.innerH/2 * self.dir
+	local startY = height/2 * self.dir
 	local x = 0
 	local percent = math.abs(self.dir)
 
@@ -97,9 +97,9 @@ end
 
 function Column._updateChildren(self, forceUpdate)
 	if self.homogeneous then
-		self:allocateHomogeneous(forceUpdate)
+		self:allocateHomogeneous(self.innerW, self.innerH, forceUpdate)
 	else
-		self:allocateHeterogeneous(forceUpdate)
+		self:allocateHeterogeneous(self.innerW, self.innerH, forceUpdate)
 	end
 end
 
