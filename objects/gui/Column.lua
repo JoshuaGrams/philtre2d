@@ -12,6 +12,11 @@ function Column.allocateChild(self, child, x, y, w, h, scale, forceUpdate)
 	)
 end
 
+function Column.updateChild(self, child, forceUpdate)
+	-- Columns can't just recalculate a single child, need to redo them all.
+	self:_updateChildren(forceUpdate)
+end
+
 function Column.getChildDimensionTotals(self, key1, key2)
 	local dim1, dim2 = 0, 0
 	for i=1,self.children.maxn do

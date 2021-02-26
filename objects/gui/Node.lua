@@ -66,16 +66,18 @@ function Node._updateInnerSize(self)
 	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2
 end
 
+function Node.updateChild(self, child, forceUpdate)
+	child:call(
+		'parentResized',
+		self.designInnerW, self.designInnerH,
+		self.innerW, self.innerH, self.scale, nil, nil, forceUpdate
+	)
+end
+
 function Node._updateChildren(self, forceUpdate)
 	for i=1,self.children.maxn or #self.children do
 		local child = self.children[i]
-		if child then
-			child:call(
-				'parentResized',
-				self.designInnerW, self.designInnerH,
-				self.innerW, self.innerH, self.scale, nil, nil, forceUpdate
-			)
-		end
+		if child then  self:updateChild(child, forceUpdate)  end
 	end
 end
 
