@@ -41,20 +41,20 @@ function Column.countChildren(self)
 	return count
 end
 
-function Column.allocateHomogeneous(self, width, height, forceUpdate)
+function Column.allocateHomogeneous(self, alloc, forceUpdate)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
 	local spacing = self.spacing * self._myAlloc.scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = height - spacingSpace
-	local w = width
+	local availableSpace = alloc.h - spacingSpace
+	local w = alloc.w
 	local h = math.max(0, availableSpace / childCount)
 
-	local startY = height/2 * self.dir
+	local startY = alloc.y + alloc.h/2 * self.dir
 	local increment = (h + spacing) * -self.dir
-	local x = 0
+	local x = alloc.x
 	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
@@ -67,23 +67,23 @@ function Column.allocateHomogeneous(self, width, height, forceUpdate)
 	end
 end
 
-function Column.allocateHeterogeneous(self, width, height, forceUpdate)
+function Column.allocateHeterogeneous(self, alloc, forceUpdate)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
 	local spacing = self.spacing * self._myAlloc.scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = height - spacingSpace
+	local availableSpace = alloc.h - spacingSpace
 	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals("h")
 	local squashFactor = math.min(1, availableSpace / totalChildH)
 	local extraH = math.max(0, availableSpace - totalChildH)
 	local greedFactor = extraH / totalGreedyChildH
 
-	local w = width
+	local w = alloc.w
 
-	local startY = height/2 * self.dir
-	local x = 0
+	local startY = alloc.y + alloc.h/2 * self.dir
+	local x = alloc.x
 	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
@@ -100,11 +100,10 @@ function Column.allocateHeterogeneous(self, width, height, forceUpdate)
 end
 
 function Column.allocateChildren(self, forceUpdate)
-	local w, h = self._contentAlloc.w, self._contentAlloc.h
 	if self.homogeneous then
-		self:allocateHomogeneous(w, h, forceUpdate)
+		self:allocateHomogeneous(self._contentAlloc, forceUpdate)
 	else
-		self:allocateHeterogeneous(w, h, forceUpdate)
+		self:allocateHeterogeneous(self._contentAlloc, forceUpdate)
 	end
 end
 

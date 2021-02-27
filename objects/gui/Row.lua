@@ -5,20 +5,20 @@ local Row = Column:extend()
 Row.className = "Row"
 
 -- The same as Column, just swapped directions (x/y, w/h).
-function Row.allocateHomogeneous(self, width, height, forceUpdate)
+function Row.allocateHomogeneous(self, alloc, forceUpdate)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
 	local spacing = self.spacing * self._myAlloc.scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = width - spacingSpace
-	local h = height
+	local availableSpace = alloc.w - spacingSpace
+	local h = alloc.h
 	local w = math.max(0, availableSpace / childCount)
 
-	local startX = width/2 * self.dir
+	local startX = alloc.x + alloc.w/2 * self.dir
 	local increment = (w + spacing) * -self.dir
-	local y = 0
+	local y = alloc.y
 	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
@@ -32,23 +32,23 @@ function Row.allocateHomogeneous(self, width, height, forceUpdate)
 end
 
 -- The same as Column, just swapped directions (x/y, w/h).
-function Row.allocateHeterogeneous(self, width, height, forceUpdate)
+function Row.allocateHeterogeneous(self, alloc, forceUpdate)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
 	local spacing = self.spacing * self._myAlloc.scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = width - spacingSpace
+	local availableSpace = alloc.w - spacingSpace
 	local totalChildW, totalGreedyChildW = self:getChildDimensionTotals("w")
 	local squashFactor = math.min(1, availableSpace / totalChildW)
 	local extraW = math.max(0, availableSpace - totalChildW)
 	local greedFactor = extraW / totalGreedyChildW
 
-	local h = height
+	local h = alloc.h
 
-	local startX = width/2 * self.dir
-	local y = 0
+	local startX = alloc.x + alloc.w/2 * self.dir
+	local y = alloc.y
 	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
