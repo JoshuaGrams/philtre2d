@@ -40,22 +40,58 @@ _PARAMETERS_
 * __w, h__ <kbd>number</kbd> - The initial width and height of the node.
 * __px, py__ <kbd>number</kbd> - The X and Y of the node's pivot point. From -1 to 1. (0, 0) is centered. (-1, -1) is the top left corner, etc.
 * __ax, ay__ <kbd>number</kbd> - The X and Y anchors of the node. From -1 to 1.
-* __modeX__ <kbd>string</kbd> - The resize mode for the Node's width. Defaults to 'none'. The available modes are:
+* __modeX__ <kbd>string</kbd> - The resize mode for the node's width. Defaults to 'none'. The available modes are:
 	* `none` - Only changes size if the scale factor is changed.
 	* `fit` - Resizes proportionally based on the new relative w/h, whichever is smaller.
 	* `zoom` - Resizes proportionally based on the new relative w/h, whichever is larger.
 	* `stretch` - Stretches each axis separately to fill the same proportion of the available length.
 	* `fill` - Stretches each axis separately to fill all available space.
-* __modeY__ <kbd>string</kbd> - The resize mode for the Node's height. Defaults to `modeX` or 'none'.
+* __modeY__ <kbd>string</kbd> - The resize mode for the node's height. Defaults to `modeX` or 'none'.
 * __padX, padY__ <kbd>number</kbd> - X and Y padding _inside_ the node. Affects the size allocated to its children. You only need to specify `padX` if both axes are the same.
 
 _NODE METHODS_
 
-* __parentResized(designW, designH, newW, newH, scale, ox, oy)__
-	* `designW`, `designH` - The original, designed width/height of the parent node (or the screen in the case of a root node).
-	* `newW`, `newH` - The new, current width/height of the parent node or screen.
-	* `scale` - The scale factor to apply to all child nodes.
-	* `ox`, `oy` - _optional_ - An extra position offset. The node will act as if its parent's position was offset by these values. Used by nodes that automatically position multiple child nodes (i.e. Row/Column nodes).
+* __request()__ - Gets a table with the node's requested width & height.
+
+
+* __allocate( [alloc], [forceUpdate] )__ - Refresh the node within the specified space allocation.
+	* `alloc` - The allocation table in the following format: `{ x=, y=, w=, h=, designW=, designH=, scale= }`. If unspecified, the last known allocation is used.
+	* `forceUpdate` - To force the child and all descendants to re-allocate even if they haven't changed.
+
+
+* __allocateChild( child, [forceUpdate] )__ - Update the allocation of a single child.
+	* `child` - The child object to re-allocate.
+
+
+* __allocateChildren( [forceUpdate] )__ - Update the allocation of all children.
+
+
+* __size( w, h, [inDesignCoords] )__ - Set the size of the node.
+	* `inDesignCoords` - If the width & height are to set the original, unscaled values of the node, rather than it's current, scaled values.
+
+
+* __angle( a )__ - Set the angle of the node.
+
+
+* __offset( [x], [y], [isRelative] )__ - Set the offset of the node
+	* `isRelative` - If `x` and `y` are relative/additive rather than absolute.
+
+
+* __pivot( [x], [y] )__ - Set the node's pivot: the point relative to its own width/height that represents its origin.
+	* `x` - Can be a cardinal direction string (capitalized or not): "NW", "C", "E", etc., in which case the `y` argument is ignored. Otherwise, the x and y pivots are only set when they are specified.
+
+
+* __anchor( [x], [y] )__ - Set the node's anchor: the point on its parent that it places itself relative to.
+	* `x` - Can be a cardinal direction string (capitalized or not): "NW", "C", "E", etc., in which case the `y` argument is ignored. Otherwise, the x and y anchors are only set when they are specified.
+
+
+* __pad( [x], [y] )__ - Set the node's padding. Padding is always stored un-scaled. `x` defaults to `0`. `y` defaults to `x` or `0`.
+
+
+* __mode( [x], [y] )__ - Set the resize mode(s) of the node. `x` defaults to `'none'`. `y` defaults to `x` or `'none'`.
+
+> The setter methods all return `self`, so they can be chained together.
+
 
 ### Slice(image, quad, margins, x, y, angle, w, h, px, py, ax, ay, modeX, modeY)
 
@@ -85,7 +121,7 @@ _PARAMETERS_
 
 ### Row(spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
 
-An invisible node that automatically arranges its children in a horizontal row.
+An invisible node that automatically arranges its children in a horizontal row. When you add or remove children you can refresh the arrangement with: `self:allocateChildren()`.
 
 _PARAMETERS_
 * __spacing__ <kbd>number</kbd> - _optional_ - The amount of extra space to allocate between children (but not at the ends). Defaults to 0.
@@ -101,4 +137,7 @@ The same as Row only vertical.
 An invisible node that masks out (stencils) the rendering of its children. On init it sets a `.maskObject` property to itself on all of its children (recursively). Any child nodes added after init should have this property set manually, or call `Mask.setMaskOnChildren` on the mask node.
 
 _PARAMETERS_
-* __stencilFunc__ <kbd>function</kbd> - _optional_ - Should be a function that draws a shape for the stencil. Is given one argument: `self`. By default it draws a rectangle with the inner width/height of the node.
+* __stencilFunc__ <kbd>function</kbd> - _optional_ - Should be a function that draws a shape for the stencil. Must be an anonymous function taking no arguments. By default it draws a rectangle with the inner width/height of the node.
+
+_MASK METHODS_
+* __setOffset( [x], [y], [isRelative] )__ - Sets the offset on all child nodes.
