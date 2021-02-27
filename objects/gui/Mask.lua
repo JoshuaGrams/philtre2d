@@ -5,7 +5,8 @@ local Mask = Node:extend()
 Mask.className = "Mask"
 
 local function defaultStencilFunc(self)
-	love.graphics.rectangle("fill", -self.innerW/2, -self.innerH/2, self.innerW, self.innerH)
+	local w, h = self._contentAlloc.w, self._contentAlloc.h
+	love.graphics.rectangle("fill", -w/2, -h/2, w, h)
 end
 
 function Mask.enableMask(self)
@@ -41,27 +42,22 @@ function Mask.setMaskOnChildren(self, objects)
 	end
 end
 
-function Mask._updateInnerSize(self)
-	self.innerW = math.max(0, self.w - self.padX*2)
-	self.innerH = math.max(0, self.h - self.padY*2)
-end
-
 function Mask.init(self)
 	Mask.super.init(self)
 	self:setMaskOnChildren()
 end
 
-function Mask.setOffset(self, x, y)
+function Mask.setOffset(self, x, y, isRelative)
 	if self.children then
 		for i=1,self.children.maxn or #self.children do
 			local child = self.children[i]
-			if child then  child.offsetX, child.offsetY = x, y  end
+			if child then  child:offset(x, y, isRelative)  end
 		end
 	end
 end
 
-function Mask.set(self, stencilFunc, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
-	Mask.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+function Mask.set(self, stencilFunc, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+	Mask.super.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
 	stencilFunc = stencilFunc or defaultStencilFunc
 	self.stencilFunc = function()  stencilFunc(self)  end
 end

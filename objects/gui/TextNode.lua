@@ -8,24 +8,27 @@ local scaleFuncs = Node._scaleFuncs
 
 local validHAlign = { center = true, left = true, right = true, justify = true }
 
-function TextNode._onRescale(self, relScale)
-	self.fontSize = self.fontSize * relScale
-	self.font = new.font(self.fontFilename, self.fontSize)
-	if self.resizeModeX == 'none' then  self.w = self.w * relScale  end
+function TextNode.updateScale(self, alloc)
+	local isDirty = SliceNode.super.updateScale(self, alloc)
+	if isDirty then
+		local relScale = alloc.scale / self._myAlloc.scale
+		self.fontSize = self.fontSize * relScale
+		self.font = new.font(self.fontFilename, self.fontSize)
+		return true
+	end
 end
 
-function TextNode._updateInnerSize(self)
+function TextNode.updateInnerSize(self)
 	local fontHeight = self.font:getHeight()
 	local textW, lines = self.font:getWrap(self.text, self.w)
 	local lineCount = #lines
 	lineCount = lineCount == 0 and 1 or lineCount -- Don't let line-count be zero. (as it would be with an empty string.)
 	self.h = fontHeight * lineCount
-	self.innerW, self.innerH = self.w, self.h -- No padding.
+	TextNode.super.updateInnerSize(self)
 end
 
 local function debugDraw(self)
-	local c = self.debugColor
-	love.graphics.setColor(c[1], c[2], c[3], c[4]*0.4)
+	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	love.graphics.rectangle('line', -5+pivotPosx, -5+pivotPosy, 10, 10)
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 5, 4)
@@ -49,9 +52,8 @@ function TextNode.draw(self)
 	)
 end
 
-function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, resizeMode)
-	TextNode.super.set(self, x, y, angle, w, nil, px, py, ax, ay, resizeMode)
-	self.resizeModeY = 'none' -- Height will adjust to fit wrapped text.
+function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, modeX)
+	local modeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text
 	if type(font) == 'table' then -- {filename, size}
 		self.font = new.font(unpack(font))
@@ -62,7 +64,7 @@ function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, 
 	local fontHeight = self.font:getHeight()
 	local w, lines = self.font:getWrap(self.text, self.w)
 	self.h = fontHeight * #lines
-	self.designH, self.designInnerH, self.innerH = self.h, self.h, self.h
+	TextNode.super.set(self, x, y, angle, w, nil, px, py, ax, ay, modeX, modeY)
 	self.hAlign = validHAlign[hAlign] and hAlign or 'left'
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

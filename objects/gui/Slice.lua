@@ -12,7 +12,7 @@ function SliceNode.draw(self)
 
 	local w2, h2 = self.w/2, self.h/2
 	local m = self.margins
-	local s = self.scale
+	local s = self._myAlloc.scale
 	-- Draw corners
 	love.graphics.draw(self.image, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
 	love.graphics.draw(self.image, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
@@ -30,7 +30,7 @@ end
 local function debugDraw(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
-	local s = self.scale
+	local s = self._myAlloc.scale
 	love.graphics.rectangle('line', -5*s+pivotPosx, -5*s+pivotPosy, 10*s, 10*s)
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 4.5*s, 4)
 	love.graphics.line(-8*s, 0, 8*s, 0)
@@ -52,16 +52,19 @@ function SliceNode.debugDraw(self, layer)
 	end
 end
 
-function SliceNode._onRescale(self, relScale)
-	for k,v in pairs(self.margins) do
-		self.margins[k] = v * relScale
+function SliceNode.updateScale(self, alloc)
+	local isDirty = SliceNode.super.updateScale(self, alloc)
+	if isDirty then
+		local relScale = alloc.scale / self._myAlloc.scale
+		for k,v in pairs(self.margins) do
+			self.margins[k] = v * relScale
+		end
+		return true
 	end
-	if self.resizeModeX == 'none' then  self.w = self.w * relScale  end
-	if self.resizeModeY == 'none' then  self.h = self.h * relScale  end
 end
 
-function SliceNode._updateInnerSize(self)
-	self.innerW, self.innerH = self.w - self.padX*2, self.h - self.padY*2 -- Normal node padding.
+function SliceNode.updateInnerSize(self)
+	SliceNode.super.updateInnerSize(self)
 	local m = self.margins
 	m.lt2, m.rt2, m.top2, m.bot2 = m.lt/2, m.rt/2, m.top/2, m.bot/2
 	local innerSliceW = self.w - self.margins.lt - self.margins.rt
@@ -70,7 +73,7 @@ function SliceNode._updateInnerSize(self)
 	self.sliceSY = innerSliceH/self.innerQuadH
 end
 
-function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
 	local mCount = #margins
 	local m
 	if mCount == 1 then -- One value, all are equal.
@@ -83,7 +86,7 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax
 	self.margins = m
 	padX = padX or (m.lt + m.rt)/2 -- Use slice margins for default padding.
 	padY = padY or padX or (m.top + m.bot)/2
-	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, resizeMode, padX, padY)
+	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
 	-- super.set sets self.innerW/H, designInnerW/H.
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

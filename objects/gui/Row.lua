@@ -10,13 +10,14 @@ function Row.allocateHomogeneous(self, width, height, forceUpdate)
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacingSpace = self.spacing * (childCount - 1)
+	local spacing = self.spacing * self._myAlloc.scale
+	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = width*math.abs(self.dir) - spacingSpace
 	local h = height
 	local w = math.max(0, availableSpace / childCount)
 
 	local startX = width/2 * self.dir
-	local increment = (w + self.spacing) * -self.dir
+	local increment = (w + spacing) * -self.dir
 	local y = 0
 	local percent = math.abs(self.dir)
 
@@ -24,7 +25,7 @@ function Row.allocateHomogeneous(self, width, height, forceUpdate)
 		local child = self.children[i]
 		if child then
 			local x = startX - w/2 * self.dir
-			self:allocateChild(child, x, y, w*percent, h, self.scale, forceUpdate)
+			self:_allocateChild(child, x, y, w*percent, h, self._myAlloc.scale, forceUpdate)
 			startX = startX + increment
 		end
 	end
@@ -36,9 +37,10 @@ function Row.allocateHeterogeneous(self, width, height, forceUpdate)
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacingSpace = self.spacing * (childCount - 1)
+	local spacing = self.spacing * self._myAlloc.scale
+	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = width*math.abs(self.dir) - spacingSpace
-	local totalChildW, totalGreedyChildW = self:getChildDimensionTotals("designW", "w")
+	local totalChildW, totalGreedyChildW = self:getChildDimensionTotals("w")
 	local squashFactor = math.min(1, availableSpace / totalChildW)
 	local extraW = math.max(0, availableSpace - totalChildW)
 	local greedFactor = extraW / totalGreedyChildW
@@ -52,15 +54,14 @@ function Row.allocateHeterogeneous(self, width, height, forceUpdate)
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local childW = child.designW or child.w or 0
+			local childW = child:request().w
 			local w = childW * squashFactor
 			if child.isGreedy then  w = w + childW * greedFactor  end
 			local x = startX - w/2 * self.dir
-			self:allocateChild(child, x, y, w*percent, h, self.scale, forceUpdate)
-			startX = startX - (w + self.spacing) * self.dir
+			self:_allocateChild(child, x, y, w*percent, h, self._myAlloc.scale, forceUpdate)
+			startX = startX - (w + spacing) * self.dir
 		end
 	end
 end
-
 
 return Row
