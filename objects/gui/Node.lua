@@ -210,8 +210,12 @@ end
 
 function Node.anchor(self, x, y)
 	local cardinal = CARDINALS[x]
-	if cardinal then  self.ax, self.ay = cardinal[1], cardinal[2]
-	else	self.ax, self.ay = x or 0, y or x or 0  end
+	if cardinal then
+		self.ax, self.ay = cardinal[1], cardinal[2]
+	else
+		if x then  self.ax = x  end
+		if y then  self.ay = y  end
+	end
 
 	self.anchorPosX = self._myAlloc.w * self.ax/2
 	self.anchorPosY = self._myAlloc.h * self.ay/2
@@ -220,8 +224,12 @@ end
 
 function Node.pivot(self, x, y)
 	local cardinal = CARDINALS[x]
-	if cardinal then  self.px, self.py = cardinal[1], cardinal[2]
-	else  self.px, self.py = x or 0, y or x or 0  end
+	if cardinal then
+		self.px, self.py = cardinal[1], cardinal[2]
+	else
+		if x then  self.ax = x  end
+		if y then  self.ay = y  end
+	end
 	return self
 end
 
