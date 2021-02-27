@@ -227,8 +227,8 @@ function Node.pivot(self, x, y)
 	if cardinal then
 		self.px, self.py = cardinal[1], cardinal[2]
 	else
-		if x then  self.ax = x  end
-		if y then  self.ay = y  end
+		if x then  self.px = x  end
+		if y then  self.py = y  end
 	end
 	return self
 end
@@ -259,8 +259,8 @@ function Node.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, p
 	-- _contentAlloc = The space that we will give to our children.
 	local cw, ch = self.w - self.padX*2, self.h - self.padY*2
 	self._contentAlloc = { x = 0, y = 0, w = cw, h = ch, designW = cw, designH = ch, scale = 1 }
-	self:pivot(px, py)
-	self:anchor(ax, ay)
+	self:pivot(px or 0, py or 0)
+	self:anchor(ax or 0, ay or 0)
 	self:mode(modeX, modeY)
 	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.15 }
 end
