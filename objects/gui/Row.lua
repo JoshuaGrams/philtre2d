@@ -12,7 +12,7 @@ function Row.allocateHomogeneous(self, width, height, forceUpdate)
 
 	local spacing = self.spacing * self._myAlloc.scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = width*math.abs(self.dir) - spacingSpace
+	local availableSpace = width - spacingSpace
 	local h = height
 	local w = math.max(0, availableSpace / childCount)
 
@@ -39,7 +39,7 @@ function Row.allocateHeterogeneous(self, width, height, forceUpdate)
 
 	local spacing = self.spacing * self._myAlloc.scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = width*math.abs(self.dir) - spacingSpace
+	local availableSpace = width - spacingSpace
 	local totalChildW, totalGreedyChildW = self:getChildDimensionTotals("w")
 	local squashFactor = math.min(1, availableSpace / totalChildW)
 	local extraW = math.max(0, availableSpace - totalChildW)
