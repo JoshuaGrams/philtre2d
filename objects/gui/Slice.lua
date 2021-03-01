@@ -73,7 +73,7 @@ function SliceNode.updateInnerSize(self)
 	self.sliceSY = innerSliceH/self.innerQuadH
 end
 
-function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	local mCount = #margins
 	local m
 	if mCount == 1 then -- One value, all are equal.
@@ -86,7 +86,7 @@ function SliceNode.set(self, image, quad, margins, x, y, angle, w, h, px, py, ax
 	self.margins = m
 	padX = padX or (m.lt + m.rt)/2 -- Use slice margins for default padding.
 	padY = padY or padX or (m.top + m.bot)/2
-	SliceNode.super.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+	SliceNode.super.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	-- super.set sets self.innerW/H, designInnerW/H.
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

@@ -56,8 +56,8 @@ function Mask.setOffset(self, x, y, isRelative)
 	end
 end
 
-function Mask.set(self, stencilFunc, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
-	Mask.super.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+function Mask.set(self, stencilFunc, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
+	Mask.super.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	stencilFunc = stencilFunc or defaultStencilFunc
 	self.stencilFunc = function()  stencilFunc(self)  end
 end

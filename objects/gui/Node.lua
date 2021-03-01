@@ -247,8 +247,11 @@ function Node.mode(self, x, y)
 	return self
 end
 
-function Node.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+function Node.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	w, h = w or 100, h or 100
+	pivot, anchor = pivot or "C", anchor or "C"
+	assert(CARDINALS[pivot], 'Node.set: Invalid pivot "'  .. pivot .. '". Must be a cardinal direction string.')
+	assert(CARDINALS[anchor], 'Node.set: Invalid anchor "'  .. anchor .. '". Must be a cardinal direction string.')
 	Node.super.set(self, x, y, angle)
 	self.w, self.h = w, h
 	self.padX, self.padY = padX or 0, padY or padX or 0 -- In "design" coords--it remains un-scaled.
@@ -259,8 +262,8 @@ function Node.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, p
 	-- _contentAlloc = The space that we will give to our children.
 	local cw, ch = self.w - self.padX*2, self.h - self.padY*2
 	self._contentAlloc = { x = 0, y = 0, w = cw, h = ch, designW = cw, designH = ch, scale = 1 }
-	self:pivot(px or 0, py or 0)
-	self:anchor(ax or 0, ay or 0)
+	self:pivot(pivot)
+	self:anchor(anchor)
 	self:mode(modeX, modeY)
 	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.15 }
 end

@@ -109,8 +109,8 @@ end
 
 Column.refresh = Column.allocateChildren
 
-function Column.set(self, spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
-	Column.super.set(self, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+function Column.set(self, spacing, homogeneous, dir, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
+	Column.super.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
 	self.dir = dir or -1

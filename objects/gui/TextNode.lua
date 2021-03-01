@@ -52,7 +52,7 @@ function TextNode.draw(self)
 	)
 end
 
-function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, modeX)
+function TextNode.set(self, text, font, x, y, angle, w, pivot, anchor, hAlign, modeX)
 	local modeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text
 	if type(font) == 'table' then -- {filename, size}
@@ -64,7 +64,7 @@ function TextNode.set(self, text, font, x, y, angle, w, px, py, ax, ay, hAlign, 
 	local fontHeight = self.font:getHeight()
 	local w, lines = self.font:getWrap(self.text, self.w)
 	self.h = fontHeight * #lines
-	TextNode.super.set(self, x, y, angle, w, nil, px, py, ax, ay, modeX, modeY)
+	TextNode.super.set(self, x, y, angle, w, nil, pivot, anchor, modeX, modeY)
 	self.hAlign = validHAlign[hAlign] and hAlign or 'left'
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

@@ -30,7 +30,7 @@ outside of any camera transforms.
 Node Objects
 ------------
 
-### Node(x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+### Node(x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 
 A basic, invisible, layout node.
 
@@ -38,8 +38,8 @@ _PARAMETERS_
 * __x, y__ <kbd>number</kbd> - Local pos. The offset between the node's pivot point on itself and its anchor point on its parent.
 * __angle__ <kbd>number</kbd> - Local rotation around the node's pivot point.
 * __w, h__ <kbd>number</kbd> - The initial width and height of the node.
-* __px, py__ <kbd>number</kbd> - The X and Y of the node's pivot point. From -1 to 1. (0, 0) is centered. (-1, -1) is the top left corner, etc.
-* __ax, ay__ <kbd>number</kbd> - The X and Y anchors of the node. From -1 to 1.
+* __pivot__ <kbd>string</kbd> - A cardinal direction signifying the node's origin/pivot point. "N", "NE", "E" "SE", "S", "SW", "W", "NW", or "C" (centered). Can be uppercase or lowercase (but not a mixture). Defaults to "C". To set arbitrary pivot points, use Node.pivot().
+* __anchor__ <kbd>string</kbd> - A cardinal direction signifying the node's anchor point inside its allocated area. Defaults to "C". To set arbitrary anchor points, use Node.anchor().
 * __modeX__ <kbd>string</kbd> - The resize mode for the node's width. Defaults to 'none'. The available modes are:
 	* `none` - Only changes size if the scale factor is changed.
 	* `fit` - Resizes proportionally based on the new relative w/h, whichever is smaller.
@@ -93,7 +93,7 @@ _NODE METHODS_
 > The setter methods all return `self`, so they can be chained together.
 
 
-### Slice(image, quad, margins, x, y, angle, w, h, px, py, ax, ay, modeX, modeY)
+### Slice(image, quad, margins, x, y, angle, w, h, pivot, anchor, modeX, modeY)
 
 A 9-slice image node.
 
@@ -102,7 +102,7 @@ _PARAMETERS_
 * __quad__ <kbd>table | Quad</kbd> - _optional_ - A table with four numbers {lt, top, width, height} to define a quad, or a Quad object, if the image used is part of a texture atlas.
 * __margins__ <kbd>table</kbd> - The margins for the image slices, measured inward from the edges. Can be a table with one number, if all the margins are equal, two numbers if its symmetrical on each axis, or four numbers if they are all different.
 
-### Text(text, font, x, y, angle, w, px, py, ax, ay, hAlign, modeX, modeY)
+### Text(text, font, x, y, angle, w, pivot, anchor, hAlign, modeX)
 
 A text node. The text is wrapped to fit inside the specified width, `w`. The height of the node is automatically determined by the size of the font and the number of lines that the text wraps to.
 
@@ -111,7 +111,7 @@ _PARAMETERS_
 * __font__ <kbd>table</kbd> - Must be a table: `{filename, size}`.
 * __hAlign__ <kbd>string</kbd> - _optional_ - How the text is aligned within the node's width. Can be: "center", "left", "right", or "justify". Defaults to "left".
 
-### Sprite(image, x, y, angle, sx, sy, color, px, py, ax, ay, modeX, modeY)
+### Sprite(image, x, y, angle, sx, sy, color, pivot, anchor, modeX, modeY)
 
 A basic image node. Scales the image to fit its allocated width & height.
 
@@ -119,7 +119,7 @@ _PARAMETERS_
 * __image__ <kbd>string | Image</kbd> - An image filepath or Image object.
 * __color__ <kbd>table</kbd> - _optional_ - The image multiply color. Defaults to opaque white: {1, 1, 1, 1}.
 
-### Row(spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+### Row(spacing, homogeneous, dir, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 
 An invisible node that automatically arranges its children in a horizontal row. When you add or remove children you can refresh the arrangement with: `self:allocateChildren()`.
 
@@ -128,11 +128,11 @@ _PARAMETERS_
 * __homogeneous__ <kbd>bool</kbd> - _optional_ - If `true`, divides up the available space equally between all children. If `false`, allocates each child space based on its design width and allocates any extra space between any children with a truthy `isGreedy` property (or leaves it empty if there are none). Defaults to false.
 * __dir__ <kbd>number</kbd> - _optional_ - -1 or 1. Controls which end of the row the children are aliged from. If -1, the first child we be at the left end of the Row and subsequent children will be space out to the right. If +1, the first child will be at the _right_ end of the Row, with subsequent children to the left. If it's a fraction, it will multiply how much of the Row's length is used. Defaults to -1 (left end).
 
-### Column(spacing, homogeneous, dir, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+### Column(spacing, homogeneous, dir, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 
 The same as Row only vertical.
 
-### Mask(stencilFunc, x, y, angle, w, h, px, py, ax, ay, modeX, modeY, padX, padY)
+### Mask(stencilFunc, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
 
 An invisible node that masks out (stencils) the rendering of its children. On init it sets a `.maskObject` property to itself on all of its children (recursively). Any child nodes added after init should have this property set manually, or call `Mask.setMaskOnChildren` on the mask node.
 
