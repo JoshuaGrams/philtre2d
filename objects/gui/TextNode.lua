@@ -9,7 +9,7 @@ local scaleFuncs = Node._scaleFuncs
 local validHAlign = { center = true, left = true, right = true, justify = true }
 
 function TextNode.updateScale(self, alloc)
-	local isDirty = SliceNode.super.updateScale(self, alloc)
+	local isDirty = TextNode.super.updateScale(self, alloc)
 	if isDirty then
 		local relScale = alloc.scale / self._myAlloc.scale
 		self.fontSize = self.fontSize * relScale
@@ -53,6 +53,7 @@ function TextNode.draw(self)
 end
 
 function TextNode.set(self, text, font, x, y, angle, w, pivot, anchor, hAlign, modeX)
+	w = w or 100
 	local modeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text
 	if type(font) == 'table' then -- {filename, size}
@@ -62,9 +63,9 @@ function TextNode.set(self, text, font, x, y, angle, w, pivot, anchor, hAlign, m
 		error('TextNode: Invalid "font". Must give a table: {filename, size}.')
 	end
 	local fontHeight = self.font:getHeight()
-	local w, lines = self.font:getWrap(self.text, self.w)
-	self.h = fontHeight * #lines
-	TextNode.super.set(self, x, y, angle, w, nil, pivot, anchor, modeX, modeY)
+	local wrapW, lines = self.font:getWrap(self.text, w)
+	local h = fontHeight * #lines
+	TextNode.super.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY)
 	self.hAlign = validHAlign[hAlign] and hAlign or 'left'
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}
