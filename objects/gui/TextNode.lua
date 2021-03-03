@@ -52,6 +52,12 @@ function TextNode.draw(self)
 	)
 end
 
+function TextNode.align(self, hAlign)
+	assert(validHAlign[hAlign], 'TextNode.align: Invalid align "' .. tostring(hAlign) .. '". Must be "center", "left", "right", or "justify".')
+	self.hAlign = hAlign
+	return self
+end
+
 function TextNode.set(self, text, font, x, y, angle, w, pivot, anchor, hAlign, modeX)
 	w = w or 100
 	local modeY = 'none' -- Height will adjust to fit wrapped text.

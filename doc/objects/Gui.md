@@ -111,6 +111,9 @@ _PARAMETERS_
 * __font__ <kbd>table</kbd> - Must be a table: `{filename, size}`.
 * __hAlign__ <kbd>string</kbd> - _optional_ - How the text is aligned within the node's width. Can be: "center", "left", "right", or "justify". Defaults to "left".
 
+_TEXT METHODS_
+* __align( hAlign )__ - Sets the horizontal alignment of the text. Must be "center", "left", "right", or "justify".
+
 ### Sprite(image, x, y, angle, sx, sy, color, pivot, anchor, modeX, modeY)
 
 A basic image node. Scales the image to fit its allocated width & height.
