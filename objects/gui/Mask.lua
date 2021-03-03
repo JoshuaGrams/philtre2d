@@ -48,12 +48,13 @@ function Mask.init(self)
 end
 
 function Mask.setOffset(self, x, y, isRelative)
-	if self.children then
-		for i=1,self.children.maxn or #self.children do
-			local child = self.children[i]
-			if child then  child:offset(x, y, isRelative)  end
-		end
+	local ca = self._contentAlloc
+	if isRelative then
+		ca.x, ca.y = x and ca.x + x or ca.x, y and ca.y + y or ca.y
+	else
+		ca.x, ca.y = x or ca.x, y or ca.y
 	end
+	self:allocateChildren()
 end
 
 function Mask.set(self, stencilFunc, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
