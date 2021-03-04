@@ -10,10 +10,9 @@ local validHAlign = { center = true, left = true, right = true, justify = true }
 
 function TextNode.updateScale(self, alloc)
 	local isDirty = TextNode.super.updateScale(self, alloc)
+	-- NOTE: ^this^ updates _myAlloc.scale, so we can't figure a relative scale anymore.
 	if isDirty then
-		local relScale = alloc.scale / self._myAlloc.scale
-		self.fontSize = self.fontSize * relScale
-		self.font = new.font(self.fontFilename, self.fontSize)
+		self.font = new.font(self.fontFilename, self.fontSize * self._myAlloc.scale)
 		return true
 	end
 end
@@ -24,6 +23,7 @@ function TextNode.updateInnerSize(self)
 	local lineCount = #lines
 	lineCount = lineCount == 0 and 1 or lineCount -- Don't let line-count be zero. (as it would be with an empty string.)
 	self.h = fontHeight * lineCount
+	self._request.h = self.h
 	TextNode.super.updateInnerSize(self)
 end
 
@@ -32,7 +32,7 @@ local function debugDraw(self)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	love.graphics.rectangle('line', -5+pivotPosx, -5+pivotPosy, 10, 10)
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 5, 4)
-	love.graphics.rectangle('line', -self.w*0.5, -self.h*0.5, self.w, self.h)
+	love.graphics.rectangle('fill', -self.w*0.5, -self.h*0.5, self.w, self.h)
 end
 
 function TextNode.debugDraw(self, layer)
