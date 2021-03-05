@@ -80,8 +80,13 @@ local function applyMaskObjectTransform(obj)
 	love.graphics.replaceTransform(t)
 end
 
+function Layer.setSort(self, sortFn)
+	self.sortFn = sortFn
+end
+
 function Layer.draw(self)
 	self:refreshIndices() -- Only runs if dirty.
+	if self.sortFn then  table.sort(self, self.sortFn)  end
 	local curMatrix = nil
 	local curMaskObj = nil
 	for i=1,#self do
