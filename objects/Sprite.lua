@@ -21,7 +21,7 @@ function Sprite.request(self)
 end
 
 function Sprite.allocate(self, x, y, w, h)
-	local iw, ih = self.image:getDimensions()
+	local iw, ih = self.imgW, self.imgH
 	local c, s = math.cos(self.angle), math.sin(self.angle)
 	local ac, as = math.abs(c), math.abs(s)
 
@@ -58,6 +58,7 @@ function Sprite.set(self, image, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	self.blendMode = 'alpha'
 	self.color = color or {1, 1, 1, 1}
 	local w, h = image:getDimensions()
+	self.imgW, self.imgH = w, h
 	self._req = { w = w, h = h }
 	ox = ox or 'center';  oy = oy or 'center'
 	if type(ox) == 'string' then  ox = w * origins[ox]  end
