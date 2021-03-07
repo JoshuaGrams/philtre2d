@@ -63,6 +63,7 @@ function Quad.set(self, image, quad, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	end
 	self.quad = quad
 	self.w, self.h = w, h
+	self.imgW, self.imgH = w, h
 	self.name = 'Quad'
 	self.blendMode = 'alpha'
 	self.color = color or {1, 1, 1, 1}
