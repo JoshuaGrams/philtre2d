@@ -32,7 +32,7 @@ Scene-tree will add these to all objects when they are added to the tree.
 
 #### Optional
  * **children** - A list of references to this object's children.
- * **script** - A list of references to this object's scripts. The user can set this to a single reference, but scene-tree will convert it to a list when it's added to the tree.
+ * **scripts** - A list of references to this object's scripts. The user can set this to a single reference, but scene-tree will convert it to a list when it's added to the tree.
 
 Methods
 -------

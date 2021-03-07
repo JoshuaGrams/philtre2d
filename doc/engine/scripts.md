@@ -7,7 +7,7 @@ Each script is just a table containing certain functions. When `Object:call(func
 
 The first argument, `self`, refers to the object that holds the script. Scripts do not have any built-in, private space of their own to store data for their object instance, all scripts share the same `self`.
 
-Each object's `script` property is either `nil`, or a list of scripts. You can modify this at any time. Generally you would set an object's scripts before you add it to the Scene-Tree.
+Each object's `scripts` property is either `nil`, or a list of scripts. You can modify this at any time. Generally you would set an object's scripts before you add it to the Scene-Tree.
 
 Basic Engine Callbacks
 ----------------------
@@ -50,10 +50,10 @@ local myScript = {
 local otherScript = require "player.player_script"
 
 local obj = Object()
-obj.script = { myScript, otherScript }
+obj.scripts = { myScript, otherScript }
 scene:add(obj)
 
 -- Alternate method using Philtre global function, mod():
-local obj2 = mod(Object(), {script = { myScript, otherScript }})
+local obj2 = mod(Object(), {scripts = { myScript, otherScript }})
 scene:add(obj2)
 ```

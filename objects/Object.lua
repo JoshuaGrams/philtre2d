@@ -42,15 +42,15 @@ function Object.__tostring(self)
 end
 
 function Object.addScript(self, script)
-	if not self.script then self.script = {} end
-	table.insert(self.script, script)
+	if not self.scripts then self.scripts = {} end
+	table.insert(self.scripts, script)
 end
 
 -- Call a function on the object and its scripts (if any)
 function Object.call(self, func_name, ...)
 	if self[func_name] then self[func_name](self, ...) end
-	if self.script then
-		for _,script in ipairs(self.script) do
+	if self.scripts then
+		for _,script in ipairs(self.scripts) do
 			if script[func_name] then  script[func_name](self, ...)  end
 		end
 	end

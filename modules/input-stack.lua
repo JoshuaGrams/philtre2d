@@ -45,9 +45,9 @@ local function consumableCall(obj, funcName, ...)
 		r = obj[funcName](obj, ...)
 		if r then  return r  end
 	end
-	if obj.script then
-		for i=1,#obj.script do
-			local scr = obj.script[i]
+	if obj.scripts then
+		for i=1,#obj.scripts do
+			local scr = obj.scripts[i]
 			if scr[funcName] then
 				r = scr[funcName](obj, ...)
 				if r then  return r  end

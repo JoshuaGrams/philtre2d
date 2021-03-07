@@ -106,7 +106,7 @@ return {
 			scene:add(o3, self)
 		end
 		local script = {init = init}
-		local o1 = mod(Object(), {name = 1, draw = customDraw, script = {script}})
+		local o1 = mod(Object(), {name = 1, draw = customDraw, scripts = {script}})
 		scene:add(o1)
 		draw(scene, "a")
 		T.is(drawn, "13", "add children on init, they don't get drawn twice")

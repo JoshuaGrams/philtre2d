@@ -32,10 +32,6 @@ local function initObject(tree, obj, parent, index, objList)
 	obj.path = path
 	tree.paths[path] = obj
 
-	if obj.script and not obj.script[1] then
-		obj.script = { obj.script }
-	end
-
 	if obj.children then
 		obj.children.maxn = obj.children.maxn or #obj.children
 		for i=1,obj.children.maxn do
