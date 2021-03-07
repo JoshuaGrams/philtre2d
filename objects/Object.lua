@@ -41,11 +41,6 @@ function Object.__tostring(self)
 	return '(' .. self.className .. ' ' .. self.id .. '): path = ' .. tostring(self.path)
 end
 
-function Object.addScript(self, script)
-	if not self.scripts then self.scripts = {} end
-	table.insert(self.scripts, script)
-end
-
 -- Call a function on the object and its scripts (if any)
 function Object.call(self, func_name, ...)
 	if self[func_name] then self[func_name](self, ...) end
