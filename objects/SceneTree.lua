@@ -38,6 +38,7 @@ end
 function SceneTree.add(self, obj, parent, atIndex)
 	assert(obj.is and obj:is(Object), 'SceneTree.add: obj: '..tostring(obj)..' is not an Object.')
 	assert(not obj.path, 'SceneTree.add: obj: '..tostring(obj)..' is already in the tree.')
+	if atIndex then assert(atIndex % 1 == 0, 'SceneTree.add: atIndex: '..tostring(atIndex)..' is not an integer.')  end
 	parent = parent or self
 	if parent ~= self then
 		assert(parent.is and parent:is(Object), 'SceneTree.add: parent: '..tostring(parent)..' is not an Object.')
