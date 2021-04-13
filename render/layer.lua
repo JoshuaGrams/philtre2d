@@ -85,8 +85,11 @@ function Layer.setSort(self, sortFn)
 end
 
 function Layer.draw(self)
+	if self.sortFn then
+		self.dirty = true
+		table.sort(self, self.sortFn)
+	end
 	self:refreshIndices() -- Only runs if dirty.
-	if self.sortFn then  table.sort(self, self.sortFn)  end
 	local curMatrix = nil
 	local curMaskObj = nil
 	for i=1,#self do

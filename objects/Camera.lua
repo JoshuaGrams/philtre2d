@@ -102,20 +102,27 @@ local function decipher_zoom_or_area(zoom_or_area)
 	return -- invalid value, returns nil
 end
 
-local function update_zoom_after_resize(z, scale_mode, old_w, old_h, new_w, new_h)
-	if scale_mode == "expand view" then
+Camera.scaleModes = {
+	["expand view"] = function(z, old_w, old_h, new_w, new_h)
 		return z
-	elseif scale_mode == "fixed area" then
+	end,
+	["fixed area"] = function(z, old_w, old_h, new_w, new_h)
 		local new_a = new_w * new_h
 		local old_a = old_w * old_h
 		return z * sqrt(new_a / old_a) -- zoom is the scale on both axes, hence the square root
-	elseif scale_mode == "fixed width" then
+	end,
+	["fixed width"] = function(z, old_w, old_h, new_w, new_h)
 		return z * new_w / old_w
-	elseif scale_mode == "fixed height" then
+	end,
+	["fixed height"] = function(z, old_w, old_h, new_w, new_h)
 		return z * new_h / old_h
-	else
-		error("Camera - update_zoom_after_resize() - invalid scale mode: " .. tostring(scale_mode))
-	end
+	end,
+}
+
+local function update_zoom_after_resize(z, scale_mode, old_w, old_h, new_w, new_h)
+	local scaleFn = Camera.scaleModes[scale_mode]
+	assert(scaleFn, "Camera - update_zoom_after_resize() - invalid scale mode: " .. tostring(scale_mode))
+	return scaleFn(z, old_w, old_h, new_w, new_h)
 end
 
 local function get_offset_from_deadzone(self, obj, deadzone)
