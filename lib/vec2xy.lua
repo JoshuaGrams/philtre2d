@@ -137,6 +137,12 @@ function vec2.lerpdt(ax, ay, bx, by, s, dt)
 	return ax + (bx - ax) * k, ay + (by - ay) * k
 end
 
+-- Reflect a vector by a surface normal (NOT the bounce plane vector).
+function vec2.reflect(ax, ay, nx, ny)
+	local dot = vec2.dot(ax, ay, nx, ny)
+	return ax - 2 * nx*dot, ay - 2 * ny*dot
+end
+
 -- Return a formatted string.
 function vec2.to_string(ax, ay)
 	return string.format("(%+0.3f,%+0.3f)", ax, ay)
