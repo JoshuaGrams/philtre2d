@@ -67,7 +67,7 @@ local function is_vec(v)
 	end
 end
 
-function set_viewport(camera, x, y, w, h)
+local function set_viewport(camera, x, y, w, h)
 	local vp = camera.vp
 	local aspect = camera.aspect_ratio
 	local align = camera.viewport_align
