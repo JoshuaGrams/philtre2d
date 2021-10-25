@@ -65,11 +65,11 @@ The names and different parameter options you can use to define shapes.
 	2. `{ x, y, radius }`
 
 * __'rectangle'__
-	1. `{ width, height }`
+	1. `{ width, height }` _(rectangle shapes are centered)_
 	2. `{ x, y, width, height, [angle = 0] }`
 
 * __'polygon'__
-	1. `{ x1, y1, x2, y2, x3, y3, ... }` - _(Can take up to 8 vertices, maximum.)_
+	1. `{ x1, y1, x2, y2, x3, y3, ... }` _(Can take up to 8 vertices, maximum.)_
 	2. `{ sequence }` _sequence = { x1, y1, x2, y2, x3, y3, ... } - i.e. You don't have to `unpack` a vertex list._
 
 * __'edge'__
