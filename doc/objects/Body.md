@@ -83,6 +83,8 @@ Shape Properties
 ----------------
 The optional properties that you can specify for each shape, in the constructor.
 
+* __'density'__ - <kbd>number</kbd> - The density of the shape (default 1).
+
 * __'sensor'__ - <kbd>bool</kbd> - If the shape is a sensor or not.
 
 * __'categories'__ - <kbd>number</kbd> - The bitmask for the collision categories that the shape is a member of. By default it is in category 1. You can make this with `physics.getCategoriesBitmask`.
