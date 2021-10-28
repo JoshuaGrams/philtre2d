@@ -2,7 +2,6 @@ local base = (...):gsub('objects%.Body$', '')
 local matrix = require(base .. 'modules.matrix')
 local physics = require(base .. 'modules.physics')
 local Object = require(base .. 'objects.Object')
-local World = require(base .. 'objects.World')
 
 local Body = Object:extend()
 
@@ -54,8 +53,7 @@ end
 function Body.TRANSFORM_DYNAMIC_PHYSICS(s)
 	s.pos.x, s.pos.y = s.body:getPosition()
 	s.angle = s.body:getAngle()
-	local m = s._to_world
-	m = matrix.new(s.pos.x, s.pos.y, s.angle, 1, 1, 0, 0, m) -- Don't allow scale or shear.
+	s._to_world = matrix.new(s.pos.x, s.pos.y, s.angle, 1, 1, 0, 0, s._to_world) -- Don't allow scale or shear.
 	s._to_local = nil
 end
 
@@ -70,9 +68,8 @@ function Body.TRANSFORM_KINEMATIC_PHYSICS(s)
 		s.body:setAwake(true)
 	end
 	last.x, last.y, last.angle = wx, wy, wAngle
-	local m = s._to_world
 	-- Already transformed pos & angle to world space, don't allow scale or shear.
-	m = matrix.new(wx, wy, wAngle, 1, 1, 0, 0, m)
+	s._to_world = matrix.new(wx, wy, wAngle, 1, 1, 0, 0, s._to_world)
 	s._to_local = nil
 end
 
@@ -122,7 +119,7 @@ function Body.init(self)
 	end
 
 	-- By default, dynamic and static bodies are created in local coords.
-	if not self.ignore_transform then
+	if not self._ignoreTransform then
 		if self.type == 'dynamic' or self.type == 'static' then
 			self.pos.x, self.pos.y = self.parent:toWorld(self.pos.x, self.pos.y)
 			self.angle = self.angle + matrix.parameters(self.parent._to_world)
@@ -132,23 +129,19 @@ function Body.init(self)
 	local bType = (self.type == 'trigger') and 'dynamic' or self.type
 	self.body = love.physics.newBody(self.world, self.pos.x, self.pos.y, bType)
 	self.body:setAngle(self.angle)
-	if self.bodyData then
-		for k,v in pairs(self.bodyData) do
+	if self._bodyData then
+		for k,v in pairs(self._bodyData) do
 			if body_set_funcs[k] then self.body[body_set_funcs[k]](self.body, v) end
 		end
 	end
 	-- Make shapes & fixtures.
-	if type(self.shapeData[1]) == 'string' then -- Only one fixture def.
-		self:addFixture(self.shapeData)
+	if type(self._shapeData[1]) == 'string' then -- Only one fixture def.
+		self:addFixture(self._shapeData)
 	else
-		for i, data in ipairs(self.shapeData) do -- A list of fixture defs.
+		for i, data in ipairs(self._shapeData) do -- A list of fixture defs.
 			self:addFixture(data)
 		end
 	end
-	-- Discard constructor data.
-	self.shapeData = nil
-	self.bodyData = nil
-	self.inherit = nil
 
 	if self.type == 'dynamic' or self.type == 'static' then
 		self.updateTransform = Body.TRANSFORM_DYNAMIC_PHYSICS
@@ -178,9 +171,9 @@ function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_tran
 		else  body_prop = { fixedRot = true }  end
 	end
 	-- Save to use on init:
-	self.shapeData = shapes
-	self.bodyData = body_prop
-	self.ignore_transform = ignore_parent_transform
+	self._shapeData = shapes
+	self._bodyData = body_prop
+	self._ignoreTransform = ignore_parent_transform
 end
 
 return Body
