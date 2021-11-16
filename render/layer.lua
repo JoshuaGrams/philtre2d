@@ -73,11 +73,16 @@ end
 -- Use this to avoid creating a new one each time.
 local tempTransform = love.math.newTransform()
 
--- Reset to origin and apply object's to-world transform.
-local function applyMaskObjectTransform(obj)
+-- NOTE: This completely breaks any camera or other transforms applied, so it only works in GUI.
+local function setMask(obj, enabled)
 	love.graphics.push()
 	local t = M.toTransform(obj._to_world, tempTransform)
 	love.graphics.replaceTransform(t)
+
+	if enabled then  obj:enableMask()
+	else  obj:disableMask()  end
+
+	love.graphics.pop()
 end
 
 function Layer.setSort(self, sortFn)
@@ -106,16 +111,8 @@ function Layer.draw(self)
 			end
 			local maskObj = params[2].maskObject
 			if curMaskObj ~= maskObj then
-				if curMaskObj then -- There may already be a mask applied - disable it.
-					applyMaskObjectTransform(curMaskObj)
-					curMaskObj:disableMask()
-					love.graphics.pop()
-				end
-				if maskObj then
-					applyMaskObjectTransform(maskObj)
-					maskObj:enableMask()
-					love.graphics.pop()
-				end
+				if curMaskObj then  setMask(curMaskObj, false)  end
+				if maskObj then  setMask(maskObj, true)  end
 				curMaskObj = maskObj
 			end
 			params[1](unpack(params, 2))
@@ -123,11 +120,7 @@ function Layer.draw(self)
 		end
 	end
 	-- The last object in the layer may have a mask. If so, we need to disable it.
-	if curMaskObj then
-		applyMaskObjectTransform(curMaskObj)
-		curMaskObj:disableMask()
-		love.graphics.pop()
-	end
+	if curMaskObj then  setMask(curMaskObj, false)  end
 end
 
 return Layer
