@@ -128,5 +128,23 @@ return {
 		_called = {}
 		layer:draw()
 		T.has(_called, {1,5,6}, "Removed two consecutive objects from the middle, the remaining objects still drawn in order")
+	end,
+	function()
+		local layer = Layer()
+		local objs = addObjects(layer, makeObjects(1, 12))
+		_called = {}
+		layer:removeObject(objs[9])
+		layer:removeObject(objs[8])
+		layer:removeObject(objs[7])
+		T.ok(true, "Removing objects in reverse order works")
+		layer:draw()
+		T.has(_called, {1,2,3,4,5,6,10,11,12}, "Removing added objects before they are drawn works")
+
+		layer:removeObject(objs[10])
+		layer:removeObject(objs[11])
+		layer:removeObject(objs[12])
+		_called = {}
+		layer:draw()
+		T.has(_called, {1,2,3,4,5,6}, "Removing consecutive objects at the end works")
 	end
 }

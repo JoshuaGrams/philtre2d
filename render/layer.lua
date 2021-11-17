@@ -23,8 +23,6 @@ local function addFunction(self, m, fn, ...)
 end
 Layer.addFunction = addFunction
 
--- TODO?: addFunctionAtIndex()? - Add new/moved objects after their parent?
-
 function Layer.addObject(self, object)
 	local m = object._to_world
 	local i = addFunction(self, m, object.call, object, 'draw')
@@ -45,29 +43,13 @@ function Layer.removeObject(self, object)
 
 	object.drawIndex = nil
 
-	-- Don't table.remove or object drawIndices will not match their place in the list (needed for removing other objects).
-	-- Don't set to nil or it will break iteration/table-length operator.
+	-- Don't table.remove or object drawIndices will not match their place in the list.
+	-- 	(which is necessary for removing other objects).
+	-- Don't set to nil or it will break the length operator.
 	self[i] = EMPTY
-	-- Empty elements will be removed in refreshIndices() before next draw.
+	-- Empty elements will be removed during next draw.
 	self.dirty = true
-	-- Leave self.n as-is so added objects won't overwrite existing ones. It will be updated in refreshIndices().
-end
-
--- Update all objects' drawIndices to be consecutive and clean up holes from removed objects.
-function Layer.refreshIndices(self)
-	if self.dirty then
-		for i=1,#self do
-			while self[i] == EMPTY do -- May be consecutive empty elements that get moved up each table.remove.
-				table.remove(self, i)
-				self.n = self.n - 1
-			end
-			-- For loop only evaluates `#self` once, so it will go past the end after you remove elements.
-			if self[i] == nil then  break  end -- Don't iterate past the last element.
-
-			local object = self[i][2]
-			object.drawIndex = i
-		end
-	end
+	-- Leave self.n as-is so added objects won't overwrite existing ones. It will be updated in the next draw.
 end
 
 -- Use this to avoid creating a new one each time.
@@ -94,14 +76,33 @@ function Layer.draw(self)
 		self.dirty = true
 		table.sort(self, self.sortFn)
 	end
-	self:refreshIndices() -- Only runs if dirty.
+
 	local curMatrix = nil
 	local curMaskObj = nil
+	local isDirty, isAfterRemoved = self.dirty, false
+
 	for i=1,#self do
 		if i > self.n then
 			self[i] = nil -- Clear any extra draw items past the end.
 		else
 			local params = self[i]
+
+			if isDirty then -- Remove empty elements and update subsequent drawIndices.
+				while params == EMPTY do -- May be consecutive empty elements that get moved up each table.remove.
+					table.remove(self, i)
+					self.n = self.n - 1
+					params = self[i]
+					isAfterRemoved = true
+				end
+				if isAfterRemoved then
+					-- For loop only evaluates `#self` once, so it will go past the end after you remove elements.
+					if params == nil then  break  end -- Don't iterate past the last element.
+
+					local object = self[i][2]
+					object.drawIndex = i
+				end
+			end
+
 			local pushed
 			if curMatrix ~= params.m then
 				curMatrix, pushed = params.m, true
