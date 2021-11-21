@@ -122,6 +122,7 @@ function Layer.draw(self)
 	end
 	-- The last object in the layer may have a mask. If so, we need to disable it.
 	if curMaskObj then  setMask(curMaskObj, false)  end
+	self.dirty = false
 end
 
 return Layer
