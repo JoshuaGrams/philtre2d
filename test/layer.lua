@@ -146,5 +146,31 @@ return {
 		_called = {}
 		layer:draw()
 		T.has(_called, {1,2,3,4,5,6}, "Removing consecutive objects at the end works")
+
+		T.ok(not layer.dirty, "Layer is not dirty after drawing")
+	end,
+	function()
+		-- Test with sorting.
+		local objs = makeObjects(1, 4)
+		local function ySort(a, b)
+			if not a or not b then  return a  end
+			local objA, objB = a[2], b[2]
+			return objA.name < objB.name
+		end
+		local layer = Layer()
+		layer:setSort(ySort)
+		addObjects(layer, objs)
+		_called = {}
+		layer:removeObject(objs[1])
+		layer:removeObject(objs[2])
+		layer:removeObject(objs[3])
+		-- Remove objects early in draw order.
+		-- The sort will move the remaining object up but not change it's drawIndex.
+		layer:draw()
+		-- That should get sorted out in draw and let you remove the object-
+		--    (which uses the object's drawIndex to find it in the layer)
+		local isSuccess, errMsg = pcall(layer.removeObject, layer, objs[4])
+		T.ok(isSuccess, "Removing after deleting earlier siblings and then sorting works")
+		if not isSuccess then  print("", errMsg)  end
 	end
 }

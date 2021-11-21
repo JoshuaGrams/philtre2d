@@ -79,7 +79,7 @@ function Layer.draw(self)
 
 	local curMatrix = nil
 	local curMaskObj = nil
-	local isDirty, isAfterRemoved = self.dirty, false
+	local isDirty, isAfterRemoved, wasSorted = self.dirty, false, self.sortFn
 
 	for i=1,#self do
 		if i > self.n then
@@ -94,7 +94,7 @@ function Layer.draw(self)
 					params = self[i]
 					isAfterRemoved = true
 				end
-				if isAfterRemoved then
+				if isAfterRemoved or wasSorted then
 					-- For loop only evaluates `#self` once, so it will go past the end after you remove elements.
 					if params == nil then  break  end -- Don't iterate past the last element.
 
