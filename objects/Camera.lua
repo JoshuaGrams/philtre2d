@@ -201,13 +201,15 @@ end
 
 function Camera.applyTransform(self)
 	love.graphics.push()
-	-- start at viewport pivot point
 	love.graphics.origin()
+
+	local wAngle = matrix.parameters(self._to_world)
+	local wx, wy = self._to_world.x, self._to_world.y
+
 	love.graphics.translate(self.vp.pivot.x, self.vp.pivot.y)
-	-- view rot and translate are negative because we're really transforming the world
-	love.graphics.rotate(-self.angle - self.shake_a)
+	love.graphics.rotate(-wAngle - self.shake_a)
 	love.graphics.scale(self.zoom, self.zoom)
-	love.graphics.translate(-self.pos.x - self.shake_x, -self.pos.y - self.shake_y)
+	love.graphics.translate(-wx - self.shake_x, -wy - self.shake_y)
 
 	local vp = self.vp
 	local w, h = love.graphics.getDimensions()
