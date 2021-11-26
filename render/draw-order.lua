@@ -12,6 +12,7 @@ function DrawOrder.set(self, groups, default)
 	self.layers = {}
 	self.stack = {}
 	self.layer = false
+	local containsDefaultLayer = false
 	local _,g = next(groups)
 	if type(g) ~= 'table' then
 		groups = { [onlyGroup] = groups }
@@ -20,6 +21,7 @@ function DrawOrder.set(self, groups, default)
 		local g = DepthList()
 		self.groups[name] = g
 		for _,layer in ipairs(group) do
+			if layer == default then  containsDefaultLayer = true  end
 			local l = Layer()
 			self.layers[layer] = l
 			if not self.layer then self.layer = l end -- Set layer to the first one in the first group in case there is no default.
@@ -27,6 +29,7 @@ function DrawOrder.set(self, groups, default)
 		end
 	end
 	self.layer = (default and self.layers[default]) or self.layer
+	assert(containsDefaultLayer, 'DrawOrder.set - Default layer: "'..tostring(default)..'" not found in layer groups.')
 end
 
 function DrawOrder.draw(self, groups)
