@@ -100,7 +100,12 @@ end
 local function addObject(self, object)
 	if object.visible and not object.drawIndex then
 		self:saveCurrentLayer()
-		self.layer = self.layers[object.layer] or self.layer
+		if object.layer then
+			self.layer = self.layers[object.layer]
+			if not self.layer then
+				error('DrawOrder.addObject - Layer "'..tostring(object.layer)..'" not found, from object: '..tostring(object))
+			end
+		end
 		self.layer:addObject(object)
 		if object.children then
 			for i=1,object.children.maxn do
