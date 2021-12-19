@@ -64,30 +64,32 @@ local function handleContact(type, fixtA, fixtB, contact, normImpulse, tanImpuls
 		return
 	end
 	local objA, objB = fixtA:getUserData(), fixtB:getUserData()
+	-- NOTE: The contact normal is relative to the edge on objA (i.e. it always points away from objA).
+	-- 	Send both objects and don't switch order -- so you can find the normal relative to yourself.
 	if objA then
-		objA:call(type, fixtA, fixtB, objB, contact, normImpulse, tanImpulse)
+		objA:call(type, fixtA, fixtB, objA, objB, contact, normImpulse, tanImpulse)
 	else
-		print(type .. ' - WARNING: Object "' .. tostring(objA) .. '" does not exist.')
+		print(type .. ' - WARNING: Object A: "' .. tostring(objA) .. '" does not exist.')
 	end
 	if objB then
-		objB:call(type, fixtB, fixtA, objA, contact, normImpulse, tanImpulse)
+		objB:call(type, fixtA, fixtB, objA, objB, contact, normImpulse, tanImpulse)
 	else
-		print(type .. ' - WARNING: Object "' .. tostring(objB) .. '" does not exist.')
+		print(type .. ' - WARNING: Object B: "' .. tostring(objB) .. '" does not exist.')
 	end
 end
 
 local function makeCallback(self, type)
-	local cb
 	-- Don't delay preSolve or postSolve.
 	-- preSolve in particular is useless if delayed. If you want to disable the contact it must be done immediately.
 	if type == 'preSolve' or type == 'postSolve' then
-		cb = function(a, b, contact, normImpulse, tanImpulse)
+		return function(a, b, contact, normImpulse, tanImpulse)
 			handleContact(type, a, b, contact, normImpulse, tanImpulse) -- Only postSolve actually uses the last two arguments.
 		end
 	else
-		cb = function(a, b, contact, normImp, tanImp)
+		return function(a, b, contact)
 			if self.isUpdating then
 				-- Delay callbacks that happen during physics update, so bodies can be created during a callback.
+				-- 	NOTE: contact will be destroyed for delayed endContact events.
 				local t = { type = type, a = a, b = b, contact = contact}
 				table.insert(self.delayedCallbacks, t)
 			else
@@ -97,7 +99,6 @@ local function makeCallback(self, type)
 			end
 		end
 	end
-	return cb
 end
 
 function World.update(self, dt)

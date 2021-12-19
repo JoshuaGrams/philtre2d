@@ -21,10 +21,14 @@ Collision Callbacks
 
 If enabled, these functions will get called on both objects involved in the collision and any scripts they have, if any of them have these function names defined.
 
-* __beginContact__(self, selfFixture, otherFixture, otherObject, contact)
+> NOTE: The contact normal is relative to the edge on objA (i.e. it always points away from objA).
 
-* __endContact__(self, selfFixture, otherFixture, otherObject, contact)
+* __`beginContact(self, fixtA, fixtB, objA, objB, contact)`__ - Called when two objects collide or begin overlapping.
 
-* __preSolve__(self, selfFixture, otherFixture, otherObject, contact)
+* __`endContact(self, fixtA, fixtB, objA, objB, destroyedContact)`__ - Called when two objects stop overlapping.
 
-* __postSolve__(self, selfFixture, otherFixture, otherObject, contact, normImpulse, tanImpulse)
+> NOTE: If this is a delayed callback from the physics update, the contact will be destroyed -- which means you can't call any of its methods. It's still included in case you want to use it as a table key or something.
+
+* __`preSolve(self, fixtA, fixtB, objA, objB, contact)`__ - Called just before a collision gets resolved. Can be used to disable or otherwise modify the collision response, see [Contact](https://love2d.org/wiki/Contact).
+
+* __`postSolve(self, fixtA, fixtB, objA, objB, contact, normImpulse, tanImpulse)`__ - Called just after a collision is resolved.
