@@ -65,14 +65,14 @@ local function handleContact(type, fixtA, fixtB, contact, normImpulse, tanImpuls
 	end
 	local objA, objB = fixtA:getUserData(), fixtB:getUserData()
 	-- NOTE: The contact normal is relative to the edge on objA (i.e. it always points away from objA).
-	-- 	Send both objects and don't switch order -- so you can find the normal relative to yourself.
+	-- 	Send `isMyContact` bool so you can find the normal relative to either object.
 	if objA then
-		objA:call(type, fixtA, fixtB, objA, objB, contact, normImpulse, tanImpulse)
+		objA:call(type, fixtA, fixtB, objB, contact, true, normImpulse, tanImpulse)
 	else
 		print(type .. ' - WARNING: Object A: "' .. tostring(objA) .. '" does not exist.')
 	end
 	if objB then
-		objB:call(type, fixtA, fixtB, objA, objB, contact, normImpulse, tanImpulse)
+		objB:call(type, fixtA, fixtB, objA, contact, false, normImpulse, tanImpulse)
 	else
 		print(type .. ' - WARNING: Object B: "' .. tostring(objB) .. '" does not exist.')
 	end
