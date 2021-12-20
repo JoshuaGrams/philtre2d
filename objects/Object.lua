@@ -37,8 +37,23 @@ function Object.toLocal(obj, x, y, w)
 	return matrix.x(obj._to_local, x, y, w)
 end
 
+local ANSI_ESC = string.char(27)
+local ANSI_RESET = ANSI_ESC .. "[0m"
+local BRIGHT_GREEN = ANSI_ESC .. "[92m"
+local DARK_GREY = ANSI_ESC .. "[90m"
+local DARK_GREEN = ANSI_ESC .. "[32m"
+
+local _COLORIZE_TOSTRING = true
+
 function Object.__tostring(self)
-	return '(' .. self.className .. ' ' .. self.id .. '): path = ' .. tostring(self.path)
+	if _COLORIZE_TOSTRING then
+		return BRIGHT_GREEN .. '(' .. self.className ..
+			DARK_GREY .. ' ' .. self.id .. ' path=' ..
+			DARK_GREEN .. tostring(self.path) ..
+			BRIGHT_GREEN .. ')' .. ANSI_RESET
+	else
+		return '(' .. self.className .. ' ' .. self.id .. ' path=' .. tostring(self.path) .. ')'
+	end
 end
 
 -- Call a function on the object and its scripts (if any)
