@@ -1,9 +1,11 @@
 
+local physics = {}
+
 local categoryIntFromName = {} -- { [name] = int, ... }
 local FULL_MASK_INT = 2^16 - 1
 
 -- Assign names to collision category bits. (1-16)
-local function setCategoryNames(...)
+function physics.setCategoryNames(...)
 	local c = {...}
 	for i, v in ipairs(c) do
 		if i > 16 then
@@ -16,37 +18,44 @@ local function setCategoryNames(...)
 	end
 end
 
--- Take up to 16 category names.
--- Return the matching bitmask.
-local function getCategoriesBitmask(...)
-	local c = {...}
-	local bitmask = 0
-	for i, v in ipairs(c) do
-		local catInt = categoryIntFromName[v]
+-- Take category names and return the matching bitmask.
+-- Returns 0 if none are specified.
+-- Breaks if given duplicate names.
+local function getBitmask(...)
+	local catNames = {...}
+	local bits = 0
+	for i,catName in ipairs(catNames) do
+		local catInt = categoryIntFromName[catName]
 		if not catInt then
-			error('physics.getCategoriesBitmask - Category name "' .. v .. '" not recognized.')
+			error('physics.getBitmask - Category name "' .. catName .. '" not recognized.')
 		end
-		bitmask = bitmask + catInt
+		bits = bits + catInt
 	end
-	return bitmask
+	return bits
 end
 
--- Take up to 16 category names.
--- Return the matching inverse bitmask.
-local function getMaskBitmask(...)
-	return bit.bxor(getCategoriesBitmask(...), FULL_MASK_INT)
+local function getInvBitmask(...)
+	return bit.bxor(getBitmask(...), FULL_MASK_INT)
 end
+
+physics.getCategoriesBitmask = getBitmask
+physics.categories = getBitmask
+
+physics.getMaskBitmask = getInvBitmask
+physics.mask = getInvBitmask
+physics.onlyHit = getBitmask
+physics.dontHit = getInvBitmask
 
 -- Takes a bitmask and a category name.
 -- Returns if the bitmask has that category enabled (true/false).
-local function isInCategory(bitmask, category)
+function physics.isInCategory(bitmask, category)
 	local categoryBitmask = categoryIntFromName[category]
 	return bit.band(bitmask, categoryBitmask) > 0
 end
 
 -- Takes two "category" and "mask" bitmask pairs.
 -- Returns if they collide (true/false).
-local function shouldCollide(catsA, maskA, catsB, maskB)
+function physics.shouldCollide(catsA, maskA, catsB, maskB)
 	return (bit.band(maskA, catsB) ~= 0) and (bit.band(catsA, maskB) ~= 0)
 end
 
@@ -63,7 +72,7 @@ local function boxQueryCallback(fixture)
 	return true
 end
 
-local function touchingBox(lt, rt, top, bot, world)
+function physics.touchingBox(lt, rt, top, bot, world)
 	for i, v in ipairs(queryResults) do  queryResults[i] = nil  end
 	world:queryBoundingBox(lt, top, rt, bot, boxQueryCallback)
 	if #queryResults > 0 then -- Return table if results, or nil if none.
@@ -71,7 +80,7 @@ local function touchingBox(lt, rt, top, bot, world)
 	end
 end
 
-local function atPoint(x, y, world)
+function physics.atPoint(x, y, world)
 	for i, v in ipairs(queryResults) do  queryResults[i] = nil  end
 	world:queryBoundingBox(x-0.5, y-0.5, x+0.5, y+0.5, boxQueryCallback)
 	for i=#queryResults, 1, -1 do
@@ -88,7 +97,7 @@ end
 local function raycastCallback(fixture, x, y, xn, yn, fraction)
 	if queryCats and queryMask then
 		local cats, mask = fixture:getFilterData()
-		local canHit = shouldCollide(cats, mask, queryCats, queryMask)
+		local canHit = physics.shouldCollide(cats, mask, queryCats, queryMask)
 		if not canHit then  return -1  end
 	end
 	if raycastMode == 'any' then
@@ -111,7 +120,7 @@ local function raycastCallback(fixture, x, y, xn, yn, fraction)
 	end
 end
 
-local function raycast(x1, y1, x2, y2, world, mode, categories, mask)
+function physics.raycast(x1, y1, x2, y2, world, mode, categories, mask)
 	raycastMode = mode or DEFAULT_RAYCAST_MODE
 	assert(RAYCAST_MODES[raycastMode], 'physics.raycast - Invalid raycast mode: "' .. tostring(mode) .. '". Must be "any", "all", or "closest".')
 	queryCats, queryMask = categories, mask
@@ -130,15 +139,6 @@ local function getWorld(self)
 		return getWorld(parent)
 	end
 end
+physics.getWorld = getWorld
 
-return {
-	setCategoryNames = setCategoryNames,
-	getCategoriesBitmask = getCategoriesBitmask,
-	getMaskBitmask = getMaskBitmask,
-	isInCategory = isInCategory,
-	shouldCollide = shouldCollide,
-	touchingBox = touchingBox,
-	atPoint = atPoint,
-	raycast = raycast,
-	getWorld = getWorld,
-}
+return physics

@@ -1,7 +1,7 @@
 Physics
 =======
 
-A physics utility module. Helps manage named collision categories so you don't have to remember arbitrary numbers and has helper functions for collision queries.
+A physics utility module. Helps manage named collision categories so you don't have to remember arbitrary numbers and has helper functions for collision queries (point checks, AABB checks, & raycasts).
 
 Basic Physics Usage
 -------------------
@@ -16,11 +16,28 @@ Module Functions
 ### physics.setCategoryNames(...)
 Saves a table mapping string names to physics category indices (1-16). Pass in up to 16 different strings (as individual arguments).
 
-### physics.getCategoriesBitmask(...)
+### physics.categories(...)
 Takes a list of category names and returns the bitmask matching all of them.
 
-### physics.getMaskBitmask(...)
+__Aliases:__ _the same function can be used under these names:_
+* `physics.getCategoriesBitmask`
+* `physics.onlyHit`
+
+### physics.mask(...)
 Takes a list of category names and returns a bitmask with all categories enabled _except_ those specified.
+
+__Aliases:__ _the same function can be used under these names:_
+* `physics.getMaskBitmask`
+* `physics.dontHit`
+
+```lua
+-- Example:
+local cat = physics.categories("ghosts")
+local mask = physics.dontHit("walls")
+-- OR:
+local cat = physics.categories("evil ghosts")
+local mask = physics.onlyHit("players")
+```
 
 ### physics.isInCategory(bitmask, category)
 Takes a bitmask and a category name, returns true if the bitmask has that category enabled.
