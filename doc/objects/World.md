@@ -2,7 +2,7 @@ World
 =====
 
 ### World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)
-Creates a new object for passing updates to the physics world as part of the scene-tree. Each World object has its own physics world and its own callbacks. By default all callbacks are enabled. Access the physics world via the object's `world` property.
+Creates a new object for passing updates to the physics world as part of the scene-tree. Each World object has its own physics world and its own callbacks. By default all callbacks are enabled.
 
 _PARAMETERS_
 * __xg__ <kbd>number</kbd> - X gravity.
@@ -16,19 +16,54 @@ _PARAMETERS_
 _RETURNS_
 * __World__ <kbd>table</kbd> - The new World object.
 
+Properties
+----------
+
+#### World.world
+A reference to the [love2d/box2d physics world](https://love2d.org/wiki/World).
+
+```lua
+-- Example:
+self.world:setGravity(0, 1000)
+```
+
 Collision Callbacks
 -------------------
 
 If enabled, these functions will get called on both objects involved in the collision and any scripts they have, if any of them have these function names defined.
 
+The callbacks happen _during_ the physics world update, so you can't modify the physics world during a callback. Use World:delay() to delay a method call until just after the world finishes updating.
+
 > NOTE: The contact normal points away from self when `isMyContact` is true.
 
 * __`beginContact(self, selfFixt, otherFixt, otherObj, contact, isMyContact)`__ - Called when two objects collide or begin overlapping.
 
-* __`endContact(self, fixtA, fixtB, objA, objB, destroyedContact, isMyContact)`__ - Called when two objects stop overlapping.
-
-> NOTE: If this is a delayed callback from the physics update the contact will be destroyed -- which means you can't call any of its methods. It's still included in case you want to use it as a table key or something.
+* __`endContact(self, selfFixt, otherFixt, otherObj, contact, isMyContact)`__ - Called when two objects stop overlapping.
 
 * __`preSolve(self, selfFixt, otherFixt, otherObj, contact, isMyContact)`__ - Called just before a collision gets resolved. Can be used to disable or otherwise modify the collision response, see [Contact](https://love2d.org/wiki/Contact).
 
 * __`postSolve(self, selfFixt, otherFixt, otherObj, contact, isMyContact, normImpulse, tanImpulse)`__ - Called just after a collision is resolved.
+
+World Methods
+-------------
+
+### World.delay(self, obj, callbackName, ...)
+Delay a callback until just after the world finishes updating. Useful for modifying the physics world (spawning or destroying bodies, etc) in response to a contact event.
+
+> NOTE: Once they are init(), all Bodies store a reference to their world object under `self.world`.
+
+```lua
+-- Example:
+-- From a class inheriting Body:
+function Player.beginContact(self, selfFixt, otherFixt, otherObj, contact, isMyContact)
+	local nx, ny = contact:getNormal()
+	if isMyContact then
+		nx, ny = -nx, -ny
+	end
+	self.world:delay(self, "hit", nx, ny)
+end
+
+function Player.hit(self, nx, ny)
+	-- Do stuff
+end
+```

@@ -59,55 +59,34 @@ function World.debugDraw(self, layer)
 	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 end
 
-local function handleContact(type, fixtA, fixtB, contact, normImpulse, tanImpulse)
-	if fixtA:isDestroyed() or fixtB:isDestroyed() then
-		return
-	end
-	local objA, objB = fixtA:getUserData(), fixtB:getUserData()
+local function handleContact(cbName, fixtA, fixtB, contact, normImpulse, tanImpulse)
 	-- NOTE: The contact normal is relative to the edge on objA (i.e. it always points away from objA).
 	-- 	Send `isMyContact` bool so you can find the normal relative to either object.
+	local objA, objB = fixtA:getUserData(), fixtB:getUserData()
 	if objA then
-		objA:call(type, fixtA, fixtB, objB, contact, true, normImpulse, tanImpulse)
-	else
-		print(type .. ' - WARNING: Object A: "' .. tostring(objA) .. '" does not exist.')
+		objA:call(cbName, fixtA, fixtB, objB, contact, true, normImpulse, tanImpulse)
 	end
 	if objB then
-		objB:call(type, fixtA, fixtB, objA, contact, false, normImpulse, tanImpulse)
-	else
-		print(type .. ' - WARNING: Object B: "' .. tostring(objB) .. '" does not exist.')
+		objB:call(cbName, fixtB, fixtA, objA, contact, false, normImpulse, tanImpulse)
 	end
 end
 
-local function makeCallback(self, type)
-	-- Don't delay preSolve or postSolve.
-	-- preSolve in particular is useless if delayed. If you want to disable the contact it must be done immediately.
-	if type == 'preSolve' or type == 'postSolve' then
-		return function(a, b, contact, normImpulse, tanImpulse)
-			handleContact(type, a, b, contact, normImpulse, tanImpulse) -- Only postSolve actually uses the last two arguments.
-		end
-	else
-		return function(a, b, contact)
-			if self.isUpdating then
-				-- Delay callbacks that happen during physics update, so bodies can be created during a callback.
-				-- 	NOTE: contact will be destroyed for delayed endContact events.
-				local t = { type = type, a = a, b = b, contact = contact}
-				table.insert(self.delayedCallbacks, t)
-			else
-				-- Handle callbacks outside of physics update immediately, so endContact callbacks for deleted bodies will happen correctly.
-				--		(They happen instantly when a body is destroyed.)
-				handleContact(type, a, b, contact)
-			end
-		end
+local function makeCallback(self, cbName)
+	return function(a, b, contact, normImpulse, tanImpulse)
+		handleContact(cbName, a, b, contact, normImpulse, tanImpulse) -- Only postSolve actually uses the last two arguments.
 	end
+end
+
+function World.delay(self, obj, cbName, ...)
+	table.insert(self.delayedCallbacks, {obj, cbName, ...})
 end
 
 function World.update(self, dt)
-	self.isUpdating = true
 	self.world:update(dt)
-	self.isUpdating = false
 	if #self.delayedCallbacks > 0 then
 		for i,cb in ipairs(self.delayedCallbacks) do
-			handleContact(cb.type, cb.a, cb.b, cb.contact, cb.normImp, cb.tanImp)
+			local obj, cbName = cb[1], cb[2]
+			obj:call(cbName, unpack(cb, 3))
 		end
 		self.delayedCallbacks = {}
 	end

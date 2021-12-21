@@ -27,17 +27,8 @@ Input Callback
 
 Physics Callbacks
 -----------------
-> NOTE: The contact normal points away from self when `isMyContact` is true.
 
-* __`beginContact(self, selfFixt, otherFixt, otherObj, contact, isMyContact)`__ - Called when two objects collide or begin overlapping.
-
-* __`endContact(self, fixtA, fixtB, objA, objB, destroyedContact, isMyContact)`__ - Called when two objects stop overlapping.
-
-> NOTE: If this is a delayed callback from the physics update the contact will be destroyed -- which means you can't call any of its methods. It's still included in case you want to use it as a table key or something.
-
-* __`preSolve(self, selfFixt, otherFixt, otherObj, contact, isMyContact)`__ - Called just before a collision gets resolved. Can be used to disable or otherwise modify the collision response, see [Contact](https://love2d.org/wiki/Contact).
-
-* __`postSolve(self, selfFixt, otherFixt, otherObj, contact, isMyContact, normImpulse, tanImpulse)`__ - Called just after a collision is resolved.
+See [World - Collision Callbacks](../objects/World.md#collision-callbacks)
 
 Example
 -------
