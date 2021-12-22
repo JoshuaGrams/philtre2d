@@ -127,7 +127,7 @@ function Body.init(self)
 	end
 	-- Make body.
 	local bType = (self.type == 'trigger') and 'dynamic' or self.type
-	self.body = love.physics.newBody(self.world, self.pos.x, self.pos.y, bType)
+	self.body = love.physics.newBody(self.world.world, self.pos.x, self.pos.y, bType)
 	self.body:setAngle(self.angle)
 	if self._bodyData then
 		for k,v in pairs(self._bodyData) do

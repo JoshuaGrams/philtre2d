@@ -133,8 +133,8 @@ local function getWorld(self)
 	local parent = self.parent
 	if not parent then
 		return
-	elseif parent.is and parent:is(World) and parent.world then
-		return parent.world
+	elseif parent.is and parent:is(World) then
+		return parent
 	else
 		return getWorld(parent)
 	end
