@@ -342,6 +342,10 @@ function Camera.unfollow(self, obj)
 	end
 end
 
+function Camera.followLerpFn(self, targetX, targetY, dt)
+	return lerpdt(self.pos.x, self.pos.y, targetX, targetY, self.follow_lerp_speed, dt)
+end
+
 function Camera.updateFollows(self, dt)
 	if self.follow_count > 0 then
 		-- average position of all follows
@@ -358,7 +362,7 @@ function Camera.updateFollows(self, dt)
 			total_weight = total_weight + data.weight
 		end
 		fx = fx / total_weight;  fy = fy / total_weight
-		fx, fy = lerpdt(self.pos.x, self.pos.y, fx, fy, self.follow_lerp_speed, dt)
+		fx, fy = self:followLerpFn(fx, fy, dt)
 		self.pos.x, self.pos.y = fx, fy
 	end
 end

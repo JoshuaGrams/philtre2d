@@ -117,7 +117,11 @@ _PARAMETERS_
 Cancels all shakes and recoils on this camera.
 
 ### Camera.follow(self, obj, allowMultiFollow, weight, deadzone)
-Tells this camera to smoothly follow `obj`. This requires that `obj` has a property `pos` with `x` and `y` elements. Set the camera's `follow_lerp_speed` property to adjust the smoothing speed. If `allowMultiFollow` is true then `obj` will be added to a list of objects that the camera is following---the camera's lerp target will be the average position of all objects on the list. The optional `weight` parameter allows you to control how much each followed object influences the camera position. You might set it to, say, 1 for your character, and 0.5 for the mouse cursor for a top-down shooter. This only has an effect if the camera is following multiple objects. Call `cam:follow()` again with the same object to update the weight.
+Tells this camera to smoothly follow `obj`. This requires that `obj` has a property `pos` with `x` and `y` elements.
+
+Set the camera's `follow_lerp_speed` property (default: 3) to adjust the smoothing speed. Overwrite `followLerpFn` (see below) to do custom smoothing.
+
+If `allowMultiFollow` is true then `obj` will be added to a list of objects that the camera is following---the camera's lerp target will be the average position of all objects on the list. The optional `weight` parameter allows you to control how much each followed object influences the camera position. You might set it to, say, 1 for your character, and 0.5 for the mouse cursor for a top-down shooter. This only has an effect if the camera is following multiple objects. Call `cam:follow()` again with the same object to update the weight.
 
 To set a deadzone on the camera follow (the camera won't move unless the object moves out of the deadzone), supply a table with `x`, `y`, `w`, and `h` fields. These fields should contain 0-to-1 screen percentage values that describe the deadzone rectangle. If you are using a fixed aspect ratio camera, the deadzone will be based on the viewport area, not the full window. Deadzones work _per-object_. If your camera is following a single object and you want to change which object that is without changing the deadzone, you can just put `true` for the `deadzone`, and the deadzone settings for the previous object will be copied and used for the new object. For this to work, `allowMultiFollow` must be `false` and the camera can't be following multiple objects.
 
@@ -132,6 +136,21 @@ Removes `obj` from the camera's list of followed objects. If no object is given,
 
 _PARAMETERS_
 * __obj__ <kbd>table</kbd> - _optional_ - The object to stop following. Leave out this argument to unfollow everything.
+
+### Camera.followLerpFn(self, targetX, targetY, dt)
+You can overwrite this to do custom follow smoothing (or lack thereof). Must return two values, the new x and y positions of the camera.
+
+```lua
+-- The default function:
+local function lerpdt(ax, ay, bx, by, s, dt) -- vector lerp with x, y over dt
+	local k = 1 - 0.5^(dt*s)
+	return ax + (bx - ax)*k, ay + (by - ay)*k
+end
+
+function Camera.followLerpFn(self, targetX, targetY, dt)
+	return lerpdt(self.pos.x, self.pos.y, targetX, targetY, self.follow_lerp_speed, dt)
+end
+```
 
 ### Camera.setBounds(self, lt, rt, top, bot)
 Sets limits on how far the edge of the camera view can travel, in world coordinates. Call this with no arguments to remove the bounds. If the bounds are smaller than the camera view in either direction then the camera's position will be locked to the center of the bounds area in that axis.
