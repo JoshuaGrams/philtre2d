@@ -6,7 +6,7 @@ The scene tree tracks objects and manages transforms and local coordinates for c
 Basic Usage
 -----------
 
-Create a scene tree with `SceneTree(layer_groups, [default_layer])`. It passes its arguments to the [`drawOrder`](draw-order.md) constructor.  Call `scene:update(dt)` from `love.update` and `scene:draw(layer_group_names)` from `love.draw`.
+Create a scene tree with `SceneTree(layer_groups, [default_layer])`. It passes its arguments to the [`drawOrder`](draw-order.md) constructor.  Call `scene:update(dt)` from `love.update`. Call `scene:updateTransforms()` and `scene:draw(layer_group_names)` from `love.draw`.
 
 Other than that, all you need to use the scene tree are `scene:add(object, [parent])`, and `scene:remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`.
 
@@ -50,8 +50,11 @@ Updates the whole scene tree. This will call the `update` method of each object.
 _PARAMETERS_
 * __dt__ <kbd>number</kbd> - Delta time for this frame.
 
+### scene:updateTransforms()
+Updates all objects' world transforms from their local transforms so they are ready to be drawn in the correct positions. Recursively calls `updateTransform` on all objects in the tree.
+
 ### scene:draw([layerGroups])
-Calls `updateTransform` on all objects, and draws the given `layerGroups`.
+Draws the visible objects in the tree. If you have layer groups defined then you must specify a group to draw.
 
 Example:
 ```lua

@@ -4,7 +4,31 @@ Camera
 Basic Usage
 -----------
 
-First, add a camera to your scene tree. Second, in `love.draw()`, add `Camera.current:applyTransform()` before you draw world-space objects, and `Camera.current:resetTransform()` afterward. Lastly, in `love.resize(w, h)`, call `Camera.setAllViewports(0, 0, w, h)`.
+First, add a camera to your scene tree. It can be the child of another object if you want.
+
+Second, in `love.draw()`, add `Camera.current:applyTransform()` before you draw world-space objects, and `Camera.current:resetTransform()` afterward.
+
+Lastly, in `love.resize(w, h)`, call `Camera.setAllViewports(0, 0, w, h)`.
+
+```lua
+local scene
+
+function love.load()
+	scene = SceneTree()
+	scene:add(Camera())
+end
+
+function love.draw()
+	scene:updateTransforms()
+	Camera.current:applyTransform()
+	scene:draw()
+	Camera.current:resetTransform()
+end
+
+function love.resize(w, h)
+	Camera.setAllViewports(0, 0, w, h)
+end
+```
 
 Constructor
 -----------

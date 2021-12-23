@@ -23,7 +23,9 @@ This will update `philtre` to point to the new upstream HEAD, and you'll need to
 
 Minimal usage / "hello world" example:
 
+```lua
 	require 'philtre.init'  -- Load all engine components into global variables.
+	local scene
 
 	function love.load()
 		scene = SceneTree()
@@ -36,9 +38,10 @@ Minimal usage / "hello world" example:
 	end
 
 	function love.draw()
+		scene:updateTransforms()
 		scene:draw()
 	end
-
+```
 
 Engine
 ------

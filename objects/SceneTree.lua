@@ -95,7 +95,7 @@ function SceneTree.unlock(self)
 end
 
 -- By definition, transforms must be updated in top-down tree order, parent -> child.
--- Invisible objects' transforms are still updated.
+-- Invisible or paused objects' transforms are still updated.
 local function updateTransforms(children)
 	for i=1,children.maxn do
 		local obj = children[i]
@@ -146,7 +146,6 @@ function SceneTree.update(self, dt)
 end
 
 function SceneTree.draw(self, groups)
-	SceneTree.updateTransforms(self)
 	self.draw_order:draw(groups)
 end
 
