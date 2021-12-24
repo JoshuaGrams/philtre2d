@@ -105,6 +105,10 @@ or
 
 The first part, before the colon, denotes the device, and the part after the colon is the ID.
 
+Generally, for keyboard inputs, you can leave out the device and only specify the key, and it will default to "scancode". Like so:
+
+> `"w"`
+
 Each half of an axis input like the mouse wheel or a joystick axis is considered a separate input and the sign (+/-) _must_ be specified.
 
 > NOTE: Pushing a gamepad joystick up is negative, down is positive.
@@ -137,7 +141,7 @@ The input "ID" is the:
 ##### Input.bind("axis", inputStrNeg, inputStrPos, actionName)
 
 ##### Input.bind("text" or "cursor", actionName)
-Typed "text" input and mouse "cursor" movement are their own special cases. They directly correspond to specific raw inputs, so you don't need an device and ID to bind them.
+Typed "text" input and mouse "cursor" movement are their own special cases. They directly correspond to specific raw inputs, so you don't need a device and ID to bind them.
 
 ##### Input.bind(table)
 Make multiple bindings at once by providing a list of tables with the arguments for each binding.
