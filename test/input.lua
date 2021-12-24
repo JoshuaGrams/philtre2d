@@ -1,93 +1,136 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local input = require(base .. 'modules.input')
+local Input = require(base .. 'modules.input')
 
-local ltClickBinding = { 'left click', 'button', 'mouse', 1 }
-local binding1 = { 'action1', 'button', 'key', 'a' }
-local binding2 = { 'action2', 'button', 'key', 'o' }
-local binding3 = { 'action3', 'button', 'key', 'e' }
-
-local cb = function(self, name, val, change)
-   self.inputCount = self.inputCount + 1
-   self.lastInput = { name = name, value = val, change = change }
+local function _inputMethod(self, action, value, change, rawChange, ...)
+	-- print("", action, value, change, rawChange)
+	self.count = self.count + 1
+	self.last = { action = action, value = value, change = change }
 end
-local obj = {
-   call = function(self, funcName, ...)  self[funcName](self, ...)  end,
-   input = cb,
-   lastInput = nil,
-   inputCount = 0
-}
+
+local function newObj(name)
+	local obj = {}
+	obj.name = name
+	obj.input = _inputMethod
+	obj.count = 0
+	obj.last = {}
+	return obj
+end
+
+local function newJoystick(index, isGamepad)
+	local j = {
+		index = index,
+		isGamepad = isGamepad,
+	}
+	j.isGamepad = function(self)  return self.isGamepad  end
+	j.getID = function(self)  return self.index  end
+	return j
+end
 
 return {
-   "Input",
-   function()
-      input.init()
-      input.bind({ ltClickBinding })
-      local inputGet = input.get('left click')
-      T.ok(type(inputGet) == 'table', 'input.get() result is a table.')
-      T.has(inputGet, { name='left click', value=0, change=0 }, 'input.get() result has correct key and value.')
+	"Input",
+	function()
+		Input.init()
+		Input.bind("button", "n", "test")
+		local obj = newObj()
+		Input.enable(obj)
+		love.keypressed("b", "n", false)
+		T.ok(obj.count == 1 and obj.last.action == "test", "Button scancode action works.")
+		love.keyreleased("b", "n")
+		obj.count = 0
+		Input.bind("button", "key:b", "test")
+		love.keypressed("b", "n", false)
+		T.ok(obj.count == 2 and obj.last.action == "test", "Key & scancode bound to button action work.")
 
-      local isErr, msg = pcall(input.unbind)
-      T.ok(isErr==false and type(msg)=='string' and string.find(msg, 'Input.unbind -'), 'Wrong arg (nil) to input.unbind() fails with custom error message.')
-      isErr, msg = pcall(input.unbind, { 'text', 3.5 })
-      T.ok(isErr==false and type(msg)=='string' and string.find(msg, 'Input._unbind -'), 'Non-string name to input._unbind() fails with custom error message.')
+		T.ok(Input.isPressed("test"), "Input.isPressed - is true with two inputs held.")
 
-      input.unbind({{'left click'}})
-      T.ok(input.get('left click') == nil, 'After unbinding input. New input.get() is nil.')
-      input.enable(obj)
-      love.mousepressed(0, 0, 1) -- x, y, button
-      T.is(obj.lastInput, nil, 'Object did not get callback for unbound input.')
+		local val, total = Input.get("test")
+		T.ok(val == 1 and total == 2, "Input.get works, value and total are correct for multiple held inputs.")
 
-      input.bind({ {'action1', 'button', 'mouse', 1} })
-      love.mousepressed(0, 0, 1)
-      T.has(obj.lastInput, { name='action1', value=1, change=1 }, 'Rebound same physical input to different name. Obj gets correct input.')
+		love.keyreleased("b", "n")
+		T.ok(obj.count == 4 and obj.last.action == "test", "Releasing key & scancode works.")
 
-      obj.lastInput = nil
-      input.unbind({ {'action1'} })
-      T.ok(input.get('action1') == nil, 'After unbinding input. New input.get() is nil.')
-      love.mousepressed(0, 0, 1)
-      T.is(obj.lastInput, nil, 'Object did not get callback for unbound input (different logical, same physical).')
+		T.ok(not Input.isPressed("test"), "Input.isPressed - is false after releasing both inputs.")
 
-      T.ok(pcall(input.unbind, {{'arglefraster'}}), 'Unbind bogus action name "arglefraster" without errors.')
+		local boundInputs = Input.getInputs("test")
+		T.ok(type(boundInputs) == "table" and #boundInputs == 2, "Input.getInputs correctly gives list with two elements.")
+		local input1, input2 = boundInputs[1], boundInputs[1]
+		T.ok(input1.device and input1.id and input2.device and input2.id, "   getInput results both have 'device' and 'id' keys.")
 
-      input.bind({ ltClickBinding, {'action1', 'button', 'mouse', 1} })
-      input.unbind_all()
-      T.ok(input.get('action1')==nil and input.get('left click')==nil, 'After unbind_all(), both input.get()s return nil.')
-      love.mousepressed(0, 0, 1)
-      T.is(obj.lastInput, nil, 'After unbind_all(), object did not get callback for any input.')
+		Input.unbindInput("scancode", "n")
+		obj.count, obj.last = 0, nil
+		love.keypressed("b", "n", false)
+		T.has(obj, { count=1, last={action = "test"} }, "Input.unbindInput works - only get one press event for that action now.")
+		obj.count, obj.last = 0, nil
+		love.keyreleased("b", "n")
+		T.has(obj, { count=1, last={ action="test" } }, "Input.unbindInput works - only get one release event for that action now.")
 
-      input.bind({ {'action1', 'button', 'mouse', 1} })
-      input.bind({ {'action1', 'button', 'key', 'up'} }, true) -- replace old
-      obj.inputCount = 0
-      love.mousepressed(0, 0, 1)
-      T.is(obj.inputCount, 0, 'Object did\'t respond to original input after it was overwritten with replace_old=true.')
-      obj.inputCount = 0
-      love.keypressed('up')
-      T.is(obj.inputCount, 1, 'Object got new input that replaced old.')
-      input.unbind_all()
+		Input.bind("button", "f", "test")
+		Input.bind("button", "w", "test")
+		local boundActions = Input.getActions("scancode", "w")
+		T.has(boundActions, { {name="test"} }, "Input.getActions returns correct result.")
 
-      isErr, msg = pcall(input.bind, { binding1, binding1 })
-      T.ok(isErr==false and type(msg)=='string' and string.find(msg, 'Input.bind -'), 'Using duplicate action name with replace_old=true fails with custom error message.')
-      input.unbind_all()
+		Input.unbindFromAction("scancode", "w", "test")
+		obj.count = 0
+		love.keypressed("w", "w", false)
+		love.keyreleased("w", "w")
+		T.is(obj.count, 0, "Input.unbindFromAction works to remove that input.")
 
-      local b = { binding1, binding2, binding3 }
-      input.bind(b)
-      input.unbind(b)
-      obj.inputCount = 0
-      love.keypressed('a');  love.keypressed('o');  love.keypressed('e')
-      T.ok(obj.inputCount==0, 'Unbinding with table of tables works.')
+		obj.count = 0
+		love.keypressed("b", "b", true)
+		love.keypressed("f", "f", true)
+		T.is(obj.count, 2, "Other two inputs are still bound after Input.unbindFromAction.")
 
-      input.bind(b)
-      input.unbind({ 'action1', 'action2', 'action3' })
-      obj.inputCount = 0
-      love.keypressed('a');  love.keypressed('o');  love.keypressed('e')
-      T.ok(obj.inputCount==0, 'Unbinding with table of names works.')
+		Input.unbindAction("test")
+		obj.count = 0
+		love.keyreleased("b", "b")
+		love.keyreleased("f", "f")
+		T.is(obj.count, 0, "Input.unbindAction works to remove multiple inputs.")
 
-      input.bind(b)
-      input.unbind('action1');  input.unbind('action2');  input.unbind('action3')
-      obj.inputCount = 0
-      love.keypressed('a');  love.keypressed('o');  love.keypressed('e')
-      T.ok(obj.inputCount==0, 'Unbinding individual names works.')
-   end
+		local gamepad1 = newJoystick(1, true)
+
+		Input.bind("axis", "joy1:leftx-", nil, "move x")
+		obj.count, obj.last = 0, nil
+		love.gamepadaxis(gamepad1, "leftx", -0.4)
+		T.has(obj, { count=1, last={ action="move x" } }, "Axis action with simulated joystick input works.")
+		T.is(Input.get("move x"), -0.4, "Input.get for axis works, sign is correct.")
+
+		love.gamepadaxis(gamepad1, "leftx", 0)
+		Input.unbindInput("joy1", "leftx-")
+		Input.bind("axis", nil, "joy1:leftx-", "move x")
+		love.gamepadaxis(gamepad1, "leftx", -0.4)
+		T.is(Input.get("move x"), 0.4, "Flipped axis binding works correctly, sign is correct.")
+
+		Input.bind("axis", "joy1:leftx+", nil, "move x")
+		love.gamepadaxis(gamepad1, "leftx", 0.0)
+		love.gamepadaxis(gamepad1, "leftx", 0.6)
+		T.is(Input.get("move x"), -0.6, "Bound other side of flipped axis and it works too, sign is correct.")
+		love.gamepadaxis(gamepad1, "leftx", 0.0)
+
+		Input.bind({
+			{ "text", "text input" },
+			{ "cursor", "mouse moved" }
+		})
+		T.ok(true, "Input.bind with table works.")
+
+		obj.count, obj.last = 0, nil
+		love.textinput("#")
+		T.has(obj, { count=1, last={ action="text input" } }, "'text' action binding works")
+		T.is(Input.get("text input"), "#", "Input.get for 'text' action returns correct character.")
+
+		obj.count, obj.last = 0, nil
+		love.mousemoved(100, 100, 1, 3)
+		T.has(obj, { count=1, last={ action="mouse moved" } }, "'cursor' action binding works")
+
+		local script = { input = function(self)  self.scriptGotInput = true  end }
+		obj.scripts = { script }
+		love.textinput("a")
+		T.ok(obj.scriptGotInput, "Script on object got input.")
+
+		obj.count, obj.last, obj.scriptGotInput = 0, false, false
+		Input.disable(obj)
+		love.mousemoved(101, 100, 1, 0)
+		T.has(obj, { count=0, last=false, scriptGotInput=false }, "Input.disable works.")
+	end
 }

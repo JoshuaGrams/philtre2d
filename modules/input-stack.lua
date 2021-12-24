@@ -1,86 +1,81 @@
 
--- Constructs objects that manage an input stack with consumable input calls.
+local function pushDelayed(stack, cbName, object, arg)
+	-- We'll iterate through them backwards, so insert on bottom to keep correct order.
+	table.insert(stack.delayed, 1, {cbName, object, arg})
+	stack.isDirty = true
+end
 
-function add(self, obj, pos)
-	pos = pos or "top"
-	if self.isCalling then
-		return table.insert(self.delayedAddRemoves, {"add", obj, pos})
-	end
-	if pos == "top" then
-		table.insert(self.stack, 1, obj) -- First on stack is the "top" - the first to get input.
-	else -- Add to bottom.
-		table.insert(self.stack, obj)
+local function doDelayed(stack)
+	for i=#stack.delayed,1,-1 do
+		local params = stack.delayed[i]
+		local cbName, obj, arg = params[1], params[2], params[3]
+		stack[cbName](stack, obj, arg)
+		stack.delayed[i] = nil
 	end
 end
 
-function remove(self, obj)
-	if self.isCalling then
-		-- `Delayed` list is in reverse order so it will be correct when
-		--  iterating through it backwards.
-		return table.insert(self.delayedAddRemoves, 1, {"remove", obj})
-	end
-	for i,v in ipairs(self.stack) do
-		if v == obj then
-			return table.remove(self.stack, i)
-		end
-	end
-end
-
-function doDelayedCalls(self)
-	for i=#self.delayedAddRemoves,1,-1 do
-		local v = self.delayedAddRemoves[i]
-		if v[1] == "add" then
-			self:add(v[2], v[3])
+local function add(stack, object, index)
+	if stack.isLocked then
+		pushDelayed(stack, "add", object, index)
+	else
+		if index then
+			if index > 0 then  index = math.min(index, #stack+1) -- Positive values are indices.
+			else  index = math.max(1, #stack+1 + index)  end -- 0 or Negative values are offsets from top.
 		else
-			self:remove(v[2])
+			index = #stack + 1
 		end
-		self.delayedAddRemoves[i] = nil
+		table.insert(stack, index, object)
 	end
 end
 
--- Calls the named function on an object and its scripts, stopping on the first truthy return value.
-local function consumableCall(obj, funcName, ...)
-	local r
-	if obj[funcName] then
-		r = obj[funcName](obj, ...)
-		if r then  return r  end
-	end
-	if obj.scripts then
-		for i=1,#obj.scripts do
-			local scr = obj.scripts[i]
-			if scr[funcName] then
-				r = scr[funcName](obj, ...)
-				if r then  return r  end
+local function remove(stack, object)
+	if stack.isLocked then
+		pushDelayed(stack, "remove", object)
+	else
+		for i=#stack,1,-1 do
+			if stack[i] == object then
+				table.remove(stack, i)
 			end
 		end
 	end
 end
 
-local function call(self, ...)
-	-- Can cause infinite loops and other wacky behavior if you modify the stack while
-	-- iterating through it, so delay all add-removes until the input is dealt with.
-	self.isCalling = true
-	local r -- return value
-	for i=1,#self.stack do
-		local obj = self.stack[i]
-		r = consumableCall(obj, "input", ...)
-		if r then  break  end
+local function _sendInput(stack, ...)
+	local callback = stack.callback
+	for i=#stack,1,-1 do
+		local obj = stack[i]
+		local r
+		if obj[callback] then  r = obj[callback](obj, ...)  end
+		if r then  return  end
+		if obj.scripts then
+			for _,script in ipairs(obj.scripts) do
+				if script[callback] then  r = script[callback](obj, ...)  end
+				if r then  return  end
+			end
+		end
 	end
-	self.isCalling = false
-	doDelayedCalls(self)
-	return r
 end
 
-local function new()
-	local self = {
-		stack = {},
+local function call(stack, ...)
+	stack.isLocked = true
+	_sendInput(stack, ...)
+	stack.isLocked = false
+	if stack.isDirty then
+		doDelayed(stack)
+		stack.isDirty = false
+	end
+end
+
+local function InputStack(callback)
+	return {
 		add = add,
 		remove = remove,
 		call = call,
-		isCalling = false,
-		delayedAddRemoves = {}
+		callback = callback or "input",
+		isLocked = false,
+		isDirty = false,
+		delayed = {}
 	}
-	return self
 end
 
-return new
+return InputStack
