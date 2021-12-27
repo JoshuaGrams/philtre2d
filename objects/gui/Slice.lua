@@ -12,7 +12,7 @@ function SliceNode.draw(self)
 
 	local w2, h2 = self.w/2, self.h/2
 	local m = self.margins
-	local s = self._myAlloc.scale
+	local s = self._givenRect.scale
 	-- Draw corners
 	love.graphics.draw(self.image, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
 	love.graphics.draw(self.image, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
@@ -30,7 +30,7 @@ end
 local function debugDraw(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
-	local s = self._myAlloc.scale
+	local s = self._givenRect.scale
 	love.graphics.rectangle('line', -5*s+pivotPosx, -5*s+pivotPosy, 10*s, 10*s)
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 4.5*s, 4)
 	love.graphics.line(-8*s, 0, 8*s, 0)
@@ -55,7 +55,7 @@ end
 function SliceNode.updateScale(self, alloc)
 	local isDirty = SliceNode.super.updateScale(self, alloc)
 	if isDirty then
-		local relScale = alloc.scale / self._myAlloc.scale
+		local relScale = alloc.scale / self._givenRect.scale
 		for k,v in pairs(self.margins) do
 			self.margins[k] = v * relScale
 		end

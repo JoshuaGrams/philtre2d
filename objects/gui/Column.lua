@@ -46,7 +46,7 @@ function Column.allocateHomogeneous(self, alloc, forceUpdate)
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacing = self.spacing * self._myAlloc.scale
+	local spacing = self.spacing * self._givenRect.scale
 	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = alloc.h - spacingSpace
 	local w = alloc.w
@@ -61,7 +61,7 @@ function Column.allocateHomogeneous(self, alloc, forceUpdate)
 		local child = self.children[i]
 		if child then
 			local y = startY - h/2 * self.dir
-			self:_allocateChild(child, x, y, w, h*percent, self._myAlloc.scale, forceUpdate)
+			self:_allocateChild(child, x, y, w, h*percent, self._givenRect.scale, forceUpdate)
 			startY = startY + increment
 		end
 	end
@@ -72,7 +72,7 @@ function Column.allocateHeterogeneous(self, alloc, forceUpdate)
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacing = self.spacing * self._myAlloc.scale
+	local spacing = self.spacing * self._givenRect.scale
 	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = alloc.h - spacingSpace
 	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals("h")
@@ -93,7 +93,7 @@ function Column.allocateHeterogeneous(self, alloc, forceUpdate)
 			local h = childH * squashFactor
 			if child.isGreedy then  h = h + childH * greedFactor  end
 			local y = startY - h/2 * self.dir
-			self:_allocateChild(child, x, y, w, h*percent, self._myAlloc.scale, forceUpdate)
+			self:_allocateChild(child, x, y, w, h*percent, self._givenRect.scale, forceUpdate)
 			startY = startY - (h + spacing) * self.dir
 		end
 	end
@@ -101,9 +101,9 @@ end
 
 function Column.allocateChildren(self, forceUpdate)
 	if self.homogeneous then
-		self:allocateHomogeneous(self._contentAlloc, forceUpdate)
+		self:allocateHomogeneous(self._contentRect, forceUpdate)
 	else
-		self:allocateHeterogeneous(self._contentAlloc, forceUpdate)
+		self:allocateHeterogeneous(self._contentRect, forceUpdate)
 	end
 end
 
