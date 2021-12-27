@@ -214,6 +214,8 @@ function Node.anchor(self, x, y)
 	local cardinal = CARDINALS[x]
 	if cardinal then
 		self.ax, self.ay = cardinal[1], cardinal[2]
+	elseif type(x) == "table" and x[1] and x[2] then
+		self.ax, self.ay = x[1], x[2]
 	else
 		if x then  self.ax = x  end
 		if y then  self.ay = y  end
@@ -228,6 +230,8 @@ function Node.pivot(self, x, y)
 	local cardinal = CARDINALS[x]
 	if cardinal then
 		self.px, self.py = cardinal[1], cardinal[2]
+	elseif type(x) == "table" and x[1] and x[2] then
+		self.px, self.py = x[1], x[2]
 	else
 		if x then  self.px = x  end
 		if y then  self.py = y  end
@@ -249,12 +253,20 @@ function Node.mode(self, x, y)
 	return self
 end
 
+local function isValidAnchor(a)
+	if CARDINALS[a] then
+		return true
+	elseif type(a) == "table" and tonumber(a[1]) and tonumber(a[2]) then
+		return true
+	end
+end
+
 function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	Node.super.set(self)
 	pivot = pivot or "C"
 	anchor = anchor or "C"
-	assert(CARDINALS[pivot], 'Node.set: Invalid pivot "'  .. pivot .. '". Must be a cardinal direction string.')
-	assert(CARDINALS[anchor], 'Node.set: Invalid anchor "'  .. anchor .. '". Must be a cardinal direction string.')
+	assert(isValidAnchor(pivot), 'Node.set: Invalid pivot "'  .. tostring(pivot) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
+	assert(isValidAnchor(anchor), 'Node.set: Invalid anchor "'  .. tostring(anchor) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
 	self.w = w or 100
 	self.h = h or 100
 	self.padX = padX or 0
