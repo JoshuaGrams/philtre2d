@@ -138,8 +138,6 @@ end
 -- Requires self.w/h to be already updated.
 -- Does nothing unless padX/Y, _request.w/h, or scale have changed.
 function Node.updateInnerSize(self) -- Called from pad() and updateSize().
-	self._contentRect.designW = max(0, self._designRect.w - self.padX*2)
-	self._contentRect.designH = max(0, self._designRect.h - self.padY*2)
 	self._contentRect.w = max(0, self.w - self.padX*2*self._givenRect.scale)
 	self._contentRect.h = max(0, self.h - self.padY*2*self._givenRect.scale)
 end
