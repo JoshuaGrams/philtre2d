@@ -120,7 +120,7 @@ function Node.updateScale(self, alloc)
 	local relScale = scale / self._givenRect.scale
 	if relScale ~= 1 then
 		self.pos.x, self.pos.y = self.pos.x * relScale, self.pos.y * relScale -- Scale offset from anchor point.
-		-- NOTE: Padding is stored in un-scaled coords, but it's effect will be scaled.
+		-- NOTE: Padding is stored in un-scaled coords, but it's effect will be scaled in updateInnerSize.
 
 		self._givenRect.scale = scale
 		self._contentRect.scale = scale -- Also pass on scale to children.
@@ -136,7 +136,7 @@ function Node.updateOffset(self, alloc)
 end
 
 -- Requires self.w/h to be already updated.
--- Does nothing unless padX/Y, _request.w/h, or scale have changed.
+-- Does nothing unless padX/Y, _designRect.w/h, or scale have changed.
 function Node.updateInnerSize(self) -- Called from pad() and updateSize().
 	self._contentRect.w = max(0, self.w - self.padX*2*self._givenRect.scale)
 	self._contentRect.h = max(0, self.h - self.padY*2*self._givenRect.scale)
@@ -154,8 +154,8 @@ function Node.updateSize(self, alloc)
 
 	self:updateInnerSize()
 
-	local ma = self._givenRect
-	ma.w, ma.h, ma.designW, ma.designH, ma.scale = w, h, designW, designH, scale
+	local r = self._givenRect
+	r.w, r.h, r.designW, r.designH, r.scale = w, h, designW, designH, scale
 
 	if self.w ~= oldW or self.h ~= oldH then  return true  end
 end
@@ -182,14 +182,14 @@ end
 -- ----------  Setter Methods  ----------
 -- Can be chained together.
 function Node.size(self, w, h, inDesignCoords) -- Modifies the "design" w/h of the node.
-	local req = self._designRect
+	local design = self._designRect
 	if inDesignCoords then
-		if w then  req.w = w  end
-		if h then  req.h = h  end
+		if w then  design.w = w  end
+		if h then  design.h = h  end
 	else
-		local _w, _h = self:currentToDesign(w or 0, h or 0)
-		if w then  req.w = _w  end
-		if h then  req.h = _h  end
+		local dw, dh = self:currentToDesign(w or 0, h or 0)
+		if w then  design.w = dw  end
+		if h then  design.h = dh  end
 	end
 
 	local dirty = self:updateSize(self._givenRect)
@@ -203,11 +203,11 @@ function Node.angle(self, a)
 end
 
 function Node.offset(self, x, y, isRelative)
-	local ma = self._givenRect
+	local r = self._givenRect
 	if isRelative then
-		ma.x, ma.y = x and ma.x + x or ma.x, y and ma.y + y or ma.y
+		r.x, r.y = x and r.x + x or r.x, y and r.y + y or r.y
 	else
-		ma.x, ma.y = x or 0, y or 0
+		r.x, r.y = x or 0, y or 0
 	end
 	return self
 end
@@ -282,7 +282,7 @@ function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	self:pivot(pivot)
 	self:anchor(anchor)
 	self:mode(modeX, modeY)
-	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.15 }
+	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.5 }
 end
 
 return Node
