@@ -116,14 +116,14 @@ end
 -- 2. Store allocation values.
 -- 3. Return true if dirty (if anything actually changed).
 function Node.updateScale(self, alloc)
-	local scale = alloc.scale
-	local relScale = scale / self._givenRect.scale
-	if relScale ~= 1 then
-		self.pos.x, self.pos.y = self.pos.x * relScale, self.pos.y * relScale -- Scale offset from anchor point.
+	local newScale = alloc.scale
+	local given = self._givenRect
+	if newScale ~= given.scale then
+		local design = self._designRect
+		self.pos.x, self.pos.y = design.x * newScale, design.y * newScale
 		-- NOTE: Padding is stored in un-scaled coords, but it's effect will be scaled in updateInnerSize.
-
-		self._givenRect.scale = scale
-		self._contentRect.scale = scale -- Also pass on scale to children.
+		self._givenRect.scale = newScale
+		self._contentRect.scale = newScale -- Also pass on scale to children.
 		return true
 	end
 end
@@ -179,9 +179,8 @@ function Node.currentToDesign(self, w, h)
 	return w * sx, h * sy
 end
 
--- ----------  Setter Methods  ----------
--- Can be chained together.
-function Node.size(self, w, h, inDesignCoords) -- Modifies the "design" w/h of the node.
+-- ----------  Setter Methods (can be chained)  ----------
+function Node.size(self, w, h, inDesignCoords)
 	local design = self._designRect
 	if inDesignCoords then
 		if w then  design.w = w  end
@@ -194,6 +193,25 @@ function Node.size(self, w, h, inDesignCoords) -- Modifies the "design" w/h of t
 
 	local dirty = self:updateSize(self._givenRect)
 	if dirty and self.tree then  self:allocateChildren()  end
+	return self
+end
+
+function Node.setPos(self, x, y, inDesignCoords, isRelative)
+	local design = self._designRect
+	local scale = self._givenRect.scale
+	if not inDesignCoords then
+		x = x and x / scale
+		y = y and y / scale
+	end
+	if isRelative then
+		if x then  design.x = design.x + x  end
+		if y then  design.y = design.y + y  end
+	else
+		if x then  design.x = x  end
+		if y then  design.y = y  end
+	end
+	self.pos.x = design.x * scale
+	self.pos.y = design.y * scale
 	return self
 end
 

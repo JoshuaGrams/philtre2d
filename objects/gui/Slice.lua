@@ -31,11 +31,14 @@ local function debugDraw(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	local s = self._givenRect.scale
-	love.graphics.rectangle('line', -5*s+pivotPosx, -5*s+pivotPosy, 10*s, 10*s)
-	love.graphics.circle('fill', pivotPosx, pivotPosy, 4.5*s, 4)
+	love.graphics.circle('fill', pivotPosx, pivotPosy, 4*s, 8)
 	love.graphics.line(-8*s, 0, 8*s, 0)
 	love.graphics.line(0, -8*s, 0, 8*s)
-	love.graphics.rectangle('line', -self.w*0.5, -self.h*0.5, self.w, self.h)
+	if self.padX ~= 0 or self.padY ~= 0 then
+		local iw, ih = self._contentRect.w, self._contentRect.h
+		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
+	end
+	love.graphics.rectangle('line', -self.w/2, -self.h/2, self.w, self.h)
 
 	local w2, h2 = self.w/2, self.h/2
 	local m = self.margins
@@ -55,9 +58,9 @@ end
 function SliceNode.updateScale(self, alloc)
 	local isDirty = SliceNode.super.updateScale(self, alloc)
 	if isDirty then
-		local relScale = alloc.scale / self._givenRect.scale
-		for k,v in pairs(self.margins) do
-			self.margins[k] = v * relScale
+		local newScale = alloc.scale
+		for k,designSize in pairs(self.designMargins) do
+			self.margins[k] = designSize * newScale
 		end
 		return true
 	end
@@ -84,6 +87,7 @@ function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, m
 		m = { lt=margins[1], rt=margins[2], top=margins[3], bot=margins[4] }
 	end
 	self.margins = m
+	self.designMargins = { lt=m.lt, rt=m.rt, top=m.top, bot=m.bot }
 	padX = padX or (m.lt + m.rt)/2 -- Use slice margins for default padding.
 	padY = padY or padX or (m.top + m.bot)/2
 	SliceNode.super.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
