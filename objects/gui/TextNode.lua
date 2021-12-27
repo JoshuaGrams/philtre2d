@@ -58,7 +58,7 @@ function TextNode.align(self, hAlign)
 	return self
 end
 
-function TextNode.set(self, text, font, x, y, angle, w, pivot, anchor, hAlign, modeX)
+function TextNode.set(self, text, font, w, pivot, anchor, hAlign, modeX)
 	w = w or 100
 	local modeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text
@@ -71,7 +71,7 @@ function TextNode.set(self, text, font, x, y, angle, w, pivot, anchor, hAlign, m
 	local fontHeight = self.font:getHeight()
 	local wrapW, lines = self.font:getWrap(self.text, w)
 	local h = fontHeight * #lines
-	TextNode.super.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY)
+	TextNode.super.set(self, w, h, pivot, anchor, modeX, modeY)
 	self.hAlign = validHAlign[hAlign] and hAlign or 'left'
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

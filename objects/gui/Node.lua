@@ -247,12 +247,12 @@ function Node.mode(self, x, y)
 	return self
 end
 
-function Node.set(self, x, y, angle, w, h, pivot, anchor, modeX, modeY, padX, padY)
+function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
+	Node.super.set(self)
 	w, h = w or 100, h or 100
 	pivot, anchor = pivot or "C", anchor or "C"
 	assert(CARDINALS[pivot], 'Node.set: Invalid pivot "'  .. pivot .. '". Must be a cardinal direction string.')
 	assert(CARDINALS[anchor], 'Node.set: Invalid anchor "'  .. anchor .. '". Must be a cardinal direction string.')
-	Node.super.set(self, x, y, angle)
 	self.w, self.h = w, h
 	self.padX, self.padY = padX or 0, padY or padX or 0 -- In "design" coords--it remains un-scaled.
 	-- _request = The space that we may request from our parent.
