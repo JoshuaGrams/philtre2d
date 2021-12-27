@@ -70,12 +70,14 @@ local function debugDraw(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	local s = self._givenRect.scale
-	love.graphics.rectangle('line', -5*s+pivotPosx, -5*s+pivotPosy, 10*s, 10*s)
-	love.graphics.circle('fill', pivotPosx, pivotPosy, 4.5*s, 4)
+	love.graphics.circle('fill', pivotPosx, pivotPosy, 4*s, 8)
 	love.graphics.line(-8*s, 0, 8*s, 0)
 	love.graphics.line(0, -8*s, 0, 8*s)
-	love.graphics.rectangle('line', -self.w*0.5, -self.h*0.5, self.w, self.h)
-	love.graphics.rectangle('line', -self.w*0.5+5*s, -self.h*0.5+5*s, self.w-10*s, self.h-10*s)
+	if self.padX ~= 0 or self.padY ~= 0 then
+		local iw, ih = self._contentRect.w, self._contentRect.h
+		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
+	end
+	love.graphics.rectangle('line', -self.w/2, -self.h/2, self.w, self.h)
 end
 
 function Node.debugDraw(self, layer)
