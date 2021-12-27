@@ -174,6 +174,8 @@ end
 
 function Node.currentToDesign(self, w, h)
 	local sx, sy = self._designRect.w / self.w, self._designRect.h / self.h
+	if sx ~= sx then  sx = 1  end -- is NaN workaround to recover from a dimension being 0.
+	if sy ~= sy then  sy = 1  end
 	return w * sx, h * sy
 end
 
