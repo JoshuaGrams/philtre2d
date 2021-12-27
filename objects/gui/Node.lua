@@ -53,7 +53,7 @@ Node._scaleFuncs = { -- Get the new absolute scale.
 		local s = math.min(w/designW, h/designH)
 		return s, s
 	end,
-	zoom = function(self, w, h, designW, designH, scale)
+	cover = function(self, w, h, designW, designH, scale)
 		local s = math.max(w/designW, h/designH)
 		return s, s
 	end,
@@ -270,11 +270,11 @@ end
 
 function Node.mode(self, x, y)
 	if x then
-		assert(scaleFuncs[x], 'Node.mode(): Invalid X scale mode "' .. tostring(x) .. '". Should be: "none", "fit", "zoom", "stretch", or "fill".')
+		assert(scaleFuncs[x], 'Node.mode(): Invalid X scale mode "' .. tostring(x) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
 		self.modeX = x
 	end
 	if y then
-		assert(scaleFuncs[y], 'Node.mode(): Invalid Y scale mode "' .. tostring(y) .. '". Should be: "none", "fit", "zoom", "stretch", or "fill".')
+		assert(scaleFuncs[y], 'Node.mode(): Invalid Y scale mode "' .. tostring(y) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
 		self.modeY = y
 	end
 	if self.parent then  self:updateSize(self._givenRect)  end
