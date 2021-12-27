@@ -205,9 +205,11 @@ end
 function Node.offset(self, x, y, isRelative)
 	local r = self._givenRect
 	if isRelative then
-		r.x, r.y = x and r.x + x or r.x, y and r.y + y or r.y
+		if x then  r.x = r.x + x  end
+		if y then  r.y = r.y + y  end
 	else
-		r.x, r.y = x or 0, y or 0
+		if x then  r.x = x  end
+		if y then  r.y = y  end
 	end
 	return self
 end
@@ -242,15 +244,21 @@ function Node.pivot(self, x, y)
 end
 
 function Node.pad(self, x, y)
-	self.padX, self.padY = x or 0, y or x or 0
+	if x then  self.padX = x  end
+	if y then  self.padY = y  end
 	self:updateInnerSize()
 	return self
 end
 
 function Node.mode(self, x, y)
-	self.modeX, self.modeY = x or DEFAULT_MODE, y or x or DEFAULT_MODE
-	assert(scaleFuncs[self.modeX], 'Node: Invalid scale mode "' .. self.modeX .. '".')
-	assert(scaleFuncs[self.modeY], 'Node: Invalid scale mode "' .. self.modeY .. '".')
+	if x then
+		assert(scaleFuncs[x], 'Node.mode(): Invalid X scale mode "' .. tostring(x) .. '". Should be: "none", "fit", "zoom", "stretch", or "fill".')
+		self.modeX = x
+	end
+	if y then
+		assert(scaleFuncs[y], 'Node.mode(): Invalid Y scale mode "' .. tostring(y) .. '". Should be: "none", "fit", "zoom", "stretch", or "fill".')
+		self.modeY = y
+	end
 	if self.parent then  self:updateSize(self._givenRect)  end
 	return self
 end
@@ -269,6 +277,8 @@ function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	anchor = anchor or "C"
 	assert(isValidAnchor(pivot), 'Node.set: Invalid pivot "'  .. tostring(pivot) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
 	assert(isValidAnchor(anchor), 'Node.set: Invalid anchor "'  .. tostring(anchor) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
+	modeX = modeX or DEFAULT_MODE
+	modeY = modeY or modeX
 	self.w = w or 100
 	self.h = h or 100
 	self.padX = padX or 0
@@ -282,6 +292,7 @@ function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	self:pivot(pivot)
 	self:anchor(anchor)
 	self:mode(modeX, modeY)
+
 	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.5 }
 end
 
