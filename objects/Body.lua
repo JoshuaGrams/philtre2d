@@ -144,9 +144,9 @@ function Body.init(self)
 	end
 
 	if self.type == 'dynamic' or self.type == 'static' then
-		self.updateTransform = Body.TRANSFORM_DYNAMIC_PHYSICS
+		self.updateTransform = self.TRANSFORM_DYNAMIC_PHYSICS
 	else
-		self.updateTransform = Body.TRANSFORM_KINEMATIC_PHYSICS
+		self.updateTransform = self.TRANSFORM_KINEMATIC_PHYSICS
 	end
 end
 
