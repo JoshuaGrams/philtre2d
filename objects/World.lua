@@ -56,7 +56,9 @@ local function debugDraw(self) -- Debug drawing for contacts.
 end
 
 function World.debugDraw(self, layer)
-	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+	if self.tree and self.drawIndex then
+		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+	end
 end
 
 local function handleContact(cbName, fixtA, fixtB, contact, normImpulse, tanImpulse)

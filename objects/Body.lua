@@ -47,7 +47,9 @@ local function debugDraw(self)
 end
 
 function Body.debugDraw(self, layer)
-	self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+	if self.tree and self.drawIndex then
+		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+	end
 end
 
 function Body.TRANSFORM_DYNAMIC_PHYSICS(s)

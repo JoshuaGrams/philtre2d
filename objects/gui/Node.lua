@@ -81,7 +81,7 @@ local function debugDraw(self)
 end
 
 function Node.debugDraw(self, layer)
-	if self.tree then
+	if self.tree and self.drawIndex then
 		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
 	end
 end
