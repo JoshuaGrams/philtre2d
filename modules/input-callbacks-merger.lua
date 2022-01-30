@@ -57,7 +57,6 @@ local callbacks = {
 			local value = 1
 			if x < 0 then
 				name = "wheelx-"
-				value = -1 -- Ensure `value` is always positive.
 			end
 			rawInput("mouse", name, value, nil, nil, nil, x, 0) -- value, isRepeat, x, y, dx, dy
 			rawInput("mouse", name, 0,     nil, nil, nil, x, 0)
@@ -67,7 +66,6 @@ local callbacks = {
 			local value = 1
 			if y < 0 then
 				name = "wheely-"
-				value = -1 -- Ensure `value` is always positive.
 			end
 			rawInput("mouse", name, value, nil, nil, nil, 0, y)
 			rawInput("mouse", name, 0,     nil, nil, nil, 0, y)
