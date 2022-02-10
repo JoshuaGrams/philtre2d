@@ -15,7 +15,7 @@ local vx, vy = self.body:getLinearVelocity()
 Constructor
 -----------
 
-### Body(type, x, y, angle, shapes, body_prop, ignore_parent_transform)
+### Body(type, x, y, angle, shapes, body_prop)
 Construct a new physics Body object. The actual body, shapes, and fixtures will not be created until init().
 
 _PARAMETERS_
@@ -45,7 +45,6 @@ _PARAMETERS_
 	* Available shape(fixture) properties are: 'sensor', 'categories', 'mask', 'group', 'friction', 'density', and 'restitution'.
 * __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
-* __ignore_parent_transform__ <kbd>bool</kbd> - For dynamic and static bodies only: if the body should be created at global `x`, `y`, and `angle`, rather than interpreting those as local to its parent. After creation, these body types will completely ignore their parent's transform, as usual.
 
 Trigger Bodies
 --------------

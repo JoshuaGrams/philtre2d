@@ -65,7 +65,7 @@ Objects
 _Required arguments in **bold-italic**._
 
 * [Body](objects/Body.md) - Physics body object.
-	* **Body(** **_type_**, x, y, angle, **_shapes_**, prop, ignore_parent_transform **)**
+	* **Body(** **_type_**, x, y, angle, **_shapes_**, prop **)**
 * [Camera](objects/Camera.md) - Camera object.
 	* **Camera(** x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive **)**
 * [Object](objects/Object.md) - Base 'game object' class.

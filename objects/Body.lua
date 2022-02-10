@@ -120,17 +120,18 @@ function Body.init(self)
 		error('Body.init (' .. tostring(self.path) .. ') - No parent World found. Bodies must be descendants of a World object.')
 	end
 
-	-- By default, dynamic and static bodies are created in local coords.
-	if not self._ignoreTransform then
-		if self.type == 'dynamic' or self.type == 'static' then
-			self.pos.x, self.pos.y = self.parent:toWorld(self.pos.x, self.pos.y)
-			self.angle = self.angle + matrix.parameters(self.parent._to_world)
-		end
+	local bodyX, bodyY, bodyAngle = self.pos.x, self.pos.y, self.angle
+
+	-- We need world coords for creating the physics body.
+	if self.type == 'trigger' or self.type == 'kinematic' then -- Body types that transform like normal children.
+		bodyX, bodyY = self.parent:toWorld(bodyX, bodyY)
+		bodyAngle = bodyAngle + matrix.parameters(self.parent._to_world)
 	end
+
 	-- Make body.
-	local bType = (self.type == 'trigger') and 'dynamic' or self.type
-	self.body = love.physics.newBody(self.world.world, self.pos.x, self.pos.y, bType)
-	self.body:setAngle(self.angle)
+	local bodyType = (self.type == 'trigger') and 'dynamic' or self.type
+	self.body = love.physics.newBody(self.world.world, bodyX, bodyY, bodyType)
+	self.body:setAngle(bodyAngle)
 	if self._bodyData then
 		for k,v in pairs(self._bodyData) do
 			if body_set_funcs[k] then self.body[body_set_funcs[k]](self.body, v) end
@@ -157,7 +158,7 @@ function Body.final(self)
 	if not self.body:isDestroyed() then  self.body:destroy()  end
 end
 
-function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_transform)
+function Body.set(self, type, x, y, angle, shapes, body_prop)
 	Body.super.set(self, x, y, angle)
 	local rand = love.math.random
 	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
@@ -175,7 +176,6 @@ function Body.set(self, type, x, y, angle, shapes, body_prop, ignore_parent_tran
 	-- Save to use on init:
 	self._shapeData = shapes
 	self._bodyData = body_prop
-	self._ignoreTransform = ignore_parent_transform
 end
 
 return Body
