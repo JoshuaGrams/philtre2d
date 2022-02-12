@@ -132,9 +132,10 @@ function vec2.lerp(ax, ay, bx, by, s)
 end
 
 -- Lerp between two vectors based on time.
-function vec2.lerpdt(ax, ay, bx, by, s, dt)
-	local k = 1 - 0.5^(dt*s)
-	return ax + (bx - ax) * k, ay + (by - ay) * k
+-- `rate` is the lerp coefficient per second. So rate=0.5 halves the difference every second.
+function vec2.lerpdt(ax, ay, bx, by, rate, dt)
+	local k = (1 - rate)^dt -- Flip rate so it's the expected direction (0 = no change).
+	return (ax - bx)*k + bx, (ay - by)*k + by
 end
 
 -- Reflect a vector by a surface normal (NOT the bounce plane vector).

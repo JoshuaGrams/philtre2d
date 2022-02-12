@@ -143,7 +143,7 @@ Cancels all shakes and recoils on this camera.
 ### Camera.follow(self, obj, allowMultiFollow, weight, deadzone)
 Tells this camera to smoothly follow `obj`. This requires that `obj` has a property `pos` with `x` and `y` elements.
 
-Set the camera's `follow_lerp_speed` property (default: 3) to adjust the smoothing speed. Overwrite `followLerpFn` (see below) to do custom smoothing.
+Set the camera's `follow_lerp_speed` property (default: 0.85) to adjust the smoothing speed. Overwrite `followLerpFn` (see below) to do custom smoothing.
 
 If `allowMultiFollow` is true then `obj` will be added to a list of objects that the camera is following---the camera's lerp target will be the average position of all objects on the list. The optional `weight` parameter allows you to control how much each followed object influences the camera position. You might set it to, say, 1 for your character, and 0.5 for the mouse cursor for a top-down shooter. This only has an effect if the camera is following multiple objects. Call `cam:follow()` again with the same object to update the weight.
 
@@ -166,9 +166,9 @@ You can overwrite this to do custom follow smoothing (or lack thereof). Must ret
 
 ```lua
 -- The default function:
-local function lerpdt(ax, ay, bx, by, s, dt) -- vector lerp with x, y over dt
-	local k = 1 - 0.5^(dt*s)
-	return ax + (bx - ax)*k, ay + (by - ay)*k
+local function lerpdt(ax, ay, bx, by, rate, dt) -- vector lerp with x, y over dt
+	local k = (1 - rate)^dt
+	return (ax - bx)*k + bx, (ay - by)*k + by
 end
 
 function Camera.followLerpFn(self, targetX, targetY, dt)
@@ -217,7 +217,7 @@ _DEFAULT:_ 8
 Default frequency for Perlin shakes.
 
 #### Camera.follow_lerp_speed
-_DEFAULT:_ 3
+_DEFAULT:_ 0.85
 
 Default lerp speed for following.
 

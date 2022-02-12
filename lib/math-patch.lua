@@ -30,8 +30,10 @@ math.lerp = function(a, b, t)
 	return a + (b - a) * t
 end
 
-math.lerpdt = function(a, b, s, dt)
-	return a + (b - a) * (1 - 0.5^(dt*s))
+-- `rate` is the lerp coefficient per second. So rate=0.5 halves the difference every second.
+math.lerpdt = function(from, to, rate, dt)
+	local diff = from - to           -- Target value is just an offset. Remove it and add it back.
+	return diff * (1 - rate)^dt + to -- Flip rate so it's the expected direction (0 = no change).
 end
 
 math.angle_between = function(a, b)

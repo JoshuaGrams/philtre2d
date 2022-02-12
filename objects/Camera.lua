@@ -14,7 +14,7 @@ Camera.shake_falloff = "linear"
 Camera.recoil_falloff = "quadratic"
 Camera.shake_rot_mult = 0.001
 Camera.shake_freq = 8
-Camera.follow_lerp_speed = 3
+Camera.follow_lerp_speed = 0.85
 Camera.viewport_align = { x = 0.5, y = 0.5 }
 Camera.pivot = { x = 0.5, y = 0.5 }
 
@@ -49,9 +49,9 @@ local falloff_funcs = {
 	quadratic = function(x) return x*x end
 }
 
-local function lerpdt(ax, ay, bx, by, s, dt) -- vector lerp with x, y over dt
-	local k = 1 - 0.5^(dt*s)
-	return ax + (bx - ax)*k, ay + (by - ay)*k
+local function lerpdt(ax, ay, bx, by, rate, dt) -- vector lerp with x, y over dt
+	local k = (1 - rate)^dt
+	return (ax - bx)*k + bx, (ay - by)*k + by
 end
 
 local function is_vec(v)

@@ -210,25 +210,25 @@ _RETURNS_
 Lerp between two vectors.
 
 _PARAMETERS_
-* __ax__ <kbd>number</kbd> - X value of the first vector.
-* __ay__ <kbd>number</kbd> - Y value of the first vector.
-* __bx__ <kbd>number</kbd> - X value of the second vector.
-* __by__ <kbd>number</kbd> - Y value of the second vector.
+* __ax__ <kbd>number</kbd> - X value of the vector to lerp _from_.
+* __ay__ <kbd>number</kbd> - Y value of the vector to lerp _from_.
+* __bx__ <kbd>number</kbd> - X value of the vector to lerp _to_.
+* __by__ <kbd>number</kbd> - Y value of the vector to lerp _to_.
 * __s__ <kbd>number</kbd> - The lerp fraction (not clamped).
 
 _RETURNS_
 * __x__ <kbd>number</kbd>
 * __y__ <kbd>number</kbd>
 
-### vec2.lerpdt(ax, ay, bx, by, s, dt)
+### vec2.lerpdt(ax, ay, bx, by, rate, dt)
 Lerp between two vectors correctly based on time.
 
 _PARAMETERS_
-* __ax__ <kbd>number</kbd> - X value of the first vector.
-* __ay__ <kbd>number</kbd> - Y value of the first vector.
-* __bx__ <kbd>number</kbd> - X value of the second vector.
-* __by__ <kbd>number</kbd> - Y value of the second vector.
-* __s__ <kbd>number</kbd> - The speed of the lerp.
+* __ax__ <kbd>number</kbd> - X value of the vector to lerp _from_.
+* __ay__ <kbd>number</kbd> - Y value of the vector to lerp _from_.
+* __bx__ <kbd>number</kbd> - X value of the vector to lerp _to_.
+* __by__ <kbd>number</kbd> - Y value of the vector to lerp _to_.
+* __rate__ <kbd>number</kbd> - The lerp fraction per second. Lerping to 0 with a rate of 0.25 will reduce the value by 25% every second.
 * __dt__ <kbd>number</kbd> - Delta time.
 
 _RETURNS_

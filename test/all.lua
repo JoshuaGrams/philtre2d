@@ -16,5 +16,6 @@ T.check(require(base .. 'test.random'))
 T.check(require(base .. 'test.input'))
 T.check(require(base .. 'test.physics'))
 T.check(require(base .. 'test.physics-with-body'))
+T.check(require(base .. 'test.lerpdt'))
 
 T.plan()

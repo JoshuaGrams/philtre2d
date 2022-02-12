@@ -70,13 +70,13 @@ _PARAMETERS_
 _RETURNS_
 * __x__ <kbd>number</kbd>
 
-### math.lerpdt(a, b, s, dt)
+### math.lerpdt(a, b, rate, dt)
 Lerp correctly between two numbers based on time.
 
 _PARAMETERS_
 * __a__ <kbd>number</kbd> - The number to lerp from.
 * __b__ <kbd>number</kbd> - The number to lerp to.
-* __s__ <kbd>number</kbd> - The speed of the lerp.
+* __rate__ <kbd>number</kbd> - The lerp fraction per second. Lerping to 0 with a rate of 0.25 will reduce the value by 25% every second.
 * __dt__ <kbd>number</kbd> - Delta time.
 
 _RETURNS_
@@ -107,4 +107,3 @@ Gets a random float value between -1 and +1. Uses `love.math.random` instead of 
 
 _RETURNS_
 * __x__ <kbd>number</kbd>
-
