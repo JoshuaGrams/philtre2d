@@ -133,17 +133,22 @@ _PARAMETERS_
 	* `{x, y}` - Margins on each axis are equal.
 	* `{lt, rt, top, bot}` - Each margin is set separately.
 
-### Text(text, font, w, pivot, anchor, hAlign, modeX)
+### Text(text, font, w, pivot, anchor, hAlign, modeX, isWrapping)
 
-A text node. The text is wrapped to fit inside the specified width, `w`. The height of the node is automatically determined by the size of the font and the number of lines that the text wraps to.
+A text node. By default the text stays in a single line, but it can be set to wrap within the node's width. The height of the node is automatically determined by the size of the font and the number of lines that the text wraps to.
+
+> NOTE: Text always wraps if `hAlign` is set to "justify", since it doesn't make much sense otherwise.
 
 _PARAMETERS_
 * __text__ <kbd>string</kbd> - The text to be displayed.
 * __font__ <kbd>table</kbd> - Must be a table: `{filename, size}`.
 * __hAlign__ <kbd>string</kbd> - _optional_ - How the text is aligned within the node's width. Can be: "center", "left", "right", or "justify". Defaults to "left".
+* __isWrapping__ <kbd>bool</kbd> - _optional_ - Set to `true` to wrap the text within the nodes width, `w`. Text always wraps regardless of this setting if `hAlign` is set to "justify".
 
 _TEXT METHODS_
 * __align( hAlign )__ - Sets the horizontal alignment of the text. Must be "center", "left", "right", or "justify".
+
+* __wrap( isWrapping )__ - Sets wrapping enabled or disabled. Text always wraps regardless of this setting if `hAlign` is set to "justify".
 
 ### Sprite(image, sx, sy, color, pivot, anchor, modeX, modeY)
 
