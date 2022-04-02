@@ -29,7 +29,7 @@ function Node.TRANSFORM_ANCHORED_PIVOT(s) -- anchor + self from pivot * parent
 	local x, y = s.pos.x - pivotX, s.pos.y - pivotY
 	x, y = s.anchorPosX + x, s.anchorPosY + y
 	x, y = x + s._givenRect.x, y + s._givenRect.y
-	m = matrix.new(x, y, s.angle, 1, 1, 0, 0, m)
+	m = matrix.new(x, y, s.angle, 1, 1, s.kx, s.ky, m)
 	m = matrix.xM(m, s.parent._to_world, m)
 	s._to_local = nil
 end
