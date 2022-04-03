@@ -97,6 +97,16 @@ _NODE METHODS_
 
 * __setPos( x, y, [inDesignCoords], [isRelative] )__ - Set the local position of the node—the offset between it's pivot and anchor points.
 
+* __setCenterPos( x, y )__ - Set the position of the center of a node, regardless of it's pivot and anchor, using a position local to its parent node. For example:
+
+```lua
+function love.mousepressed(x, y, button, isTouch)
+	if button == 1 then
+		local lx, ly = parentNode:toLocal(x, y)
+		exampleNode:setCenterPos(lx, ly)
+	end
+end
+```
 
 * __angle( a )__ - Set the angle of the node.
 

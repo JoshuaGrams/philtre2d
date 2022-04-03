@@ -215,6 +215,18 @@ function Node.setPos(self, x, y, inDesignCoords, isRelative)
 	return self
 end
 
+function Node.setCenterPos(self, x, y)
+	if x then
+		local ox = self.anchorPosX - self.w * self.px/2
+		x = x - ox
+	end
+	if y then
+		local oy = self.anchorPosY - self.h * self.py/2
+		y = y - oy
+	end
+	return self:setPos(x, y)
+end
+
 function Node.angle(self, a)
 	self.angle = a
 	return self
