@@ -72,6 +72,8 @@ function Input.disableRaw(object)
 	rawStack:remove(object)
 end
 
+local SKIP_ACTIONS = -1
+
 --------------------  Handling Input  --------------------
 function Input.rawInput(device, id, rawValue, ...)
 	local oldRawValue = rawValues[device][id] or 0
@@ -81,7 +83,8 @@ function Input.rawInput(device, id, rawValue, ...)
 		rawChange = rawValue - oldRawValue
 	end
 
-	rawStack:call(device, id, rawValue, rawChange, ...)
+	local r = rawStack:call(device, id, rawValue, rawChange, ...)
+	if r == SKIP_ACTIONS then  return  end
 
 	local actionBindings = actionsForInput[device][id]
 	if actionBindings then

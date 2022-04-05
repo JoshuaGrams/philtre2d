@@ -46,11 +46,11 @@ local function _sendInput(stack, ...)
 		local obj = stack[i]
 		local r
 		if obj[callback] then  r = obj[callback](obj, ...)  end
-		if r then  return  end
+		if r then  return r  end
 		if obj.scripts then
 			for _,script in ipairs(obj.scripts) do
 				if script[callback] then  r = script[callback](obj, ...)  end
-				if r then  return  end
+				if r then  return r  end
 			end
 		end
 	end
@@ -58,12 +58,13 @@ end
 
 local function call(stack, ...)
 	stack.isLocked = true
-	_sendInput(stack, ...)
+	local r = _sendInput(stack, ...)
 	stack.isLocked = false
 	if stack.isDirty then
 		doDelayed(stack)
 		stack.isDirty = false
 	end
+	return r
 end
 
 local function InputStack(callback)

@@ -175,7 +175,9 @@ _PARAMETERS_
 
 #### Consuming Input
 
-If any object or script returns `true` from its `input` method then that input event will be "consumed". The call will stop going down the stack, and no other objects or scripts will receive that event.
+If any object or script returns `true` (or any truthy value) from its `input` method then that input event will be "consumed". The call will stop going down the stack, and no other objects or scripts will receive that event.
+
+For raw input, if you return `-1`, it will also prevent any actions bound to that input from being activated (regular input is handled _after_ raw input). Returning other truthy values will only prevent other `rawInput` callbacks lower on the stack from getting the input.
 
 #### Raw Input Callback
 
