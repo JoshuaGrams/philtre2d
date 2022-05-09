@@ -93,16 +93,16 @@ end
 function Object.setVisible(self, visible)
 	if visible and not self.visible then
 		self.visible = true -- Before removing or the drawOrder will skip it.
-		self.tree.draw_order:showObject(self)
+		if self.tree then  self.tree.draw_order:showObject(self)  end
 	elseif self.visible and not visible then
-		self.tree.draw_order:removeObject(self)
+		if self.tree then  self.tree.draw_order:removeObject(self)  end
 		self.visible = false -- After removing or the drawOrder will skip it.
 	end
 end
 
 function Object.setLayer(self, layer)
 	if layer == self.layer then  return  end
-	self.tree.draw_order:moveObject(self, layer)
+	if self.tree then  self.tree.draw_order:moveObject(self, layer)  end
 	self.layer = layer
 end
 
