@@ -31,6 +31,7 @@ local function initObject(tree, obj, parent, index, objList)
 	end
 	obj.path = path
 	tree.paths[path] = obj
+	obj:updateTransform()
 
 	if obj.children then
 		obj.children.maxn = obj.children.maxn or #obj.children
