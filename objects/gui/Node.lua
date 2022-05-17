@@ -100,7 +100,6 @@ function Node.allocateChild(self, child, forceUpdate)
 end
 
 function Node.allocateChildren(self, forceUpdate)
-	self:updateTransform() -- So scripts get a correct transform on .allocate().
 	if self.children then
 		for i=1,self.children.maxn or #self.children do
 			local child = self.children[i]
@@ -167,7 +166,9 @@ function Node.allocate(self, alloc, forceUpdate)
 	isDirty = self:updateScale(alloc) or isDirty
 	isDirty = self:updateOffset(alloc) or isDirty
 	isDirty = self:updateSize(alloc) or isDirty
+
 	if isDirty or forceUpdate then
+		self:updateTransform() -- So scripts get a correct transform on .allocate().
 		self:allocateChildren(forceUpdate)
 	end
 end
@@ -192,7 +193,10 @@ function Node.size(self, w, h, inDesignCoords)
 	end
 
 	local dirty = self:updateSize(self._givenRect)
-	if dirty and self.tree then  self:allocateChildren()  end
+	if dirty and self.tree then
+		self:updateTransform()
+		self:allocateChildren()
+	end
 	return self
 end
 
