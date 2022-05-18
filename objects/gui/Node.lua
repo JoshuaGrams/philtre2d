@@ -238,7 +238,7 @@ function Node.setCenterPos(self, x, y)
 	return self:setPos(x, y)
 end
 
-function Node.angle(self, a)
+function Node.setAngle(self, a)
 	self.angle = a
 	return self
 end

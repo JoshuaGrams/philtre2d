@@ -108,7 +108,7 @@ function love.mousepressed(x, y, button, isTouch)
 end
 ```
 
-* __angle( a )__ - Set the angle of the node.
+* __setAngle( a )__ - Set the angle of the node.
 
 
 * __offset( [x], [y], [isRelative] )__ - Set the offset of the node's allocation rect.
