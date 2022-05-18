@@ -137,8 +137,15 @@ end
 -- Requires self.w/h to be already updated.
 -- Does nothing unless padX/Y, _designRect.w/h, or scale have changed.
 function Node.updateInnerSize(self) -- Called from pad() and updateSize().
-	self._contentRect.w = max(0, self.w - self.padX*2*self._givenRect.scale)
-	self._contentRect.h = max(0, self.h - self.padY*2*self._givenRect.scale)
+	local oldW, oldH = self._contentRect.w, self._contentRect.h
+	local newW = max(0, self.w - self.padX*2*self._givenRect.scale)
+	local newH = max(0, self.h - self.padY*2*self._givenRect.scale)
+	local isDirty = newW ~= oldW or newH ~= oldH
+	if isDirty then
+		self._contentRect.w = newW
+		self._contentRect.h = newH
+		return true
+	end
 end
 
 function Node.updateSize(self, alloc)
@@ -151,12 +158,12 @@ function Node.updateSize(self, alloc)
 	self.w, self.h = self._designRect.w * sx, self._designRect.h * sy
 	self.anchorPosX, self.anchorPosY = w * self.ax/2, h * self.ay/2
 
-	self:updateInnerSize()
+	local isDirty = self:updateInnerSize()
 
 	local r = self._givenRect
 	r.w, r.h, r.designW, r.designH, r.scale = w, h, designW, designH, scale
 
-	if self.w ~= oldW or self.h ~= oldH then  return true  end
+	if isDirty or (self.w ~= oldW or self.h ~= oldH) then  return true  end
 end
 
 function Node.allocate(self, alloc, forceUpdate)
@@ -192,8 +199,8 @@ function Node.size(self, w, h, inDesignCoords)
 		if h then  design.h = dh  end
 	end
 
-	local dirty = self:updateSize(self._givenRect)
-	if dirty and self.tree then
+	local isDirty = self:updateSize(self._givenRect)
+	if isDirty and self.tree then
 		self:updateTransform()
 		self:allocateChildren()
 	end
@@ -280,7 +287,11 @@ end
 function Node.pad(self, x, y)
 	if x then  self.padX = x  end
 	if y then  self.padY = y  end
-	self:updateInnerSize()
+	local isDirty = self:updateInnerSize()
+	if isDirty and self.tree then
+		self:updateTransform()
+		self:allocateChildren()
+	end
 	return self
 end
 
