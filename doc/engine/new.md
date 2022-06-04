@@ -15,6 +15,11 @@ Loads an image. See: [love.graphics.newImage](https://love2d.org/wiki/love.graph
 
 **Returns:** [Image](https://love2d.org/wiki/Image) - Can be used with a Sprite or Quad, or drawn directly.
 
+### new.quad(x, y, width, height, iw, ih)
+Loads a quad. See: [love.graphics.newQuad](https://love2d.org/wiki/love.graphics.newQuad)
+
+**Returns:** [Quad](https://love2d.org/wiki/Quad)
+
 ### new.font(filename, [size], [[hinting](https://love2d.org/wiki/HintingMode)], [dpiscale])
 Loads a font. See: [love.graphics.newFont](https://love2d.org/wiki/love.graphics.newFont) (the first two variants, possibly the third?).
 - `size` defaults to 12.
@@ -28,6 +33,14 @@ Loads a new audio source. See: [love.audio.newSource](https://love2d.org/wiki/lo
 - `sourceType` defaults to "static".
 
 **Returns:** [Source](https://love2d.org/wiki/Source)
+
+### new.custom(assetType, loaderFn, ...)
+Load and cache a new asset with a custom type or loader. Can be used for anything that you want to load once and cache for use in multiple places.
+- `assetType` the category key for this type of asset.
+- `loaderFn` the function to call to create the asset if it doesn't exist yet. Must return an asset to cache.
+- `...` the list of arguments to pass to the `loaderFn`. There must not be `nil` in the middle of the list.
+
+**Returns:** your custom asset - whatever `loaderFn` returns.
 
 Getting Asset Parameters
 ------------------------

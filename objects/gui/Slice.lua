@@ -122,17 +122,17 @@ function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, m
 	self.innerQuadW, self.innerQuadH = innerW, innerH
 
 	-- Make 4 corner quads.
-	self.quadTl = love.graphics.newQuad(lt, top, m.lt, m.top, imgW, imgH)
-	self.quadTr = love.graphics.newQuad(innerRt, top, m.rt, m.top, imgW, imgH)
-	self.quadBl = love.graphics.newQuad(lt, innerBot, m.lt, m.bot, imgW, imgH)
-	self.quadBr = love.graphics.newQuad(innerRt, innerBot, m.rt, m.bot, imgW, imgH)
+	self.quadTl = new.quad(lt, top, m.lt, m.top, imgW, imgH)
+	self.quadTr = new.quad(innerRt, top, m.rt, m.top, imgW, imgH)
+	self.quadBl = new.quad(lt, innerBot, m.lt, m.bot, imgW, imgH)
+	self.quadBr = new.quad(innerRt, innerBot, m.rt, m.bot, imgW, imgH)
 	-- Make 4 edge quads.
-	self.quadTop = love.graphics.newQuad(innerLt, top, innerW, m.top, imgW, imgH)
-	self.quadBot = love.graphics.newQuad(innerLt, innerBot, innerW, m.bot, imgW, imgH)
-	self.quadLt = love.graphics.newQuad(lt, innerTop, m.lt, innerH, imgW, imgH)
-	self.quadRt = love.graphics.newQuad(innerRt, innerTop, m.rt, innerH, imgW, imgH)
+	self.quadTop = new.quad(innerLt, top, innerW, m.top, imgW, imgH)
+	self.quadBot = new.quad(innerLt, innerBot, innerW, m.bot, imgW, imgH)
+	self.quadLt = new.quad(lt, innerTop, m.lt, innerH, imgW, imgH)
+	self.quadRt = new.quad(innerRt, innerTop, m.rt, innerH, imgW, imgH)
 	-- Make center quad.
-	self.quadC = love.graphics.newQuad(innerLt, innerTop, innerW, innerH, imgW, imgH)
+	self.quadC = new.quad(innerLt, innerTop, innerW, innerH, imgW, imgH)
 end
 
 return SliceNode

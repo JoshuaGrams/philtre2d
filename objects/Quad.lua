@@ -59,7 +59,7 @@ function Quad.set(self, image, quad, x, y, angle, sx, sy, color, ox, oy, kx, ky)
 	else
 		t, l, w, h = unpack(quad)
 		local iw, ih = image:getDimensions()
-		quad = love.graphics.newQuad(t, l, w, h, iw, ih)
+		quad = new.quad(t, l, w, h, iw, ih)
 	end
 	self.quad = quad
 	self.w, self.h = w, h
