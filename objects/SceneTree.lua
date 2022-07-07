@@ -59,7 +59,7 @@ function SceneTree.remove(self, obj, skipCall)
 	assert(obj:is(Object), 'SceneTree.remove: obj: '..tostring(obj)..'is not an Object.')
 	assert(obj.path, 'SceneTree.remove: obj: '..tostring(obj)..'is not in the tree.')
 
-	SceneTree.__call(obj, 'final')
+	SceneTree._call(obj, 'final')
 	self.draw_order:removeObject(obj)
 	SceneTree.super.remove(self, obj)
 end
@@ -112,7 +112,7 @@ function SceneTree.updateTransforms(self)
 	SceneTree.unlock(self)
 end
 
-function SceneTree.__call(self, callbackName, topDown, ...)
+function SceneTree._call(self, callbackName, topDown, ...)
 	local list = SceneTree.getObjList(self, topDown)
 	for i=1,#list do
 		local obj = list[i]
