@@ -3,7 +3,7 @@ local objectToString
 local function worksAsIdentifier(k)
 	if type(k) == 'number' then return true
 	elseif type(k) == 'string' then
-		if string.match(k, "[%a_][%w_]*") then
+		if string.match(k, "^[%a_][%w_]*") then
 			return true
 		end
 	end
