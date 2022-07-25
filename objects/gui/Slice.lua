@@ -69,9 +69,8 @@ end
 function SliceNode.updateInnerSize(self)
 	SliceNode.super.updateInnerSize(self)
 	local m = self.margins
-	m.lt2, m.rt2, m.top2, m.bot2 = m.lt/2, m.rt/2, m.top/2, m.bot/2
-	local innerSliceW = self.w - self.margins.lt - self.margins.rt
-	local innerSliceH = self.h - self.margins.top - self.margins.bot
+	local innerSliceW = self.w - m.lt - m.rt
+	local innerSliceH = self.h - m.top - m.bot
 	self.sliceSX = innerSliceW/self.innerQuadW
 	self.sliceSY = innerSliceH/self.innerQuadH
 end
@@ -120,6 +119,8 @@ function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, m
 	local innerTop, innerBot = top + m.top, bot - m.bot
 	local innerW, innerH = qw - m.lt - m.rt, qh - m.top - m.bot
 	self.innerQuadW, self.innerQuadH = innerW, innerH
+	self.sliceSX = (w - m.lt - m.rt)/self.innerQuadW
+	self.sliceSY = (h - m.top - m.bot)/self.innerQuadH
 
 	-- Make 4 corner quads.
 	self.quadTl = new.quad(lt, top, m.lt, m.top, imgW, imgH)
