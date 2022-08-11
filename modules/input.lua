@@ -174,7 +174,7 @@ local function addBinding(device, id, actionName, flipAxis)
 	table.insert(actionsForInput[device][id], { name = actionName, flipAxis = flipAxis })
 
 	inputsForAction[actionName] = inputsForAction[actionName] or {}
-	table.insert(inputsForAction[actionName], { device = device, id = id })
+	table.insert(inputsForAction[actionName], { device = device, id = id, flipAxis = flipAxis })
 end
 
 local function ensureActionExists(actionName, actionType)

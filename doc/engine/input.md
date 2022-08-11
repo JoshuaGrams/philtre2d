@@ -224,7 +224,7 @@ You must specify the full `device` name: "scancode", "key", "mouse", "text", "jo
 For button actions, returns `true` or `false`. Always returns `nil` for other action types.
 
 ##### Input.getInputs(actionName)
-Returns `nil` or a list of tables: `{ {device=, id=}, ... }`.
+Returns `nil` or a list of tables: `{ {device=, id=, flipAxis=}, ... }`.
 
 ##### Input.getActions(device, id)
 Returns `nil` or a list of tables: `{ {name=, flipAxis=}, ... }`.
