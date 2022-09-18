@@ -1,6 +1,6 @@
 local base = (...):gsub('objects%.Body$', '')
-local matrix = require(base .. 'modules.matrix')
-local physics = require(base .. 'modules.physics')
+local matrix = require(base .. 'core.matrix')
+local physics = require(base .. 'core.physics')
 local Object = require(base .. 'objects.Object')
 
 local Body = Object:extend()

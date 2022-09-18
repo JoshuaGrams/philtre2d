@@ -2,14 +2,14 @@
 
 local base = (...):gsub('%.init$', '.')
 
-matrix = require(base .. 'modules.matrix')
-new = require(base .. 'modules.new')
+matrix = require(base .. 'core.matrix')
+new = require(base .. 'core.new')
 
 SceneTree = require(base .. 'objects.SceneTree')
 DrawOrder = require(base .. 'render.draw-order')
 
-Input = require(base .. 'modules.input')
-physics = require(base .. 'modules.physics')
+Input = require(base .. 'core.input')
+physics = require(base .. 'core.physics')
 
 -- Objects
 Object = require(base .. 'objects.Object')

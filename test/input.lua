@@ -1,7 +1,7 @@
 local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
-local Input = require(base .. 'modules.input')
+local Input = require(base .. 'core.input')
 
 local function _inputMethod(self, action, value, change, rawChange, ...)
 	-- print("", action, value, change, rawChange)

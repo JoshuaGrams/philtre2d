@@ -1,5 +1,5 @@
 local base = (...):gsub('objects%.Tree$', '')
-local M = require(base .. 'modules.matrix')
+local M = require(base .. 'core.matrix')
 local Object = require(base .. 'objects.Object')
 
 local Tree = Object:extend()

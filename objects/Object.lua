@@ -1,6 +1,6 @@
 local base = (...):gsub('objects%.Object$', '')
-local BaseClass = require(base .. 'modules.base-class')
-local matrix = require(base .. 'modules.matrix')
+local BaseClass = require(base .. 'core.base-class')
+local matrix = require(base .. 'core.matrix')
 
 local Object = BaseClass:extend()
 

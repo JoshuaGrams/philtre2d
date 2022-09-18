@@ -1,5 +1,5 @@
 local base = (...):gsub('render%.draw%-order$', '')
-local Class = require(base .. 'modules.base-class')
+local Class = require(base .. 'core.base-class')
 local DepthList = require(base .. 'render.depth-list')
 local Layer = require(base .. 'render.layer')
 

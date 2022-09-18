@@ -2,7 +2,7 @@ local base = (...):gsub('[^%.]+.[^%.]+$', '')
 local T = require 'lib.simple-test'
 
 local Layer = require(base .. 'render.layer')
-local M = require(base .. 'modules.matrix')
+local M = require(base .. 'core.matrix')
 local Object = require(base .. 'objects.Object')
 
 local function identityM()

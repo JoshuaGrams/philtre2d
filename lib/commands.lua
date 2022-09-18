@@ -1,4 +1,4 @@
-local Class = require 'philtre.modules.base-class'
+local Class = require 'philtre.core.base-class'
 
 local Commands = Class:extend()
 

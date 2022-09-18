@@ -2,7 +2,7 @@ local base = (...):gsub('objects%.SceneTree$', '')
 local Tree = require(base .. 'objects.Tree')
 local Object = require(base .. 'objects.Object')
 local DrawOrder = require(base .. 'render.draw-order')
-local matrix = require(base .. 'modules.matrix')
+local matrix = require(base .. 'core.matrix')
 
 local SceneTree = Tree:extend()
 

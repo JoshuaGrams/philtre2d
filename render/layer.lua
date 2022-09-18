@@ -1,6 +1,6 @@
 local base = (...):gsub('render%.layer$', '')
-local Class = require(base .. 'modules.base-class')
-local M = require(base .. 'modules.matrix')
+local Class = require(base .. 'core.base-class')
+local M = require(base .. 'core.matrix')
 
 local Layer = Class:extend()
 
