@@ -37,10 +37,12 @@ function Row.allocateHeterogeneous(self, alloc, forceUpdate)
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacing = self.spacing * self._givenRect.scale
+	local scale = self._givenRect.scale
+	local spacing = self.spacing * scale
 	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = alloc.w - spacingSpace
 	local totalChildW, totalGreedyChildW = self:getChildDimensionTotals("w")
+	totalChildW, totalGreedyChildW = totalChildW*scale, totalGreedyChildW*scale
 	local squashFactor = math.min(1, availableSpace / totalChildW)
 	local extraW = math.max(0, availableSpace - totalChildW)
 	local greedFactor = extraW / totalGreedyChildW
@@ -54,7 +56,7 @@ function Row.allocateHeterogeneous(self, alloc, forceUpdate)
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local childW = child:request().w
+			local childW = child:request().w * scale
 			local w = childW * squashFactor
 			if child.isGreedy then  w = w + childW * greedFactor  end
 			local x = startX - w/2 * self.dir

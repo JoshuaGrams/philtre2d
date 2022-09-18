@@ -72,10 +72,12 @@ function Column.allocateHeterogeneous(self, alloc, forceUpdate)
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacing = self.spacing * self._givenRect.scale
+	local scale = self._givenRect.scale
+	local spacing = self.spacing * scale
 	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = alloc.h - spacingSpace
 	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals("h")
+	totalChildH, totalGreedyChildH = totalChildH*scale, totalGreedyChildH*scale
 	local squashFactor = math.min(1, availableSpace / totalChildH)
 	local extraH = math.max(0, availableSpace - totalChildH)
 	local greedFactor = extraH / totalGreedyChildH
@@ -89,7 +91,7 @@ function Column.allocateHeterogeneous(self, alloc, forceUpdate)
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local childH = child:request().h
+			local childH = child:request().h * scale
 			local h = childH * squashFactor
 			if child.isGreedy then  h = h + childH * greedFactor  end
 			local y = startY - h/2 * self.dir
