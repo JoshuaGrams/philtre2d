@@ -82,7 +82,7 @@ Hit results are in a dictionary format:
 {
 	fixture = the hit fixture.
 	x, y = the position of the contact.
-	xn, yn = the normal of the hit edge.
+	nx, ny = the normal of the hit edge.
 	fraction = the fractional distance of the hit along the ray vector.
 }
 ```

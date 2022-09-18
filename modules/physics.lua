@@ -94,7 +94,7 @@ function physics.atPoint(x, y, world)
 	end
 end
 
-local function raycastCallback(fixture, x, y, xn, yn, fraction)
+local function raycastCallback(fixture, x, y, nx, ny, fraction)
 	if queryCats and queryMask then
 		local cats, mask = fixture:getFilterData()
 		local canHit = physics.shouldCollide(cats, mask, queryCats, queryMask)
@@ -106,14 +106,14 @@ local function raycastCallback(fixture, x, y, xn, yn, fraction)
 	elseif raycastMode == 'closest' then
 		raycastResults = {
 			fixture = fixture,
-			x = x, y = y, xn = xn, yn = yn, fraction = fraction
+			x = x, y = y, nx = nx, ny = ny, fraction = fraction
 		}
 		return fraction
 	else -- raycastMode == 'all'
 		raycastResults = raycastResults or {}
 		local hit = {
 			fixture = fixture,
-			x = x, y = y, xn = xn, yn = yn, fraction = fraction
+			x = x, y = y, nx = nx, ny = ny, fraction = fraction
 		}
 		table.insert(raycastResults, hit)
 		return 1
