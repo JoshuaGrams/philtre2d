@@ -15,7 +15,7 @@ local vx, vy = self.body:getLinearVelocity()
 Constructor
 -----------
 
-### Body(type, x, y, angle, shapes, body_prop)
+### Body(type, x, y, angle, shapes, bodyProps)
 Construct a new physics Body object. The actual body, shapes, and fixtures will not be created until init().
 
 _PARAMETERS_
@@ -43,7 +43,7 @@ _PARAMETERS_
 	* Available shape types are: 'circle', 'rectangle', 'polygon', 'edge', and 'chain'.
 
 	* Available shape(fixture) properties are: 'sensor', 'categories', 'mask', 'group', 'friction', 'density', and 'restitution'.
-* __body_prop__ <kbd>table</kbd> - Any non-default properties for the body.
+* __bodyProps__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 
 Trigger Bodies

@@ -40,17 +40,17 @@ Methods
 ### Object.setVisible(self, visible)
 Will show or hide the object. Invisible objects and their children will not be drawn, but they will still get `updateTransform` and `update` calls.
 
-### Object.call(self, func_name, ...)
+### Object.call(self, fnName, ...)
 Attempts to call the named function on the object and any scripts that object may have.
 
-### Object.callRecursive(self, func_name, ...)
+### Object.callRecursive(self, fnName, ...)
 Recursively calls `Object.call` on the object and all of its descendants. Works from the bottom up (children are called before self).
 
 ### Object.debugDraw(self, layer)
-Unused by default. Uses `tree.draw_order:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`. The debugDraw function will _not_ be automatically removed from the layer later, so you probably want to clear your debug layer every frame.
+Unused by default. Uses `tree.drawOrder:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`. The debugDraw function will _not_ be automatically removed from the layer later, so you probably want to clear your debug layer every frame.
 ```lua
 -- Inside love.draw():
-scene.draw_order:clear("physics debug")
+scene.drawOrder:clear("physics debug")
 scene:callRecursive("debugDraw", "physics debug")
 -- scene:draw("world") etc...
 ```
@@ -95,13 +95,13 @@ Returns `'(' .. self.className .. '): path = ' .. tostring(self.path)`. New obje
 
 Transform functions
 -------------------
-`Object` also holds three different transform update functions to be used by itself and any child classes. Objects in the Scene-Tree must have a `.updateTransform` method to update their `_to_world` matrix, which the Scene-Tree will call on all objects before the `draw` callback.
+`Object` also holds three different transform update functions to be used by itself and any child classes. Objects in the Scene-Tree must have a `.updateTransform` method to update their `_toWorld` matrix, which the Scene-Tree will call on all objects before the `draw` callback.
 
 ### Object.TRANSFORM_REGULAR(self)
-The default. Sets the object's `_to_world` matrix to its parent's `_to_world` multiplied by its own, updated, local transform.
+The default. Sets the object's `_toWorld` matrix to its parent's `_toWorld` multiplied by its own, updated, local transform.
 
 ### Object.TRANSFORM_ABSOLUTE(self)
 For dynamic and static physics objects. Keeps the object in world coordinates, ignoring the parent's transform entirely.
 
 ### Object.TRANSFORM_PASS_THROUGH(self)
-For 'collection'-style objects that should never have a transform of their own. Copies its parent's `_to_world` matrix onto itself.
+For 'collection'-style objects that should never have a transform of their own. Copies its parent's `_toWorld` matrix onto itself.

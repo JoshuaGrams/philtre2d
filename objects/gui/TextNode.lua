@@ -37,7 +37,7 @@ end
 
 function TextNode.debugDraw(self, layer)
 	if self.tree and self.drawIndex then
-		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
 	end
 end
 

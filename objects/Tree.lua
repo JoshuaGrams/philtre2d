@@ -11,8 +11,8 @@ function Tree.__tostring(self)
 end
 
 function Tree.set(self)
-	self._to_world = M.identity
-	self._to_local = M.identity
+	self._toWorld = M.identity
+	self._toLocal = M.identity
 	self.pos = {x=0, y=0}
 	self.children = { maxn = 0 }
 	self.path = ''

@@ -41,7 +41,7 @@ function love.draw()
 	scene:draw("world")
 	scene:callRecursive("debugDraw", debugLayer)
 	scene:draw("debug")
-	scene.draw_order:clear(debugLayer)
+	scene.drawOrder:clear(debugLayer)
 end
 ```
 

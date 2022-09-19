@@ -24,7 +24,7 @@ end
 Layer.addFunction = addFunction
 
 function Layer.addObject(self, object)
-	local m = object._to_world
+	local m = object._toWorld
 	local i = addFunction(self, m, object.call, object, 'draw')
 	assert(i, "Layer.addFunction returned nil index")
 	object.drawIndex = i
@@ -58,7 +58,7 @@ local tempTransform = love.math.newTransform()
 -- NOTE: This completely breaks any camera or other transforms applied, so it only works in GUI.
 local function setMask(obj, enabled)
 	love.graphics.push()
-	local t = M.toTransform(obj._to_world, tempTransform)
+	local t = M.toTransform(obj._toWorld, tempTransform)
 	love.graphics.replaceTransform(t)
 
 	if enabled then  obj:enableMask()

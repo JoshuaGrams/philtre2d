@@ -48,20 +48,20 @@ end
 
 function Body.debugDraw(self, layer)
 	if self.tree and self.drawIndex then
-		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
 	end
 end
 
 function Body.TRANSFORM_DYNAMIC_PHYSICS(s)
 	s.pos.x, s.pos.y = s.body:getPosition()
 	s.angle = s.body:getAngle()
-	s._to_world = matrix.new(s.pos.x, s.pos.y, s.angle, 1, 1, 0, 0, s._to_world) -- Don't allow scale or shear.
-	s._to_local = nil
+	s._toWorld = matrix.new(s.pos.x, s.pos.y, s.angle, 1, 1, 0, 0, s._toWorld) -- Don't allow scale or shear.
+	s._toLocal = nil
 end
 
 function Body.TRANSFORM_KINEMATIC_PHYSICS(s)
 	local wx, wy = s.parent:toWorld(s.pos.x, s.pos.y)
-	local wAngle = s.angle + matrix.parameters(s.parent._to_world)
+	local wAngle = s.angle + matrix.parameters(s.parent._toWorld)
 	s.body:setPosition(wx, wy)
 	s.body:setAngle(wAngle)
 	-- Need to wake up the body if it's parent changes (or any ancestor).
@@ -71,11 +71,11 @@ function Body.TRANSFORM_KINEMATIC_PHYSICS(s)
 	end
 	last.x, last.y, last.angle = wx, wy, wAngle
 	-- Already transformed pos & angle to world space, don't allow scale or shear.
-	s._to_world = matrix.new(wx, wy, wAngle, 1, 1, 0, 0, s._to_world)
-	s._to_local = nil
+	s._toWorld = matrix.new(wx, wy, wAngle, 1, 1, 0, 0, s._toWorld)
+	s._toLocal = nil
 end
 
-local body_set_funcs = {
+local bodySetFuncs = {
 	linDamp = 'setLinearDamping',
 	angDamp = 'setAngularDamping',
 	bullet = 'setBullet',
@@ -83,7 +83,7 @@ local body_set_funcs = {
 	gScale = 'setGravityScale'
 }
 
-local shape_constructors = {
+local shapeConstructors = {
 	circle = love.physics.newCircleShape, -- radius OR x, y radius
 	rectangle = love.physics.newRectangleShape, -- width, height OR x, y, width, height, angle
 	polygon = love.physics.newPolygonShape, -- x1, y1, x2, y2, x3, y3, ... - up to 8 verts
@@ -93,7 +93,7 @@ local shape_constructors = {
 
 function Body.addFixture(self, data)
 	-- data[1] = shape type, data[2] = shape specs, any other keys = fixture props.
-	local shape = shape_constructors[data[1]](unpack(data[2]))
+	local shape = shapeConstructors[data[1]](unpack(data[2]))
 	local density, sensor = data.density, data.sensor
 	if self.type == 'trigger' then
 		density = density or 0
@@ -125,7 +125,7 @@ function Body.init(self)
 	-- We need world coords for creating the physics body.
 	if self.type == 'trigger' or self.type == 'kinematic' then -- Body types that transform like normal children.
 		bodyX, bodyY = self.parent:toWorld(bodyX, bodyY)
-		bodyAngle = bodyAngle + matrix.parameters(self.parent._to_world)
+		bodyAngle = bodyAngle + matrix.parameters(self.parent._toWorld)
 	end
 
 	-- Make body.
@@ -134,7 +134,7 @@ function Body.init(self)
 	self.body:setAngle(bodyAngle)
 	if self._bodyData then
 		for k,v in pairs(self._bodyData) do
-			if body_set_funcs[k] then self.body[body_set_funcs[k]](self.body, v) end
+			if bodySetFuncs[k] then self.body[bodySetFuncs[k]](self.body, v) end
 		end
 	end
 	-- Make shapes & fixtures.
@@ -158,7 +158,7 @@ function Body.final(self)
 	if not self.body:isDestroyed() then  self.body:destroy()  end
 end
 
-function Body.set(self, type, x, y, angle, shapes, body_prop)
+function Body.set(self, type, x, y, angle, shapes, bodyProps)
 	Body.super.set(self, x, y, angle)
 	local rand = love.math.random
 	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
@@ -170,12 +170,12 @@ function Body.set(self, type, x, y, angle, shapes, body_prop)
 		-- self.updateTransform == normal object transform (already inherited).
 		self.lastTransform = {}
 		-- Fix rotation on kinematic and trigger bodies to make sure it can't go crazy.
-		if body_prop then  body_prop.fixedRot = true
-		else  body_prop = { fixedRot = true }  end
+		if bodyProps then  bodyProps.fixedRot = true
+		else  bodyProps = { fixedRot = true }  end
 	end
 	-- Save to use on init:
 	self._shapeData = shapes
-	self._bodyData = body_prop
+	self._bodyData = bodyProps
 end
 
 return Body

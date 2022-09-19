@@ -10,7 +10,7 @@ function SceneTree.set(self, groups, default)
 	SceneTree.super.set(self)
 	groups = groups or {'default'}
 	default = default or 'default'
-	self.draw_order = DrawOrder(groups, default)
+	self.drawOrder = DrawOrder(groups, default)
 end
 
 local function fillList(list, children, topDown)
@@ -45,7 +45,7 @@ function SceneTree.add(self, obj, parent, atIndex)
 	end
 
 	local objList = SceneTree.super.add(self, obj, parent, atIndex)
-	self.draw_order:addObject(obj)
+	self.drawOrder:addObject(obj)
 	for i=1,#objList do
 		local obj = objList[i]
 		if obj.path then -- Is still in tree.
@@ -60,7 +60,7 @@ function SceneTree.remove(self, obj, skipCall)
 	assert(obj.path, 'SceneTree.remove: obj: '..tostring(obj)..'is not in the tree.')
 
 	SceneTree._call(obj, 'final')
-	self.draw_order:removeObject(obj)
+	self.drawOrder:removeObject(obj)
 	SceneTree.super.remove(self, obj)
 end
 
@@ -72,14 +72,14 @@ function SceneTree.setParent(self, obj, parent, keepWorldTransform)
 	end
 	if keepWorldTransform and obj.updateTransform == Object.TRANSFORM_REGULAR then
 		local m = {}
-		matrix.xM(obj._to_world, matrix.invert(parent._to_world, m), m)
+		matrix.xM(obj._toWorld, matrix.invert(parent._toWorld, m), m)
 		obj.pos.x, obj.pos.y = m.x, m.y
 		obj.angle, obj.sx, obj.sy, obj.kx, obj.ky = matrix.parameters(m)
 	end
-	self.draw_order:removeObject(obj)
+	self.drawOrder:removeObject(obj)
 	SceneTree.super.remove(self, obj)
 	SceneTree.super.add(self, obj, parent)
-	self.draw_order:addObject(obj)
+	self.drawOrder:addObject(obj)
 end
 
 local function locked_add()  error("SceneTree.add: Can't modify tree while it is locked.")  end
@@ -146,7 +146,7 @@ function SceneTree.update(self, dt)
 end
 
 function SceneTree.draw(self, groups)
-	self.draw_order:draw(groups)
+	self.drawOrder:draw(groups)
 end
 
 return SceneTree

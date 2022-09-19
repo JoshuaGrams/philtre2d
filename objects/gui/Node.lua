@@ -23,15 +23,15 @@ local function rotate(x, y, angle)
 end
 
 function Node.TRANSFORM_ANCHORED_PIVOT(s) -- anchor + self from pivot * parent
-	local m = s._to_world
+	local m = s._toWorld
 	local pivotX, pivotY = s.w * s.px/2, s.h * s.py/2
 	pivotX, pivotY = rotate(pivotX, pivotY, s.angle)
 	local x, y = s.pos.x - pivotX, s.pos.y - pivotY
 	x, y = s.anchorPosX + x, s.anchorPosY + y
 	x, y = x + s._givenRect.x, y + s._givenRect.y
 	m = matrix.new(x, y, s.angle, 1, 1, s.kx, s.ky, m)
-	m = matrix.xM(m, s.parent._to_world, m)
-	s._to_local = nil
+	m = matrix.xM(m, s.parent._toWorld, m)
+	s._toLocal = nil
 end
 
 Node.updateTransform = Node.TRANSFORM_ANCHORED_PIVOT
@@ -82,7 +82,7 @@ end
 
 function Node.debugDraw(self, layer)
 	if self.tree and self.drawIndex then
-		self.tree.draw_order:addFunction(layer, self._to_world, debugDraw, self)
+		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
 	end
 end
 

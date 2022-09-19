@@ -8,9 +8,9 @@ Basic Usage
 
 Create a scene tree with `SceneTree(layer_groups, [default_layer])`. It passes its arguments to the [`drawOrder`](draw-order.md) constructor.  Call `scene:update(dt)` from `love.update`. Call `scene:updateTransforms()` and `scene:draw(layer_group_names)` from `love.draw`.
 
-Other than that, all you need to use the scene tree are `scene:add(object, [parent])`, and `scene:remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_to_world`.
+Other than that, all you need to use the scene tree are `scene:add(object, [parent])`, and `scene:remove(object)`. All objects in the scene tree should extend Object. The scene tree is dependent on some of Object's properties and methods, particularly `call`, `updateTransform`, and `_toWorld`.
 
-Each scene tree creates its own draw order, which can be accessed at `scene.draw_order`.
+Each scene tree creates its own draw order, which can be accessed at `scene.drawOrder`.
 
 Functions
 ---------
@@ -63,9 +63,9 @@ scene:draw() -- draws all layers
 
 -- With layerGroups 'game' and 'gui', changing state in between:
 Camera.current:applyTransform()
-scene.draw_order:draw('game')
+scene.drawOrder:draw('game')
 Camera.current:resetTransform()
-scene.draw_order:draw('gui')
+scene.drawOrder:draw('gui')
 
 -- With layerGroups 'game' and 'gui', drawing both at once:
 scene:draw({'game', 'gui'})

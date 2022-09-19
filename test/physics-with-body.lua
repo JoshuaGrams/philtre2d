@@ -73,7 +73,7 @@ return {
 		T.ok(physics.shouldCollide(cat, mask, cat2, mask2), "Cat-mouse-cow should hit dog that doesn't like mice or cats.")
 
 		local didHit = false
-		function b.beginContact(self, self_fixture, other_fixture, other_object, contact)
+		function b.beginContact(self, selfFixture, otherFixture, otherObject, contact)
 			didHit = true
 		end
 		local b2 = Body("dynamic", 0, 0, 0, {"circle", {50}, categories = cat2, mask = mask2, sensor = true})
@@ -86,7 +86,7 @@ return {
 		T.ok(not physics.shouldCollide(cat, mask, cat2, mask3), "Cat-mouse-cow should NOT hit dog that doesn't like mice, cats, OR cows.")
 
 		local didntHit = true
-		function b.beginContact(self, self_fixture, other_fixture, other_object, contact)
+		function b.beginContact(self, selfFixture, otherFixture, otherObject, contact)
 			didntHit = false
 		end
 		local b3 = Body("dynamic", 0, 0, 0, {"circle", {50}, categories = cat2, mask = mask3, sensor = true})

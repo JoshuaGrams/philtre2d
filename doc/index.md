@@ -65,9 +65,9 @@ Objects
 _Required arguments in **bold-italic**._
 
 * [Body](objects/Body.md) - Physics body object.
-	* **Body(** **_type_**, x, y, angle, **_shapes_**, prop **)**
+	* **Body(** **_type_**, x, y, angle, **_shapes_**, bodyProps **)**
 * [Camera](objects/Camera.md) - Camera object.
-	* **Camera(** x, y, angle, zoom_or_area, scale_mode, fixed_aspect_ratio, inactive **)**
+	* **Camera(** x, y, angle, zoomOrArea, scaleMode, fixedAspectRatio, inactive **)**
 * [Object](objects/Object.md) - Base 'game object' class.
 	* **Object(** x, y, angle, sx, sy, kx, ky **)**
 * Sprite - Object containing an image.
@@ -78,7 +78,7 @@ _Required arguments in **bold-italic**._
 	* As above, `image` can be a string (filename) or an image.
 	* `quad` can be a table (`{x, y, w, h}`) or a quad created with `love.graphics.newQuad`).
 * Text - Object for rendering text. No fancy scaling.
-	* **Text(** **_text_**, **_font_**, x, y, angle, wrap_limit, align, sx, sy, kx, ky **)**
+	* **Text(** **_text_**, **_font_**, x, y, angle, wrapLimit, align, sx, sy, kx, ky **)**
 	* `font` can be a table `{filename, size}` or an existing font object.
 	* `align` is a string: one of `left`, `center`, `right`, or `justify`.
 * [World](objects/World.md) - Object with its own physics world and callback handlers.
