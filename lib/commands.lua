@@ -1,4 +1,6 @@
-local Class = require 'philtre.core.base-class'
+
+local folder = (...):gsub('lib.commands$', '')
+local Class = require(folder .. 'core.base-class')
 
 local Commands = Class:extend()
 
