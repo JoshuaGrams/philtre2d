@@ -1,6 +1,6 @@
 # GUI Objects
 
-An alternate attempt at a GUI layout system. Each node has an anchor point on its parent, a pivot point on itself, and a resize mode to control how it changes to fit the area it is allocated. Nodes aren't constrained to fit inside their parent at all, they're just given a width and height (and an offset for Row/Column nodes).
+An alternate attempt at a GUI layout system. Each node has an anchor point on its parent, a pivot point on itself, and a resize mode for each axis to control how it changes to fit the area it is allocated. Nodes aren't constrained to fit inside their parent at all, they're just given a width and height (and an offset for Row/Column nodes).
 
 All Nodes except SpriteNodes generally don't scale, they just change their width and height. A global scale factor can be passed down the tree, which will scale local positions, padding, row/column spacing, text size, Slice image size, and the size of nodes with the "none" resize mode.
 
@@ -11,7 +11,7 @@ All Nodes except SpriteNodes generally don't scale, they just change their width
 require "philtre.init"
 
 local gui = require "philtre.objects.gui.all"
--- Gives you a table with `Rect` and all the gui node objects:
+-- Gives you a table with `Alloc` and all the gui node objects:
 -- Node, Slice, Text, Sprite, Row, Column, and Mask.
 
 local layers = {
@@ -22,18 +22,18 @@ local debugLayer = "debug"
 
 local scene
 local guiRoot
-local screenAlloc = gui.Rect(0, 0, 800, 600)
+local screenAlloc = gui.Alloc(0, 0, 800, 600)
 
 function love.load()
 	scene = SceneTree(layers)
 
 	guiRoot = scene:add( gui.Node(800, 600, "NW", "C", "fill") )
-	guiRoot:allocate(screenAlloc)
+	guiRoot:allocate(screenAlloc:unpack())
 end
 
 function love.resize(w, h)
 	screenAlloc.w, screenAlloc.h = w, h
-	guiRoot:allocate(screenAlloc)
+	guiRoot:allocate(screenAlloc:unpack())
 end
 
 function love.draw()
@@ -47,13 +47,18 @@ end
 
 Nodes inherit Object and go in the scene-tree. Expected usage is to have a single Node at the root of your scene-tree to fill the screen and be the parent for the rest of your GUI. Give your root node the pivot: "NW", anchor: "C", and mode: "fill" so its children will be centered on the screen by default. On love.resize(), call `allocate` on this root node (see "node methods" below). Draw your GUI outside of any camera transforms.
 
-### Rect
+### Allocation
 
 A helper for making tables for GUI allocations.
 
 ```lua
-local rect = gui.Rect(x, y, w, h)
+local alloc = gui.Alloc(x, y, w, h)
 ```
+_ALLOCATION METHODS_
+
+* __pack(x, y, w, h, designW, designH, scale)__ - Set all fields of the allocation at once. All arguments are required
+
+* __unpack()__ - Returns all fields of the allocation, in the same order they are given to pack().
 
 ## Node Objects
 
@@ -63,15 +68,15 @@ A basic, invisible, layout node.
 
 _PARAMETERS_
 * __w, h__ <kbd>number</kbd> - The initial width and height of the node.
-* __pivot__ <kbd>string</kbd> - A cardinal direction signifying the node's origin/pivot point. "N", "NE", "E" "SE", "S", "SW", "W", "NW", or "C" (centered). Can be uppercase or lowercase (but not a mixture). Defaults to "C". To set arbitrary pivot points, use Node.pivot().
-* __anchor__ <kbd>string</kbd> - A cardinal direction signifying the node's anchor point inside its allocated area. Defaults to "C". To set arbitrary anchor points, use Node.anchor().
+* __pivot__ <kbd>string | table</kbd> - A cardinal direction signifying the node's origin/pivot point. "N", "NE", "E" "SE", "S", "SW", "W", "NW", or "C" (centered). Can be uppercase or lowercase (but not a mixture). Defaults to "C". Or, to set an arbitrary pivot, can be a table with two elements.
+* __anchor__ <kbd>string | table</kbd> - A cardinal direction signifying the node's anchor point inside its allocated area. Defaults to "C". Or, to set an arbitrary anchor, can be a table with two elements..
 * __modeX__ <kbd>string</kbd> - The resize mode for the node's width. Defaults to 'none'. The available modes are:
 	* `none` - Only changes size if the scale factor is changed.
 	* `fit` - Resizes proportionally based on the new relative w/h, whichever is smaller.
 	* `cover` - Resizes proportionally based on the new relative w/h, whichever is larger.
 	* `stretch` - Stretches each axis separately to fill the same proportion of the available length.
 	* `fill` - Stretches each axis separately to fill all available space.
-* __modeY__ <kbd>string</kbd> - The resize mode for the node's height. Defaults to `modeX` or 'none'.
+* __modeY__ <kbd>string</kbd> - The resize mode for the node's height. Defaults to 'none'.
 * __padX, padY__ <kbd>number</kbd> - X and Y padding _inside_ the node. Affects the size allocated to its children. You only need to specify `padX` if both axes are the same.
 
 _NODE METHODS_
@@ -79,19 +84,17 @@ _NODE METHODS_
 * __request()__ - Gets a table with the node's requested width & height.
 
 
-* __allocate( [alloc], [forceUpdate] )__ - Refresh the node within the specified space allocation.
-	* `alloc` - The allocation table in the following format: `{ x=, y=, w=, h=, designW=, designH=, scale= }`. If unspecified, the last known allocation is used.
-	* `forceUpdate` - To force the child and all descendants to re-allocate even if they haven't changed.
+* __allocate( x, y, w, h, designW, designH, scale )__ - Refresh the node within the specified space allocation. If no arguments are given, the last known allocation is used.
 
 
-* __allocateChild( child, [forceUpdate] )__ - Update the allocation of a single child.
+* __allocateChild( child )__ - Update the allocation of a single child.
 	* `child` - The child object to re-allocate.
 
 
 * __allocateChildren( [forceUpdate] )__ - Update the allocation of all children.
 
 
-* __size( w, h, [inDesignCoords] )__ - Set the size of the node.
+* __setSize( w, h, [inDesignCoords] )__ - Set the size of the node.
 	* `inDesignCoords` - If the width & height are to set the original, unscaled values of the node, rather than it's current, scaled values.
 
 
@@ -111,22 +114,22 @@ end
 * __setAngle( a )__ - Set the angle of the node.
 
 
-* __offset( [x], [y], [isRelative] )__ - Set the offset of the node's allocation rect.
+* __setOffset( [x], [y], [isRelative] )__ - Set the offset of the node's child allocation rect.
 	* `isRelative` - If `x` and `y` are relative/additive rather than absolute.
 
 
-* __pivot( [x], [y] )__ - Set the node's pivot: the point relative to its own width/height that represents its origin.
-	* `x` - Can be a cardinal direction string (capitalized or not): "NW", "C", "E", etc., in which case the `y` argument is ignored. Otherwise, the x and y pivots are only set when they are specified.
+* __setPivot( [x], [y] )__ - Set the node's pivot: the point relative to its own width/height that represents its origin.
+	* `x` - Can be a cardinal direction string (capitalized or not): "NW", "C", "E", etc., or a table with two elements (ex: {1, 0}), in which case the `y` argument is ignored. Otherwise, the x and y pivots are only set when they are specified.
 
 
-* __anchor( [x], [y] )__ - Set the node's anchor: the point on its parent that it places itself relative to.
-	* `x` - Can be a cardinal direction string (capitalized or not): "NW", "C", "E", etc., in which case the `y` argument is ignored. Otherwise, the x and y anchors are only set when they are specified.
+* __setAnchor( [x], [y] )__ - Set the node's anchor: the point on its parent that it places itself relative to.
+	* `x` - Can be a cardinal direction string (capitalized or not): "NW", "C", "E", etc., or a table with two elements (ex: {1, 0}), in which case the `y` argument is ignored. Otherwise, the x and y anchors are only set when they are specified.
 
 
-* __pad( [x], [y] )__ - Set the node's padding. Padding is always stored un-scaled. `x` defaults to `0`. `y` defaults to `x` or `0`.
+* __setPad( [x], [y] )__ - Set the node's padding. Padding is always stored un-scaled. Each argument is ignored if not specified.
 
 
-* __mode( [x], [y] )__ - Set the resize mode(s) of the node. `x` defaults to `'none'`. `y` defaults to `x` or `'none'`.
+* __setMode( [x], [y] )__ - Set the resize mode(s) of the node. Each argument is ignored if not specified.
 
 > The setter methods all return `self`, so they can be chained together.
 

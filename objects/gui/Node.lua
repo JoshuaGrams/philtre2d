@@ -4,11 +4,11 @@ local Object = require(base .. 'objects.Object')
 local Node = Object:extend()
 Node.className = 'Node'
 
-local Rect = require(base .. 'objects.gui.Rect')
+local Alloc = require(base .. 'objects.gui.Allocation')
 
 local DEFAULT_MODE = 'none'
 
-local max = math.max
+local min, max = math.min, math.max
 local sin, cos = math.sin, math.cos
 
 local CARDINALS = {
@@ -18,7 +18,7 @@ local CARDINALS = {
 for k,v in pairs(CARDINALS) do  CARDINALS[string.lower(k)] = v  end
 
 local function rotate(x, y, angle)
-	local c = cos(angle);  local s = sin(angle)
+	local c, s = cos(angle), sin(angle)
 	return c * x - s * y, s * x + c * y
 end
 
@@ -28,7 +28,7 @@ function Node.TRANSFORM_ANCHORED_PIVOT(s) -- anchor + self from pivot * parent
 	pivotX, pivotY = rotate(pivotX, pivotY, s.angle)
 	local x, y = s.pos.x - pivotX, s.pos.y - pivotY
 	x, y = s.anchorPosX + x, s.anchorPosY + y
-	x, y = x + s._givenRect.x, y + s._givenRect.y
+	x, y = x + s.lastAlloc.x, y + s.lastAlloc.y
 	m = matrix.new(x, y, s.angle, 1, 1, s.kx, s.ky, m)
 	m = matrix.xM(m, s.parent._toWorld, m)
 	s._toLocal = nil
@@ -39,10 +39,7 @@ Node.updateTransform = Node.TRANSFORM_ANCHORED_PIVOT
 function Node.hitCheck(self, x, y)
 	local lx, ly = self:toLocal(x, y)
 	local w2, h2 = self.w/2, self.h/2
-	if lx > -w2 and lx < w2 and ly > -h2 and ly < h2 then
-		return true
-	end
-	return false
+	return lx > -w2 and lx < w2 and ly > -h2 and ly < h2
 end
 
 Node._scaleFuncs = { -- Get the new absolute scale.
@@ -50,18 +47,18 @@ Node._scaleFuncs = { -- Get the new absolute scale.
 		return scale, scale
 	end,
 	fit = function(self, w, h, designW, designH, scale)
-		local s = math.min(w/designW, h/designH)
+		local s = min(w/designW, h/designH)
 		return s, s
 	end,
 	cover = function(self, w, h, designW, designH, scale)
-		local s = math.max(w/designW, h/designH)
+		local s = max(w/designW, h/designH)
 		return s, s
 	end,
 	stretch = function(self, w, h, designW, designH, scale)
 		return w/designW, h/designH
 	end,
 	fill = function(self, w, h, designW, designH, scale)
-		return w/self._designRect.w, h/self._designRect.h
+		return w/self.designRect.w, h/self.designRect.h
 	end
 }
 local scaleFuncs = Node._scaleFuncs
@@ -69,12 +66,12 @@ local scaleFuncs = Node._scaleFuncs
 local function debugDraw(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
-	local s = self._givenRect.scale
+	local s = self.lastAlloc.scale
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 4*s, 8)
 	love.graphics.line(-8*s, 0, 8*s, 0)
 	love.graphics.line(0, -8*s, 0, 8*s)
 	if self.padX ~= 0 or self.padY ~= 0 then
-		local iw, ih = self._contentRect.w, self._contentRect.h
+		local iw, ih = self.contentAlloc.w, self.contentAlloc.h
 		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
 	end
 	love.graphics.rectangle('line', -self.w/2, -self.h/2, self.w, self.h)
@@ -91,105 +88,95 @@ function Node.init(self)
 end
 
 function Node.request(self)
-	return self._designRect
+	return self.designRect
 end
 
-function Node.allocateChild(self, child, forceUpdate)
+function Node.allocateChild(self, child)
 	-- Doesn't care what the child's request is, just allocates the full content area.
-	child:call('allocate', self._contentRect, forceUpdate)
+
+	-- Always allocate children based on -original- (unchanging) design size, so
+	-- they scale correctly even after we've changed size (or padding) at runtime.
+	child:call('allocate', self.contentAlloc:unpack())
 end
 
-function Node.allocateChildren(self, forceUpdate)
+function Node.allocateChildren(self)
 	if self.children then
 		for i=1,self.children.maxn or #self.children do
 			local child = self.children[i]
-			if child then  self:allocateChild(child, forceUpdate)  end
+			if child then  self:allocateChild(child)  end
 		end
 	end
 end
 
 -- ----------  Allocation Sub-Methods  ----------
 -- Node.allocate is split up into pieces so inheriting objects won't have to rewrite the whole thing.
+-- Each should return true if anything actually changed.
 
--- 1. Set new values.
--- 2. Store allocation values.
--- 3. Return true if dirty (if anything actually changed).
-function Node.updateScale(self, alloc)
-	local newScale = alloc.scale
-	local given = self._givenRect
-	if newScale ~= given.scale then
-		local design = self._designRect
-		self.pos.x, self.pos.y = design.x * newScale, design.y * newScale
+function Node.updateScale(self, x, y, w, h, designW, designH, scale)
+	if scale ~= self.lastAlloc.scale then
+		local design = self.designRect
+		self.pos.x, self.pos.y = design.x * scale, design.y * scale
+		self.contentAlloc.scale = scale -- Also pass on scale to children.
 		-- NOTE: Padding is stored in un-scaled coords, but it's effect will be scaled in updateInnerSize.
-		self._givenRect.scale = newScale
-		self._contentRect.scale = newScale -- Also pass on scale to children.
 		return true
 	end
 end
 
-function Node.updateOffset(self, alloc)
-	local x, y = alloc.x, alloc.y
-	local isDirty = x ~= self._givenRect.x or y ~= self._givenRect.y
-	self._givenRect.x, self._givenRect.y = x, y
+function Node.updateOffset(self, x, y, w, h, designW, designH, scale)
+	-- The offset only actually affects our transform matrices.
+	local isDirty = x ~= self.lastAlloc.x or y ~= self.lastAlloc.y
 	return isDirty
 end
 
--- Requires self.w/h to be already updated.
--- Does nothing unless padX/Y, _designRect.w/h, or scale have changed.
-function Node.updateInnerSize(self) -- Called from pad() and updateSize().
-	local oldW, oldH = self._contentRect.w, self._contentRect.h
-	local newW = max(0, self.w - self.padX*2*self._givenRect.scale)
-	local newH = max(0, self.h - self.padY*2*self._givenRect.scale)
+function Node.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+	local contentAlloc = self.contentAlloc
+	local oldW, oldH = contentAlloc.w, contentAlloc.h
+	local newW = max(0, self.w - self.padX*2*scale)
+	local newH = max(0, self.h - self.padY*2*scale)
+	contentAlloc.w, contentAlloc.h = newW, newH
 	local isDirty = newW ~= oldW or newH ~= oldH
-	if isDirty then
-		self._contentRect.w = newW
-		self._contentRect.h = newH
-		return true
-	end
+	return isDirty
 end
 
-function Node.updateSize(self, alloc)
-	local w, h, designW, designH = alloc.w, alloc.h, alloc.designW, alloc.designH
-	local scale = alloc.scale
+function Node.updateSize(self, x, y, w, h, designW, designH, scale)
 	local oldW, oldH = self.w, self.h
-
 	local sx, _ = scaleFuncs[self.modeX](self, w, h, designW, designH, scale)
 	local _, sy = scaleFuncs[self.modeY](self, w, h, designW, designH, scale)
-	self.w, self.h = self._designRect.w * sx, self._designRect.h * sy
+	self.w, self.h = self.designRect.w*sx, self.designRect.h*sy
 	self.anchorPosX, self.anchorPosY = w * self.ax/2, h * self.ay/2
-
-	local isDirty = self:updateInnerSize()
-
-	local r = self._givenRect
-	r.w, r.h, r.designW, r.designH, r.scale = w, h, designW, designH, scale
-
-	if isDirty or (self.w ~= oldW or self.h ~= oldH) then  return true  end
+	local isDirty = self.w ~= oldW or self.h ~= oldH
+	return isDirty
 end
 
-function Node.allocate(self, alloc, forceUpdate)
-	alloc = alloc or self._givenRect
+function Node.allocate(self, x, y, w, h, designW, designH, scale)
+	if not x then
+		x, y, w, h, designW, designH, scale = self.lastAlloc:unpack()
+	end
 
 	local isDirty = false
-	isDirty = self:updateScale(alloc) or isDirty
-	isDirty = self:updateOffset(alloc) or isDirty
-	isDirty = self:updateSize(alloc) or isDirty
+	isDirty = self:updateScale(x, y, w, h, designW, designH, scale) or isDirty
+	isDirty = self:updateOffset(x, y, w, h, designW, designH, scale) or isDirty
+	isDirty = self:updateSize(x, y, w, h, designW, designH, scale) or isDirty
+	isDirty = self:updateInnerSize(x, y, w, h, designW, designH, scale) or isDirty
 
-	if isDirty or forceUpdate then
+	self.lastAlloc:pack(x, y, w, h, designW, designH, scale)
+
+	if isDirty then
 		self:updateTransform() -- So scripts get a correct transform on .allocate().
-		self:allocateChildren(forceUpdate)
+		self:allocateChildren()
 	end
 end
 
 function Node.currentToDesign(self, w, h)
-	local sx, sy = self._designRect.w / self.w, self._designRect.h / self.h
+	local sx, sy = self.designRect.w / self.w, self.designRect.h / self.h
 	if sx ~= sx then  sx = 1  end -- is NaN workaround to recover from a dimension being 0.
 	if sy ~= sy then  sy = 1  end
 	return w * sx, h * sy
 end
 
 -- ----------  Setter Methods (can be chained)  ----------
-function Node.size(self, w, h, inDesignCoords)
-	local design = self._designRect
+function Node.setSize(self, w, h, inDesignCoords)
+	local design = self.designRect
 	if inDesignCoords then
 		if w then  design.w = w  end
 		if h then  design.h = h  end
@@ -199,17 +186,20 @@ function Node.size(self, w, h, inDesignCoords)
 		if h then  design.h = dh  end
 	end
 
-	local isDirty = self:updateSize(self._givenRect)
-	if isDirty and self.tree then
-		self:updateTransform()
-		self:allocateChildren()
+	local isDirty = self:updateSize(self.lastAlloc:unpack())
+	if isDirty then
+		self:updateInnerSize(self.lastAlloc:unpack())
+		if self.tree then
+			self:updateTransform()
+			self:allocateChildren()
+		end
 	end
 	return self
 end
 
 function Node.setPos(self, x, y, inDesignCoords, isRelative)
-	local design = self._designRect
-	local scale = self._givenRect.scale
+	local design = self.designRect
+	local scale = self.lastAlloc.scale
 	if not inDesignCoords then
 		x = x and x / scale
 		y = y and y / scale
@@ -243,8 +233,8 @@ function Node.setAngle(self, a)
 	return self
 end
 
-function Node.offset(self, x, y, isRelative)
-	local r = self._givenRect
+function Node.setOffset(self, x, y, isRelative)
+	local r = self.contentAlloc
 	if isRelative then
 		if x then  r.x = r.x + x  end
 		if y then  r.y = r.y + y  end
@@ -252,30 +242,31 @@ function Node.offset(self, x, y, isRelative)
 		if x then  r.x = x  end
 		if y then  r.y = y  end
 	end
+	self:allocateChildren()
 	return self
 end
 
-function Node.anchor(self, x, y)
+function Node.setAnchor(self, x, y)
 	local cardinal = CARDINALS[x]
 	if cardinal then
 		self.ax, self.ay = cardinal[1], cardinal[2]
-	elseif type(x) == "table" and x[1] and x[2] then
+	elseif type(x) == 'table' and x[1] and x[2] then
 		self.ax, self.ay = x[1], x[2]
 	else
 		if x then  self.ax = x  end
 		if y then  self.ay = y  end
 	end
 
-	self.anchorPosX = self._givenRect.w * self.ax/2
-	self.anchorPosY = self._givenRect.h * self.ay/2
+	self.anchorPosX = self.lastAlloc.w * self.ax/2
+	self.anchorPosY = self.lastAlloc.h * self.ay/2
 	return self
 end
 
-function Node.pivot(self, x, y)
+function Node.setPivot(self, x, y)
 	local cardinal = CARDINALS[x]
 	if cardinal then
 		self.px, self.py = cardinal[1], cardinal[2]
-	elseif type(x) == "table" and x[1] and x[2] then
+	elseif type(x) == 'table' and x[1] and x[2] then
 		self.px, self.py = x[1], x[2]
 	else
 		if x then  self.px = x  end
@@ -284,10 +275,10 @@ function Node.pivot(self, x, y)
 	return self
 end
 
-function Node.pad(self, x, y)
+function Node.setPad(self, x, y)
 	if x then  self.padX = x  end
 	if y then  self.padY = y  end
-	local isDirty = self:updateInnerSize()
+	local isDirty = self:updateInnerSize(self.lastAlloc:unpack())
 	if isDirty and self.tree then
 		self:updateTransform()
 		self:allocateChildren()
@@ -295,7 +286,7 @@ function Node.pad(self, x, y)
 	return self
 end
 
-function Node.mode(self, x, y)
+function Node.setMode(self, x, y)
 	if x then
 		assert(scaleFuncs[x], 'Node.mode(): Invalid X scale mode "' .. tostring(x) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
 		self.modeX = x
@@ -304,39 +295,44 @@ function Node.mode(self, x, y)
 		assert(scaleFuncs[y], 'Node.mode(): Invalid Y scale mode "' .. tostring(y) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
 		self.modeY = y
 	end
-	if self.parent then  self:updateSize(self._givenRect)  end
+	if self.parent then  self:updateSize(self.lastAlloc:unpack())  end
 	return self
 end
 
 local function isValidAnchor(a)
 	if CARDINALS[a] then
 		return true
-	elseif type(a) == "table" and tonumber(a[1]) and tonumber(a[2]) then
+	elseif type(a) == 'table' and tonumber(a[1]) and tonumber(a[2]) then
 		return true
 	end
 end
 
 function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	Node.super.set(self)
-	pivot = pivot or "C"
-	anchor = anchor or "C"
+
+	self.padX = padX or 0 -- In design coords--remains un-scaled.
+	self.padY = padY or padX or 0
+
+	-- Must store three different sizes:
+	-- 1. Current scaled size - Changes based on parent size.
+	self.w, self.h = w or 100, h or w or 100
+	self.designRect = {
+		x = 0, y = 0,
+		-- 2. Current design size - May be modified. Used to calculate our scaled size.
+		w = w, h = h,
+	}
+	-- 3. Original (inner) design size - Never changes. Given to children to calculate their scaling.
+	self.contentAlloc = Alloc(0, 0, self.w - self.padX*2, self.h - self.padY*2)
+
+	self.lastAlloc = Alloc(0, 0, w, h) -- Need to save for when we modify things between allocations.
+
+	pivot = pivot or 'C'
+	anchor = anchor or 'C'
 	assert(isValidAnchor(pivot), 'Node.set: Invalid pivot "'  .. tostring(pivot) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
 	assert(isValidAnchor(anchor), 'Node.set: Invalid anchor "'  .. tostring(anchor) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
-	modeX = modeX or DEFAULT_MODE
-	modeY = modeY or modeX
-	self.w = w or 100
-	self.h = h or 100
-	self.padX = padX or 0
-	self.padY = padY or padX or 0 -- In "design" coords--it remains un-scaled.
-	local contW, contH = self.w - self.padX*2, self.h - self.padY*2
-
-	self._designRect = Rect(0, 0, self.w, self.h) -- The space we're designed to use.
-	self._givenRect = Rect(0, 0, self.w, self.h) -- The space we're given by our parent.
-	self._contentRect = Rect(0, 0, contW, contH) -- The space we give to our children.
-
-	self:pivot(pivot)
-	self:anchor(anchor)
-	self:mode(modeX, modeY)
+	self:setPivot(pivot)
+	self:setAnchor(anchor)
+	self:setMode(modeX or DEFAULT_MODE, modeY or DEFAULT_MODE)
 
 	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.5 }
 end
