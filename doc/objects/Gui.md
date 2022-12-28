@@ -159,9 +159,9 @@ _PARAMETERS_
 * __isWrapping__ <kbd>bool</kbd> - _optional_ - Set to `true` to wrap the text within the nodes width, `w`. Text always wraps regardless of this setting if `hAlign` is set to "justify".
 
 _TEXT METHODS_
-* __align( hAlign )__ - Sets the horizontal alignment of the text. Must be "center", "left", "right", or "justify".
+* __setAlign( hAlign )__ - Sets the horizontal alignment of the text. Must be "center", "left", "right", or "justify".
 
-* __wrap( isWrapping )__ - Sets wrapping enabled or disabled. Text always wraps regardless of this setting if `hAlign` is set to "justify".
+* __setWrap( isWrapping )__ - Sets wrapping enabled or disabled. Text always wraps regardless of this setting if `hAlign` is set to "justify".
 
 ### Sprite(image, sx, sy, color, pivot, anchor, modeX, modeY)
 
@@ -190,6 +190,3 @@ An invisible node that masks out (stencils) the rendering of its children. On in
 
 _PARAMETERS_
 * __stencilFunc__ <kbd>function</kbd> - _optional_ - Should be a function that draws a shape for the stencil. Must be an anonymous function taking no arguments. By default it draws a rectangle with the inner width/height of the node.
-
-_MASK METHODS_
-* __setOffset( [x], [y], [isRelative] )__ - Sets the offset on all child nodes.

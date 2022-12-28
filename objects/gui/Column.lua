@@ -4,18 +4,14 @@ local Node = require(base .. 'Node')
 local Column = Node:extend()
 Column.className = "Column"
 
-local TEMP_ALLOC = { x = 0, y = 0, w = 0, h = 0, designW = 0, designH = 0, scale = 1 }
-
-function Column._allocateChild(self, child, x, y, w, h, scale, forceUpdate)
-	local a = TEMP_ALLOC
+function Column._allocateChild(self, child, x, y, w, h, scale)
 	local req = child:request()
-	a.x, a.y, a.w, a.h, a.designW, a.designH, a.scale = x, y, w, h, req.w, req.h, scale
-	child:call('allocate', TEMP_ALLOC, forceUpdate)
+	child:call('allocate', x, y, w, h, req.w, req.h, scale)
 end
 
-function Column.allocateChild(self, child, forceUpdate)
+function Column.allocateChild(self, child)
 	-- Columns can't just recalculate a single child, need to redo them all.
-	self:allocateChildren(forceUpdate)
+	self:allocateChildren()
 end
 
 function Column.getChildDimensionTotals(self, key)
@@ -41,71 +37,65 @@ function Column.countChildren(self)
 	return count
 end
 
-function Column.allocateHomogeneous(self, alloc, forceUpdate)
+function Column.allocateHomogeneous(self, x, y, w, h, designW, designH, scale)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local spacing = self.spacing * self._givenRect.scale
+	local spacing = self.spacing * scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = alloc.h - spacingSpace
-	local w = alloc.w
-	local h = math.max(0, availableSpace / childCount)
+	local availableSpace = h - spacingSpace
+	local hEach = math.max(0, availableSpace / childCount)
 
-	local startY = alloc.y + alloc.h/2 * self.dir
-	local increment = (h + spacing) * -self.dir
-	local x = alloc.x
+	local startY = y + h/2 * self.dir
+	local increment = (hEach + spacing) * -self.dir
 	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local y = startY - h/2 * self.dir
-			self:_allocateChild(child, x, y, w, h*percent, self._givenRect.scale, forceUpdate)
+			local thisY = startY - hEach/2 * self.dir
+			self:_allocateChild(child, x, thisY, w, hEach*percent, scale)
 			startY = startY + increment
 		end
 	end
 end
 
-function Column.allocateHeterogeneous(self, alloc, forceUpdate)
+function Column.allocateHeterogeneous(self, x, y, w, h, designW, designH, scale)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
 
-	local scale = self._givenRect.scale
 	local spacing = self.spacing * scale
 	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = alloc.h - spacingSpace
+	local availableSpace = h - spacingSpace
 	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals("h")
 	totalChildH, totalGreedyChildH = totalChildH*scale, totalGreedyChildH*scale
 	local squashFactor = math.min(1, availableSpace / totalChildH)
 	local extraH = math.max(0, availableSpace - totalChildH)
 	local greedFactor = extraH / totalGreedyChildH
 
-	local w = alloc.w
-
-	local startY = alloc.y + alloc.h/2 * self.dir
-	local x = alloc.x
+	local startY = y + h/2 * self.dir
 	local percent = math.abs(self.dir)
 
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
 			local childH = child:request().h * scale
-			local h = childH * squashFactor
-			if child.isGreedy then  h = h + childH * greedFactor  end
-			local y = startY - h/2 * self.dir
-			self:_allocateChild(child, x, y, w, h*percent, self._givenRect.scale, forceUpdate)
-			startY = startY - (h + spacing) * self.dir
+			local thisH = childH * squashFactor
+			if child.isGreedy then  thisH = thisH + childH * greedFactor  end
+			local thisY = startY - h/2 * self.dir
+			self:_allocateChild(child, x, thisY, w, thisH*percent, scale)
+			startY = startY - (thisH + spacing) * self.dir
 		end
 	end
 end
 
-function Column.allocateChildren(self, forceUpdate)
+function Column.allocateChildren(self)
 	if self.homogeneous then
-		self:allocateHomogeneous(self._contentRect, forceUpdate)
+		self:allocateHomogeneous(self.contentAlloc:unpack())
 	else
-		self:allocateHeterogeneous(self._contentRect, forceUpdate)
+		self:allocateHeterogeneous(self.contentAlloc:unpack())
 	end
 end
 

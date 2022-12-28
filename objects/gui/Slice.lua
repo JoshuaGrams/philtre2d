@@ -4,15 +4,13 @@ local Node = require(base .. 'Node')
 local SliceNode = Node:extend()
 SliceNode.className = 'SliceNode'
 
-local scaleFuncs = Node._scaleFuncs
-
 function SliceNode.draw(self)
 	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setColor(self.color)
 
 	local w2, h2 = self.w/2, self.h/2
 	local m = self.margins
-	local s = self._givenRect.scale
+	local s = self.lastAlloc.scale
 	-- Draw corners
 	love.graphics.draw(self.image, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
 	love.graphics.draw(self.image, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
@@ -30,12 +28,12 @@ end
 local function debugDraw(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
-	local s = self._givenRect.scale
+	local s = self.lastAlloc.scale
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 4*s, 8)
 	love.graphics.line(-8*s, 0, 8*s, 0)
 	love.graphics.line(0, -8*s, 0, 8*s)
 	if self.padX ~= 0 or self.padY ~= 0 then
-		local iw, ih = self._contentRect.w, self._contentRect.h
+		local iw, ih = self.contentAlloc.w, self.contentAlloc.h
 		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
 	end
 	love.graphics.rectangle('line', -self.w/2, -self.h/2, self.w, self.h)
@@ -55,19 +53,18 @@ function SliceNode.debugDraw(self, layer)
 	end
 end
 
-function SliceNode.updateScale(self, alloc)
-	local isDirty = SliceNode.super.updateScale(self, alloc)
+function SliceNode.updateScale(self, x, y, w, h, designW, designH, scale)
+	local isDirty = SliceNode.super.updateScale(self, x, y, w, h, designW, designH, scale)
 	if isDirty then
-		local newScale = alloc.scale
 		for k,designSize in pairs(self.designMargins) do
-			self.margins[k] = designSize * newScale
+			self.margins[k] = designSize * scale
 		end
 		return true
 	end
 end
 
-function SliceNode.updateInnerSize(self)
-	SliceNode.super.updateInnerSize(self)
+function SliceNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+	SliceNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 	local m = self.margins
 	local innerSliceW = self.w - m.lt - m.rt
 	local innerSliceH = self.h - m.top - m.bot

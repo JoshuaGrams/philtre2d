@@ -10,8 +10,8 @@ function SpriteNode.draw(self)
 	love.graphics.draw(self.image, 0, 0, 0, self.sx, self.sy, self.imgOX, self.imgOY)
 end
 
-function SpriteNode.updateInnerSize(self)
-	SpriteNode.super.updateInnerSize(self)
+function SpriteNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+	SpriteNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 	self.sx, self.sy = self.w / self.imgW, self.h / self.imgH
 end
 

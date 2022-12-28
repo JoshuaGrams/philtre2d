@@ -5,7 +5,7 @@ local Mask = Node:extend()
 Mask.className = "Mask"
 
 local function defaultStencilFunc(self)
-	local w, h = self._contentRect.w, self._contentRect.h
+	local w, h = self.contentAlloc.w, self.contentAlloc.h
 	love.graphics.rectangle("fill", -w/2, -h/2, w, h)
 end
 
@@ -45,16 +45,6 @@ end
 function Mask.init(self)
 	Mask.super.init(self)
 	self:setMaskOnChildren()
-end
-
-function Mask.setOffset(self, x, y, isRelative)
-	local ca = self._contentRect
-	if isRelative then
-		ca.x, ca.y = x and ca.x + x or ca.x, y and ca.y + y or ca.y
-	else
-		ca.x, ca.y = x or ca.x, y or ca.y
-	end
-	self:allocateChildren()
 end
 
 function Mask.set(self, stencilFunc, w, h, pivot, anchor, modeX, modeY, padX, padY)

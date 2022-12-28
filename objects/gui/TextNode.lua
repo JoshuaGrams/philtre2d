@@ -6,16 +6,15 @@ TextNode.className = 'TextNode'
 
 local validHAlign = { center = true, left = true, right = true, justify = true }
 
-function TextNode.updateScale(self, alloc)
-	local isDirty = TextNode.super.updateScale(self, alloc)
-	-- NOTE: ^this^ updates _myAlloc.scale, so we can't figure a relative scale anymore.
+function TextNode.updateScale(self, x, y, w, h, designW, designH, scale)
+	local isDirty = TextNode.super.updateScale(self, x, y, w, h, designW, designH, scale)
 	if isDirty then
-		self.font = new.font(self.fontFilename, self.fontSize * self._givenRect.scale)
+		self.font = new.font(self.fontFilename, self.fontSize * scale)
 		return true
 	end
 end
 
-function TextNode.updateInnerSize(self)
+function TextNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 	local fontHeight = self.font:getHeight()
 	local lineCount = 1
 	if self.isWrapping or self.hAlign == "justify" then
@@ -23,8 +22,8 @@ function TextNode.updateInnerSize(self)
 		lineCount = math.max(1, #lines) -- Don't let line-count be zero. (as it would be with an empty string.)
 	end
 	self.h = fontHeight * lineCount
-	self._designRect.h = self.h
-	TextNode.super.updateInnerSize(self)
+	self.designRect.h = self.h
+	TextNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 end
 
 local function debugDraw(self)
@@ -62,13 +61,13 @@ function TextNode.draw(self)
 	)
 end
 
-function TextNode.align(self, hAlign)
+function TextNode.setAlign(self, hAlign)
 	assert(validHAlign[hAlign], 'TextNode.align: Invalid align "' .. tostring(hAlign) .. '". Must be "center", "left", "right", or "justify".')
 	self.hAlign = hAlign
 	return self
 end
 
-function TextNode.wrap(self, isWrapping)
+function TextNode.setWrap(self, isWrapping)
 	local isDirty = isWrapping ~= self.isWrapping
 	self.isWrapping = isWrapping
 	if isDirty then  self:updateInnerSize()  end
