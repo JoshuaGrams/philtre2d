@@ -1,10 +1,10 @@
-local base = (...):gsub('%.objects%.gui%.Node$', '.')
-local Object = require(base .. 'objects.Object')
+local base = (...):gsub('[^%.]+%.[^%.]+$', '')
+local Object = require(base .. 'Object')
 
 local Node = Object:extend()
 Node.className = 'Node'
 
-local Alloc = require(base .. 'objects.gui.Allocation')
+local Alloc = require(base .. 'gui.Allocation')
 
 local DEFAULT_MODE = 'none'
 
