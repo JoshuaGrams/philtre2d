@@ -324,7 +324,7 @@ function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	-- 3. Original (inner) design size - Never changes. Given to children to calculate their scaling.
 	self.contentAlloc = Alloc(0, 0, self.w - self.padX*2, self.h - self.padY*2)
 
-	self.lastAlloc = Alloc(0, 0, w, h) -- Need to save for when we modify things between allocations.
+	self.lastAlloc = Alloc(0, 0, self.w, self.h) -- Need to save for when we modify things between allocations.
 
 	pivot = pivot or 'C'
 	anchor = anchor or 'C'
