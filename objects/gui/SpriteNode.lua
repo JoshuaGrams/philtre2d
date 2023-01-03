@@ -16,10 +16,11 @@ function SpriteNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 end
 
 function SpriteNode.set(self, image, sx, sy, color, pivot, anchor, modeX, modeY)
-	if type(image) == 'string' then
+	local imgType = type(image)
+	if imgType == 'string' then
 		image = new.image(image)
-	elseif image.type and image:type() == 'Image' then
-		image = image
+	elseif not (imgType == 'userdata' and image.type and image:type() == 'Image') then
+		error('SpriteNode() - "image" must be either a string filepath to an image or a Love Image object, you gave: "' .. tostring(image) .. '" instead.')
 	end
 	self.image = image
 	self.imgW, self.imgH = image:getDimensions()

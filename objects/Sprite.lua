@@ -58,13 +58,13 @@ function Sprite.allocate(self, x, y, w, h)
 end
 
 function Sprite.set(self, image, x, y, angle, sx, sy, color, ox, oy, kx, ky)
-	assert(image, 'Sprite() - must specify a texture file path or Image object.')
 	Sprite.super.set(self, x, y, angle, sx, sy, kx, ky)
 	self.name = 'Sprite'
-	if type(image) == 'string' then
+	local imgType = type(image)
+	if imgType == 'string' then
 		image = new.image(image)
-	elseif image.type and image:type() == 'Image' then
-		image = image
+	elseif not (imgType == 'userdata' and image.type and image:type() == 'Image') then
+		error('Sprite() - "image" must be either a string filepath to an image or a Love Image object, you gave: "' .. tostring(image) .. '" instead.')
 	end
 	self.image = image
 	self.blendMode = 'alpha'

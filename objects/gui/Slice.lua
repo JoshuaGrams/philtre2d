@@ -91,10 +91,11 @@ function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, m
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}
 
-	if type(image) == 'string' then
+	local imgType = type(image)
+	if imgType == 'string' then
 		image = new.image(image)
-	elseif image.type and image:type() == 'Image' then
-		image = image
+	elseif not (imgType == 'userdata' and image.type and image:type() == 'Image') then
+		error('SpriteNode() - "image" must be either a string filepath to an image or a Love Image object, you gave: "' .. tostring(image) .. '" instead.')
 	end
 	self.image = image
 	local lt, top, qw, qh = 0, 0, 0, 0
