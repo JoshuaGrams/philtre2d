@@ -14,8 +14,10 @@ return {
 			return
 		end
 		local n = Node()
-		T.is(n.w, 100, "Node created with no arguments has defalt w.")
-		T.is(n.h, 100, "Node created with no arguments has defalt h.")
+		T.is(n.w, 100, "Node created with no arguments has default w.")
+		T.is(n.h, 100, "Node created with no arguments has default h.")
+		T.has(n.designRect, {w=100,h=100}, "Node created with no arguments has default design size.")
+		T.has(n.lastAlloc, {w=100,h=100,designW=100,designH=100}, "Node created with no arguments has correct lastAlloc size.")
 	end,
 	function(scene)
 		local n = scene:add(Node(100, 100, nil, nil, "stretch", "stretch"))

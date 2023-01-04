@@ -310,21 +310,22 @@ end
 function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	Node.super.set(self)
 
+	w, h = w or 100, h or w or 100
 	self.padX = padX or 0 -- In design coords--remains un-scaled.
 	self.padY = padY or padX or 0
 
 	-- Must store three different sizes:
 	-- 1. Current scaled size - Changes based on parent size.
-	self.w, self.h = w or 100, h or w or 100
+	self.w, self.h = w, h
 	self.designRect = {
 		x = 0, y = 0,
 		-- 2. Current design size - May be modified. Used to calculate our scaled size.
 		w = w, h = h,
 	}
 	-- 3. Original (inner) design size - Never changes. Given to children to calculate their scaling.
-	self.contentAlloc = Alloc(0, 0, self.w - self.padX*2, self.h - self.padY*2)
+	self.contentAlloc = Alloc(0, 0, w - self.padX*2, h - self.padY*2)
 
-	self.lastAlloc = Alloc(0, 0, self.w, self.h) -- Need to save for when we modify things between allocations.
+	self.lastAlloc = Alloc(0, 0, w, h) -- Need to save for when we modify things between allocations.
 
 	pivot = pivot or 'C'
 	anchor = anchor or 'C'
