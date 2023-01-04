@@ -73,6 +73,7 @@ function SliceNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 end
 
 function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, modeY, padX, padY)
+	w, h = w or 100, h or 100
 	local mCount = #margins
 	local m
 	if mCount == 1 then -- One value, all are equal.
