@@ -88,7 +88,7 @@ function TextNode.set(self, text, font, w, pivot, anchor, hAlign, modeX, isWrapp
 
 	local fontHeight = self.font:getHeight()
 	local lineCount = 1
-	if self.isWrapping or self.hAlign == "justify" then
+	if self.isWrapping or hAlign == "justify" then
 		local textW, lines = self.font:getWrap(self.text, w)
 		lineCount = math.max(1, #lines) -- Don't let line-count be zero. (as it would be with an empty string.)
 	end
