@@ -13,9 +13,10 @@ local sin, cos = math.sin, math.cos
 
 local CARDINALS = {
 	N = {0, -1}, NE = {1, -1}, E = {1, 0}, SE = {1, 1},
-	S = {0, 1}, SW = {-1, 1}, W = {-1, 0}, NW = {-1, -1}, C = {0, 0}
+	S = {0, 1}, SW = {-1, 1}, W = {-1, 0}, NW = {-1, -1}, C = {0, 0},
+	n = {0, -1}, ne = {1, -1}, e = {1, 0}, se = {1, 1},
+	s = {0, 1}, sw = {-1, 1}, w = {-1, 0}, nw = {-1, -1}, c = {0, 0},
 }
-for k,v in pairs(CARDINALS) do  CARDINALS[string.lower(k)] = v  end
 
 local function rotate(x, y, angle)
 	local c, s = cos(angle), sin(angle)
