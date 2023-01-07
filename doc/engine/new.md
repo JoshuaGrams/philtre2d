@@ -21,7 +21,9 @@ Loads a quad. See: [love.graphics.newQuad](https://love2d.org/wiki/love.graphics
 **Returns:** [Quad](https://love2d.org/wiki/Quad)
 
 ### new.font(filename, [size], [[hinting](https://love2d.org/wiki/HintingMode)], [dpiscale])
-Loads a font. See: [love.graphics.newFont](https://love2d.org/wiki/love.graphics.newFont) (the first two variants, possibly the third?).
+Or: __new.font(size, [hinting], [dpiscale])__
+
+Loads a font. See: [love.graphics.newFont](https://love2d.org/wiki/love.graphics.newFont).
 - `size` defaults to 12.
 - `hinting` defaults to "normal".
 - `dpiscale` defaults to [love.graphics.getDPIScale](https://love2d.org/wiki/love.graphics.getDPIScale)().

@@ -33,8 +33,8 @@ function new.quad(x, y, width, height, iw, ih)
 	return create('quad', love.graphics.newQuad, x, y, width, height, iw, ih)
 end
 
-function new.font(filename, size, ...)
-	return create('font', love.graphics.newFont, filename, size or 12, ...)
+function new.font(...) -- Usually: new.font(filename, size)
+	return create('font', love.graphics.newFont, ...)
 end
 
 function new.audio(filename, sourceType)
