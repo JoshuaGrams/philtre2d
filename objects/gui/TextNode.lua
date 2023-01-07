@@ -78,7 +78,7 @@ function TextNode.set(self, text, font, w, pivot, anchor, hAlign, modeX, isWrapp
 	w = w or 100
 	self.isWrapping = isWrapping
 	local modeY = 'none' -- Height will adjust to fit wrapped text.
-	self.text = text
+	self.text = text or ''
 	if type(font) == 'table' then -- {filename, size}
 		self.font = new.font(unpack(font))
 		self.fontFilename, self.fontSize = font[1], font[2]
