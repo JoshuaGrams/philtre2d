@@ -9,7 +9,8 @@ local validHAlign = { center = true, left = true, right = true, justify = true }
 function TextNode.updateScale(self, x, y, w, h, designW, designH, scale)
 	local isDirty = TextNode.super.updateScale(self, x, y, w, h, designW, designH, scale)
 	if isDirty then
-		self.font = new.font(self.fontFilename, self.fontSize * scale)
+		local size, file = self.fontSize * scale, self.fontFilename
+		self.font = file and new.font(file, size) or new.font(size)
 		return true
 	end
 end
@@ -80,8 +81,9 @@ function TextNode.set(self, text, font, w, pivot, anchor, hAlign, modeX, isWrapp
 	local modeY = 'none' -- Height will adjust to fit wrapped text.
 	self.text = text or ''
 	if type(font) == 'table' then -- {filename, size}
-		self.font = new.font(unpack(font))
-		self.fontFilename, self.fontSize = font[1], font[2]
+		local filename, size = font[1], font[2]
+		self.font = filename and new.font(filename, size) or new.font(size)
+		self.fontFilename, self.fontSize = filename, size
 	else
 		error('TextNode: Invalid "font". Must give a table: {filename, size}.')
 	end
