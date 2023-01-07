@@ -70,7 +70,7 @@ end
 function TextNode.setWrap(self, isWrapping)
 	local isDirty = isWrapping ~= self.isWrapping
 	self.isWrapping = isWrapping
-	if isDirty then  self:updateInnerSize()  end
+	if isDirty then  self:updateInnerSize(self.lastAlloc:unpack())  end
 	return self
 end
 
