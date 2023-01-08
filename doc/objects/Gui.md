@@ -91,7 +91,7 @@ _NODE METHODS_
 	* `child` - The child object to re-allocate.
 
 
-* __allocateChildren( [forceUpdate] )__ - Update the allocation of all children.
+* __allocateChildren()__ - Update the allocation of all children.
 
 
 * __setSize( w, h, [inDesignCoords] )__ - Set the size of the node.
