@@ -84,7 +84,7 @@ function Column.allocateHeterogeneous(self, x, y, w, h, designW, designH, scale)
 			local childH = child:request().h * scale
 			local thisH = childH * squashFactor
 			if child.isGreedy then  thisH = thisH + childH * greedFactor  end
-			local thisY = startY - h/2 * self.dir
+			local thisY = startY - thisH/2 * self.dir
 			self:_allocateChild(child, x, thisY, w, thisH*percent, scale)
 			startY = startY - (thisH + spacing) * self.dir
 		end
