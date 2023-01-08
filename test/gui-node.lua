@@ -29,6 +29,11 @@ return {
 		T.is(n.h, 100, "'stretch' Node resizes (h) back down when allocated.")
 	end,
 	function(scene)
+		-- modeY should default to modeX.
+		local n = scene:add(Node(100, 100, "C", "C", "cover"))
+		T.has(n, {modeY="cover"}, "Using constructor, modeY defaults to modeX.")
+	end,
+	function(scene)
 		-- Child nodes should scale when parent is manually resized at runtime.
 		local parent = scene:add(Node(100, 100))
 		local child = scene:add(Node(50, 50, nil, nil, "stretch", "stretch"), parent)

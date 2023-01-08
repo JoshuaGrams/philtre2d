@@ -334,7 +334,7 @@ function Node.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
 	assert(isValidAnchor(anchor), 'Node.set: Invalid anchor "'  .. tostring(anchor) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
 	self:setPivot(pivot)
 	self:setAnchor(anchor)
-	self:setMode(modeX or DEFAULT_MODE, modeY or DEFAULT_MODE)
+	self:setMode(modeX or DEFAULT_MODE, modeY or modeX or DEFAULT_MODE)
 
 	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.5 }
 end

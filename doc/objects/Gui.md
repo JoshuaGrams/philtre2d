@@ -76,7 +76,7 @@ _PARAMETERS_
 	* `cover` - Resizes proportionally based on the new relative w/h, whichever is larger.
 	* `stretch` - Stretches each axis separately to fill the same proportion of the available length.
 	* `fill` - Stretches each axis separately to fill all available space.
-* __modeY__ <kbd>string</kbd> - The resize mode for the node's height. Defaults to 'none'.
+* __modeY__ <kbd>string</kbd> - The resize mode for the node's height. Defaults to `modeX` or 'none'.
 * __padX, padY__ <kbd>number</kbd> - X and Y padding _inside_ the node. Affects the size allocated to its children. You only need to specify `padX` if both axes are the same.
 
 _NODE METHODS_
