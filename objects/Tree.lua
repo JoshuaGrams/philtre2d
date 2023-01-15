@@ -17,6 +17,7 @@ function Tree.set(self)
 	self.children = { maxn = 0 }
 	self.path = ''
 	self.paths = {}
+	self.tree = self -- Eliminate need for special cases for scene root object.
 end
 
 local function initObject(tree, obj, parent, index, objList)
