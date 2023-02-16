@@ -55,11 +55,10 @@ end
 -- Use this to avoid creating a new one each time.
 local tempTransform = love.math.newTransform()
 
--- NOTE: This completely breaks any camera or other transforms applied, so it only works in GUI.
 local function setMask(obj, enabled)
-	love.graphics.push()
 	local t = M.toTransform(obj._toWorld, tempTransform)
-	love.graphics.replaceTransform(t)
+	love.graphics.push()
+	love.graphics.applyTransform(t)
 
 	if enabled then  obj:enableMask()
 	else  obj:disableMask()  end
@@ -104,17 +103,17 @@ function Layer.draw(self)
 			end
 
 			local pushed
+			local maskObj = params[2].maskObject
+			if curMaskObj ~= maskObj then -- NOTE: This code prevents masks from stacking.
+				if curMaskObj then  setMask(curMaskObj, false)  end
+				if maskObj then  setMask(maskObj, true)  end
+				curMaskObj = maskObj
+			end
 			if curMatrix ~= params.m then
 				curMatrix, pushed = params.m, true
 				local t = M.toTransform(curMatrix, tempTransform)
 				love.graphics.push()
 				love.graphics.applyTransform(t)
-			end
-			local maskObj = params[2].maskObject
-			if curMaskObj ~= maskObj then
-				if curMaskObj then  setMask(curMaskObj, false)  end
-				if maskObj then  setMask(maskObj, true)  end
-				curMaskObj = maskObj
 			end
 			params[1](unpack(params, 2))
 			if pushed then  love.graphics.pop()  end

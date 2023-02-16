@@ -10,15 +10,14 @@ local function defaultStencilFunc(self)
 end
 
 function Mask.enableMask(self)
-	local mode, value = love.graphics.getStencilTest()
-	value = value or 0
-	value = value + 1
+	local _, value = love.graphics.getStencilTest()
+	value = (value or 0) + 1
 	love.graphics.setStencilTest("gequal", value)
 	love.graphics.stencil(self.stencilFunc, "increment", nil, true)
 end
 
 function Mask.disableMask(self)
-	local mode, value = love.graphics.getStencilTest()
+	local _, value = love.graphics.getStencilTest()
 	value = math.max(0, value - 1)
 	love.graphics.stencil(self.stencilFunc, "decrement", nil, true)
 	if value == 0 then
@@ -28,15 +27,15 @@ function Mask.disableMask(self)
 	end
 end
 
-function Mask.setMaskOnChildren(self, objects)
-	if not self.children then  return  end
-	local children = objects or self.children
+function Mask.setMaskOnChildren(self, children, isEnabled)
+	if not children then  return  end
 	for i=1,children.maxn or #children do
 		local child = children[i]
 		if child then
-			child.maskObject = self
+			if isEnabled then                     child.maskObject = self
+			elseif child.maskObject == self then  child.maskObject = nil  end
 			if child.children and not child:is(Mask) then
-				Mask.setMaskOnChildren(self, child.children)
+				self:setMaskOnChildren(child.children, isEnabled)
 			end
 		end
 	end
@@ -44,7 +43,11 @@ end
 
 function Mask.init(self)
 	Mask.super.init(self)
-	self:setMaskOnChildren()
+	self:setMaskOnChildren(self.children, true)
+end
+
+function Mask.final(self)
+	self:setMaskOnChildren(self.children, false)
 end
 
 function Mask.set(self, stencilFunc, w, h, pivot, anchor, modeX, modeY, padX, padY)
