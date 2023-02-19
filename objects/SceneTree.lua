@@ -126,10 +126,11 @@ local function fillUpdateLists(objects, dt, objList, dtList)
 	for i=1,objects.maxn do
 		local obj = objects[i]
 		if obj and obj.timeScale ~= 0 then
-			if obj.timeScale then  dt = dt * obj.timeScale  end
-			if obj.children then  fillUpdateLists(obj.children, dt, objList, dtList)  end
+			local _dt = dt
+			if obj.timeScale then  _dt = dt * obj.timeScale  end
+			if obj.children then  fillUpdateLists(obj.children, _dt, objList, dtList)  end
 			table.insert(objList, obj)
-			table.insert(dtList, dt)
+			table.insert(dtList, _dt)
 		end
 	end
 end
