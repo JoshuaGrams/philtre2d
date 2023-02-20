@@ -64,12 +64,13 @@ function SliceNode.updateScale(self, x, y, w, h, designW, designH, scale)
 end
 
 function SliceNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
-	SliceNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+	local isDirty = SliceNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 	local m = self.margins
 	local innerSliceW = self.w - m.lt - m.rt
 	local innerSliceH = self.h - m.top - m.bot
 	self.sliceSX = innerSliceW/self.innerQuadW
 	self.sliceSY = innerSliceH/self.innerQuadH
+	return isDirty
 end
 
 function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, modeY, padX, padY)
