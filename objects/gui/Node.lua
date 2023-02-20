@@ -296,7 +296,14 @@ function Node.setMode(self, x, y)
 		assert(scaleFuncs[y], 'Node.mode(): Invalid Y scale mode "' .. tostring(y) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
 		self.modeY = y
 	end
-	if self.parent then  self:updateSize(self.lastAlloc:unpack())  end
+	local isDirty = self:updateSize(self.lastAlloc:unpack())
+	if isDirty then
+		self:updateInnerSize(self.lastAlloc:unpack())
+		if self.tree then
+			self:updateTransform()
+			self:allocateChildren()
+		end
+	end
 	return self
 end
 
