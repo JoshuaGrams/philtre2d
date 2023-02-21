@@ -3,8 +3,9 @@ local BaseClass = require(base .. 'core.base-class')
 local matrix = require(base .. 'core.matrix')
 
 local Object = BaseClass:extend()
-
 Object.className = 'Object'
+
+Object._COLORED_TOSTRING = true
 
 function Object.TRANSFORM_REGULAR(s) -- self * parent
 	local m = s._toWorld
@@ -37,22 +38,25 @@ function Object.toLocal(obj, x, y, w)
 	return matrix.x(obj._toLocal, x, y, w)
 end
 
-local ANSI_ESC = string.char(27)
-local ANSI_RESET = ANSI_ESC .. "[0m"
-local BRIGHT_GREEN = ANSI_ESC .. "[92m"
-local DARK_GREY = ANSI_ESC .. "[90m"
-local DARK_GREEN = ANSI_ESC .. "[32m"
-
-local _COLORIZE_TOSTRING = true
+local _format
+do
+	local ANSI_ESC = string.char(27)
+	local ANSI_RESET = ANSI_ESC .. "[0m"
+	local BRIGHT_GREEN = ANSI_ESC .. "[92m"
+	local DARK_GREY = ANSI_ESC .. "[90m"
+	local DARK_GREEN = ANSI_ESC .. "[32m"
+	_format = BRIGHT_GREEN..'(%s '..DARK_GREY..'%s path='..DARK_GREEN..'%s'..BRIGHT_GREEN..')'..ANSI_RESET
+end
 
 function Object.__tostring(self)
-	if _COLORIZE_TOSTRING then
-		return BRIGHT_GREEN .. '(' .. self.className ..
-			DARK_GREY .. ' ' .. self.id .. ' path=' ..
-			DARK_GREEN .. tostring(self.path) ..
-			BRIGHT_GREEN .. ')' .. ANSI_RESET
+	local path = tostring(self.path)
+	if path and #path > 25 then
+		path = '...'..path:sub(-22)
+	end
+	if self._COLORED_TOSTRING then
+		return _format:format(self.className, self.id:sub(-4), path)
 	else
-		return '(' .. self.className .. ' ' .. self.id .. ' path=' .. tostring(self.path) .. ')'
+		return '(' .. self.className .. ' ' .. self.id:sub(-4) .. ' path=' .. path .. ')'
 	end
 end
 
