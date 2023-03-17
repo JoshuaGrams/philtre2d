@@ -234,6 +234,9 @@ Controls where the camera puts black bars if its using a fixed aspect ratio. The
 ### Camera Properties
 Useful properties set on camera objects, not on the class module. These are in addition to the usual Object properties of course.
 
+#### self.doCropViewport
+Used on cameras with a fixed aspect ratio or otherwise with a viewport smaller than the window. Defaults to `true`. Set to false to allow drawing to still use the entire window (in case you want to disable the black letterbox bars on a camera with a fixed aspect ratio, for example).
+
 #### self.scaleMode
 The scale mode the camera uses to adjust its zoom when the window is resized.
 

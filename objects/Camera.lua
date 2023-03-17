@@ -17,6 +17,7 @@ Camera.shakeFreq = 8
 Camera.followLerpSpeed = 0.85
 Camera.viewportAlign = { x = 0.5, y = 0.5 }
 Camera.pivot = { x = 0.5, y = 0.5 }
+Camera.doCropViewport = true
 
 -- localize stuff
 local min = math.min
@@ -213,7 +214,7 @@ function Camera.applyTransform(self)
 
 	local vp = self.vp
 	local w, h = love.graphics.getDimensions()
-	if vp.x ~= 0 or vp.y ~= 0 or vp.w ~= w or vp.h ~= h then
+	if self.doCropViewport and (vp.x ~= 0 or vp.y ~= 0 or vp.w ~= w or vp.h ~= h) then
 		self.oldScissor = {love.graphics.getScissor()}
 		love.graphics.setScissor(vp.x, vp.y, vp.w, vp.h)
 	end
