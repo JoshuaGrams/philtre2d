@@ -156,6 +156,12 @@ end
 function Body.final(self)
 	-- If the world was removed first, it will already be destroyed.
 	if not self.body:isDestroyed() then  self.body:destroy()  end
+	-- In case we re-add this Body to the tree, reset updateTransform to it's pre-init state.
+	if self.type == 'dynamic' or self.type == 'static' then
+		self.updateTransform = Object.TRANSFORM_ABSOLUTE
+	else
+		self.updateTransform = Object.updateTransform
+	end
 end
 
 function Body.set(self, type, x, y, angle, shapes, bodyProps)
