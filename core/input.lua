@@ -7,6 +7,8 @@ local InputStack = require(folder .. "input-stack")
 
 local stack = InputStack()
 local rawStack = InputStack("rawInput")
+Input.stack = stack
+Input.rawStack = rawStack
 
 local deviceAbbreviation = { [""] = "scancode", k = "key", m = "mouse", j = "joy", t = "text" }
 
