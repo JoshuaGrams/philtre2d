@@ -150,6 +150,11 @@ function Input.getActions(device, id)
 	return actionsForInput[device][id]
 end
 
+function Input.getActionType(actionName)
+	local action = actions[actionName]
+	if action then  return action.type  end
+end
+
 --------------------  Binding  --------------------
 local function parseInputString(inputStr)
 	inputStr = string.lower(inputStr)

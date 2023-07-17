@@ -233,3 +233,6 @@ You must specify the full `device` name: "scancode", "key", "mouse", "text", "jo
 
 "text" actions use the `device` and `id`: "text", "text".
 "cursor" actions use the `device` and `id`: "mouse", "moved".
+
+##### Input.getActionType(actionName)
+Returns the action type that this action name is bound as: "button", "axis", "text", or "cursor"; or `nil` if no input is bound for this action.
