@@ -76,6 +76,8 @@ Removes the object from the raw-input stack.
 
 Binding connects raw/physical inputs with named "actions". Any number of raw inputs can be bound to a single action, and a single raw input can be bound to any number of actions.
 
+> WARNING: Do not modify bindings during an input callback. Delay it until the next update or some other time.
+
 ### Action Types
 There are four available action types: "__button__", "__axis__", "__text__", and "__cursor__".
 

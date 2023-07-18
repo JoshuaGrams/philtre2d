@@ -176,12 +176,39 @@ local function parseInputString(inputStr)
 	return device, id
 end
 
+local function reSumActionValue(actionName)
+	local action = actions[actionName]
+	if not action then  return  end
+	local actionType = action.type
+	-- "text" action value is always typed text, you only change the action name.
+	-- "cursor" action doesn't have a value.
+	if actionType == "text" or actionType == "cursor" then  return  end
+
+	local inputs = Input.getInputs(actionName)
+	local total = 0
+	if inputs then
+		for i,v in ipairs(inputs) do -- {device=, id=, flipAxis=}
+			local rawValue = rawValues[v.device][v.id] or 0
+			if actionType == "button" then  rawValue = round(rawValue)  end
+			if v.flipAxis then  rawValue = -rawValue  end
+			total = total + rawValue
+		end
+	end
+	action.total = total
+	if actionType == "button" then
+		action.value = action.total >= 1 and 1 or 0
+	elseif actionType == "axis" then
+		action.value = clamp(action.total, -1, 1)
+	end
+end
+
 local function addBinding(device, id, actionName, flipAxis)
 	actionsForInput[device][id] = actionsForInput[device][id] or {}
 	table.insert(actionsForInput[device][id], { name = actionName, flipAxis = flipAxis })
 
 	inputsForAction[actionName] = inputsForAction[actionName] or {}
 	table.insert(inputsForAction[actionName], { device = device, id = id, flipAxis = flipAxis })
+	reSumActionValue(actionName)
 end
 
 local function ensureActionExists(actionName, actionType)
@@ -266,6 +293,7 @@ function Input.unbindAction(actionName)
 		findAndRemoveAction(actionsForInput[input.device][input.id], actionName)
 	end
 	inputsForAction[actionName] = nil
+	-- No action left, don't need to re-sum.
 end
 
 -- Unbinds this raw input from all actions.
@@ -274,6 +302,7 @@ function Input.unbindInput(device, id)
 		local actionName = actionBinding.name
 		findAndRemoveInput(inputsForAction[actionName], device, id)
 		if #inputsForAction[actionName] == 0 then  actions[actionName] = nil  end
+		reSumActionValue(actionName)
 	end
 	actionsForInput[device][id] = nil
 end
@@ -283,6 +312,7 @@ function Input.unbindFromAction(device, id, actionName)
 	findAndRemoveAction(actionsForInput[device][id], actionName)
 	findAndRemoveInput(inputsForAction[actionName], device, id)
 	if #inputsForAction[actionName] == 0 then  actions[actionName] = nil  end
+	reSumActionValue(actionName)
 end
 
 return Input
