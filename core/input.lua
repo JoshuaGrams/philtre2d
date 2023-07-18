@@ -274,14 +274,14 @@ local function revpairs(t)  return reverse_ipairs_iter, t, #t+1  end
 
 local function findAndRemoveAction(actionBindingList, actionName)
 	for i,binding in revpairs(actionBindingList) do
-		if binding.name == actionName then  table.remove(actionBindingList, i)  end
+		if binding.name == actionName then  return table.remove(actionBindingList, i)  end
 	end
 end
 
 local function findAndRemoveInput(inputList, device, id)
 	for i,input in revpairs(inputList) do
 		if input.device == device and input.id == id then
-			table.remove(inputList, i)
+			return table.remove(inputList, i)
 		end
 	end
 end
