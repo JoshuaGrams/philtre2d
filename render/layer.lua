@@ -11,15 +11,15 @@ function Layer.__tostring(self)
 end
 
 function Layer.set(self)
-	self.n = 0
+	self.count = 0
 end
 
 Layer.clear = Layer.set
 
 local function addFunction(self, m, fn, ...)
-	self.n = self.n + 1
-	self[self.n] = {m = m, fn, ...}
-	return self.n
+	self.count = self.count + 1
+	self[self.count] = {m = m, fn = fn, ...}
+	return self.count
 end
 Layer.addFunction = addFunction
 
@@ -32,14 +32,14 @@ end
 
 function Layer.hasObject(self, object)
 	local item = self[object.drawIndex]
-	return item and item[2] == object
+	return item and item[1] == object
 end
 
 function Layer.removeObject(self, object)
 	if object.drawIndex == nil then return end
 	local i = object.drawIndex
 	local item = self[i]
-	assert(item and item[2] == object, "Layer.removeObject - Object '" .. tostring(object) .. "' is not in this layer. " .. tostring(self))
+	assert(item and item[1] == object, "Layer.removeObject - Object '" .. tostring(object) .. "' is not in this layer. " .. tostring(self))
 
 	object.drawIndex = nil
 
@@ -49,7 +49,7 @@ function Layer.removeObject(self, object)
 	self[i] = EMPTY
 	-- Empty elements will be removed during next draw.
 	self.dirty = true
-	-- Leave self.n as-is so added objects won't overwrite existing ones. It will be updated in the next draw.
+	-- Leave self.count as-is so added objects won't overwrite existing ones. It will be updated in the next draw.
 end
 
 -- Use this to avoid creating a new one each time.
@@ -81,7 +81,7 @@ function Layer.draw(self)
 	local isDirty, isAfterRemoved, wasSorted = self.dirty, false, self.sortFn
 
 	for i=1,#self do
-		if i > self.n then
+		if i > self.count then
 			self[i] = nil -- Clear any extra draw items past the end.
 		else
 			local params = self[i]
@@ -89,7 +89,7 @@ function Layer.draw(self)
 			if isDirty then -- Remove empty elements and update subsequent drawIndices.
 				while params == EMPTY do -- May be consecutive empty elements that get moved up each table.remove.
 					table.remove(self, i)
-					self.n = self.n - 1
+					self.count = self.count - 1
 					params = self[i]
 					isAfterRemoved = true
 				end
@@ -97,13 +97,13 @@ function Layer.draw(self)
 					-- For loop only evaluates `#self` once, so it will go past the end after you remove elements.
 					if params == nil then  break  end -- Don't iterate past the last element.
 
-					local object = self[i][2]
+					local object = self[i][1]
 					object.drawIndex = i
 				end
 			end
 
 			local pushed
-			local maskObj = params[2].maskObject
+			local maskObj = params[1].maskObject
 			if curMaskObj ~= maskObj then -- NOTE: This code prevents masks from stacking.
 				if curMaskObj then  setMask(curMaskObj, false)  end
 				if maskObj then  setMask(maskObj, true)  end
@@ -115,7 +115,7 @@ function Layer.draw(self)
 				love.graphics.push()
 				love.graphics.applyTransform(t)
 			end
-			params[1](unpack(params, 2))
+			params.fn(unpack(params))
 			if pushed then  love.graphics.pop()  end
 		end
 	end
