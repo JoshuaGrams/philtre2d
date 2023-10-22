@@ -4,7 +4,6 @@ local T = require(base .. 'lib.simple-test')
 
 T.check(require(base .. 'test.scene-tree'))
 T.check(require(base .. 'test.layer'))
-T.check(require(base .. 'test.depth-list'))
 T.check(require(base .. 'test.scene-tree-draw-order'))
 T.check(require(base .. 'test.random'))
 T.check(require(base .. 'test.input'))

@@ -49,6 +49,6 @@ The scene tree clears the draw order and adds all the objects each frame, so the
 
 You can also add or remove layers on the fly:
 
-* `order:addLayer(name, position, other) -> layer` - valid positions are `"top"`, `"bottom"`, `"above"`, and `"below"`.  Above and below require `other` to be the name of an existing layer.
+* `order:addLayer(name, [index]) -> layer` - Added to bottom of layer group by default.
 
 * `order:removeLayer(name)`

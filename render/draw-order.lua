@@ -1,6 +1,5 @@
 local base = (...):gsub('render%.draw%-order$', '')
 local Class = require(base .. 'core.base-class')
-local DepthList = require(base .. 'render.depth-list')
 local Layer = require(base .. 'render.layer')
 
 local DrawOrder = Class:extend()
@@ -17,19 +16,25 @@ function DrawOrder.set(self, groups, default)
 	if type(g) ~= 'table' then
 		groups = { [onlyGroup] = groups }
 	end
-	for name,group in pairs(groups) do
-		local g = DepthList()
-		self.groups[name] = g
-		for _,layer in ipairs(group) do
-			if layer == default then  containsDefaultLayer = true  end
-			local l = Layer()
-			self.layers[layer] = l
-			if not self.layer then self.layer = l end -- Set layer to the first one in the first group in case there is no default.
-			g:add(l, 'bottom')
+	for groupName,layerNames in pairs(groups) do
+		local group = {}
+		self.groups[groupName] = group
+		for _,layerName in ipairs(layerNames) do
+			if layerName == default then  containsDefaultLayer = true  end
+			local layer = Layer()
+			self.layers[layerName] = layer
+			if not self.layer then self.layer = layer end -- Set layer to the first one in the first group in case there is no default.
+			table.insert(group, layer)
 		end
 	end
 	self.layer = (default and self.layers[default]) or self.layer
 	assert(containsDefaultLayer, 'DrawOrder.set - Default layer: "'..tostring(default)..'" not found in layer groups.')
+end
+
+local function drawGroup(group)
+	for i=#group,1,-1 do
+		group[i]:draw()
+	end
 end
 
 function DrawOrder.draw(self, groups)
@@ -40,19 +45,26 @@ function DrawOrder.draw(self, groups)
 	-- Loop backwards so first group is on top.
 	for i=#groups,1,-1 do
 		local group = groups[i]
-		self.groups[group]:draw()
+		drawGroup(self.groups[group])
 	end
 end
 
-function DrawOrder.addLayer(self, name, position, other)
+function DrawOrder.addLayer(self, name, index)
 	local layer = self.layers[name]
-	if other then other = self.layers[other] end
-	layer.group:add(layer, position, other)
+	if index then
+		table.insert(layer.group, index, layer)
+	else
+		table.insert(layer.group, layer)
+	end
 end
 
 function DrawOrder.removeLayer(self, name)
 	local layer = self.layers[name]
-	layer.group:remove(layer)
+	for i,l in ipairs(layer.group) do
+		if l == layer then
+			return table.remove(layer.group, i)
+		end
+	end
 end
 
 function DrawOrder.addFunction(self, layer, m, fn, ...)
@@ -66,8 +78,8 @@ function DrawOrder.clear(self, layer)
 		self.layers[layer]:clear()
 		return
 	end
-	for _,group in pairs(self.groups) do
-		group:clear()
+	for i=1,#self.groups do
+		self.groups[i] = {}
 	end
 end
 
@@ -131,7 +143,6 @@ end
 
 local function removeObject(self, object)
 	if not object.visible then  return  end
-	if object.name == "deletedMarker" and not object.drawIndex then  return  end
 	self:saveCurrentLayer()
 	self.layer = self.layers[object.layer] or self.layer
 	self.layer:removeObject(object)
