@@ -84,9 +84,7 @@ _Required arguments in **bold-italic**._
 * [World](objects/World.md) - Object with its own physics world and callback handlers.
 	* **World(** xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost **)**
 
-* [Layout Objects](objects/Layout.md) - GUI helpers for laying out boxes.
-
-* [GUI Objects](objects/Gui.md) - Alternate GUI layout objects.
+* [GUI Objects](objects/Gui.md) - GUI layout objects.
 
 Libraries
 ---------
