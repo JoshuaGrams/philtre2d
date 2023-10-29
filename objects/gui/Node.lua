@@ -64,7 +64,7 @@ Node._scaleFuncs = { -- Get the new absolute scale.
 }
 local scaleFuncs = Node._scaleFuncs
 
-local function debugDraw(self)
+function Node.drawDebug(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	local s = self.lastAlloc.scale
@@ -76,12 +76,6 @@ local function debugDraw(self)
 		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
 	end
 	love.graphics.rectangle('line', -self.w/2, -self.h/2, self.w, self.h)
-end
-
-function Node.debugDraw(self, layer)
-	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
-	end
 end
 
 function Node.init(self)

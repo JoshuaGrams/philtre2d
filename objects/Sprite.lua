@@ -10,16 +10,10 @@ local origins = {
 	left = 0, center = 0.5, right = 1
 }
 
-local function debugDraw(self)
+function Sprite.drawDebug(self)
 	love.graphics.setBlendMode('alpha')
 	love.graphics.setColor(self.color)
 	love.graphics.rectangle('line', -self.ox, -self.oy, self.imgW, self.imgH)
-end
-
-function Sprite.debugDraw(self, layer)
-	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
-	end
 end
 
 function Sprite.draw(self)

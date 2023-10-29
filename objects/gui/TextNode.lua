@@ -27,18 +27,12 @@ function TextNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 	TextNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 end
 
-local function debugDraw(self)
+function TextNode.drawDebug(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	love.graphics.rectangle('line', -5+pivotPosx, -5+pivotPosy, 10, 10)
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 5, 4)
 	love.graphics.rectangle('fill', -self.w*0.5, -self.h*0.5, self.w, self.h)
-end
-
-function TextNode.debugDraw(self, layer)
-	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
-	end
 end
 
 function TextNode.draw(self)

@@ -25,7 +25,7 @@ function SliceNode.draw(self)
 	love.graphics.draw(self.image, self.quadC, -w2+m.lt, -h2+m.top, 0, self.sliceSX, self.sliceSY) -- Center
 end
 
-local function debugDraw(self)
+function SliceNode.drawDebug(self)
 	love.graphics.setColor(self.debugColor)
 	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
 	local s = self.lastAlloc.scale
@@ -45,12 +45,6 @@ local function debugDraw(self)
 	love.graphics.line(w2-m.rt, -h2, w2-m.rt, h2)
 	love.graphics.line(-w2, -h2+m.top, w2, -h2+m.top)
 	love.graphics.line(-w2, h2-m.bot, w2, h2-m.bot)
-end
-
-function SliceNode.debugDraw(self, layer)
-	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
-	end
 end
 
 function SliceNode.updateScale(self, x, y, w, h, designW, designH, scale)

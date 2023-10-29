@@ -93,7 +93,7 @@ function Object.callRecursive(self, fnName, ...)
 	self:call(fnName, ...)
 end
 
-local function debugDraw(self)
+function Object.drawDebug(self)
 	love.graphics.setBlendMode('alpha')
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle('line', -5, -5, 10, 10)
@@ -102,7 +102,8 @@ end
 
 function Object.debugDraw(self, layer)
 	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
+		local layer = self.tree.drawOrder:getLayer(layer)
+		layer:addObject(self, self.drawDebug)
 	end
 end
 

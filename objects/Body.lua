@@ -12,7 +12,7 @@ local SLEEPING_ALPHA_MULT = 0.5
 local FILL_ALPHA_MULT = 0.3
 local SENSOR_ALPHA_MULT = 0.35
 
-local function debugDraw(self)
+function Body.drawDebug(self)
 	-- We're modifying the alpha value multiple times, so separate these and do it non-destructively.
 	local r, g, b, alpha = self.color[1], self.color[2], self.color[3], self.color[4]
 	alpha = self.body:isAwake() and alpha or alpha * SLEEPING_ALPHA_MULT
@@ -43,12 +43,6 @@ local function debugDraw(self)
 			love.graphics.setColor(r, g, b, alpha * FILL_ALPHA_MULT * sensorAlphaMult)
 			love.graphics.polygon('fill', points)
 		end
-	end
-end
-
-function Body.debugDraw(self, layer)
-	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
 	end
 end
 

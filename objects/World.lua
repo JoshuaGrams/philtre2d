@@ -21,7 +21,7 @@ local function vec2_rotate(ax, ay, phi)
 	return c * ax - s * ay, s * ax + c * ay
 end
 
-local function debugDraw(self) -- Debug drawing for contacts.
+function World.drawDebug(self) -- Debug drawing for contacts.
 	for i,contact in ipairs(self.world:getContacts()) do
 		local x1, y1, x2, y2 = contact:getPositions()
 		local isEnabled = contact:isEnabled()
@@ -52,12 +52,6 @@ local function debugDraw(self) -- Debug drawing for contacts.
 				love.graphics.line(x1, y1, x2, y2)
 			end
 		end
-	end
-end
-
-function World.debugDraw(self, layer)
-	if self.tree and self.drawIndex then
-		self.tree.drawOrder:addFunction(layer, self._toWorld, debugDraw, self)
 	end
 end
 
