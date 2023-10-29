@@ -186,7 +186,7 @@ The same as Row only vertical.
 
 ### Mask(stencilFunc, w, h, pivot, anchor, modeX, modeY, padX, padY)
 
-An invisible node that masks out (stencils) the rendering of its children. On init it sets a `.maskObject` property to itself on all of its children (recursively). Any child nodes added after init should have this property set manually, or call `Mask.setMaskOnChildren` on the mask node.
+An invisible node that masks out (stencils) the rendering of its children. On init it sets a `._mask` property to itself on all of its children (recursively). Any child nodes added after init should have this property set manually, or call `Mask.setMaskOnChildren` on the mask node.
 
 _PARAMETERS_
 * __stencilFunc__ <kbd>function</kbd> - _optional_ - Should be a function that draws a shape for the stencil. Must be an anonymous function taking no arguments. By default it draws a rectangle with the inner width/height of the node.

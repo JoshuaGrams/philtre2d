@@ -36,9 +36,9 @@ The scene tree clears the draw order and adds all the objects each frame, so the
 
 * `order:clear([layer_name])` - Remove all objects from a specified layer, or from all layers in all groups.
 
-* `order:addObject(object)` - An object may have a `layer` property giving a layer name.  If none is given, it will be added to the current layer.
+* `order:addObject(object, [drawFn], [...])` - An object may have a `layer` property giving a layer name.  If none is given, it will be added to the current layer. If the object has `applyTransform` or `resetTransform` functions, then these will be called before and after drawing. A different draw function can be specified (`object.call` is used by default), as well as other arguments to pass to this function (after the object itself).
 
-* `order:addFunction(layer, matrix, function, ...)` - Add a draw function to the given layer.  The transform given by `matrix` will be applied before the function is called.  Any extra arguments will be passed on to the function.
+* `order:addFunction(layer, function, ...)` - Add a draw function to the given layer.  Any extra arguments will be passed on to the function.
 
 * `order:saveCurrentLayer()` - push the current layer onto a stack.
 

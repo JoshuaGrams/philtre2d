@@ -45,7 +45,7 @@ return {
 		local layer = Layer()
 		local names = { 'first', 'second', 'third', 'fourth' }
 		for _,name in ipairs(names) do
-			layer:addFunction(identityM(), recorderFn, _called, name)
+			layer:addFunction(recorderFn, _called, name)
 		end
 		layer:draw()
 		T.is(#_called, #names, "called correct number of functions")
@@ -57,8 +57,8 @@ return {
 		T.is(next(_called), nil, "clear removed everything")
 
 		_called = {}
-		layer:addFunction(identityM(), recorderFn, _called, 'fifth')
-		layer:addFunction(identityM(), recorderFn, _called, 'sixth')
+		layer:addFunction(recorderFn, _called, 'fifth')
+		layer:addFunction(recorderFn, _called, 'sixth')
 		layer:draw()
 		T.is(#_called, 2, "can have fewer functions after being cleared")
 		T.has(_called, {
@@ -67,12 +67,12 @@ return {
 
 		_called = {}
 		layer:clear()
-		layer:addFunction(identityM(), recorderFn, _called, 'seventh')
-		layer:addFunction(identityM(), recorderFn, _called, 'eighth')
-		layer:addFunction(identityM(), recorderFn, _called, 'ninth')
-		layer:addFunction(identityM(), recorderFn, _called, 'tenth')
-		layer:addFunction(identityM(), recorderFn, _called, 'eleventh')
-		layer:addFunction(identityM(), recorderFn, _called, 'twelfth')
+		layer:addFunction(recorderFn, _called, 'seventh')
+		layer:addFunction(recorderFn, _called, 'eighth')
+		layer:addFunction(recorderFn, _called, 'ninth')
+		layer:addFunction(recorderFn, _called, 'tenth')
+		layer:addFunction(recorderFn, _called, 'eleventh')
+		layer:addFunction(recorderFn, _called, 'twelfth')
 		layer:draw()
 		T.is(#_called, 6, "can have more functions after being cleared")
 		T.has(_called, {
@@ -107,7 +107,7 @@ return {
 
 		-- Make sure objects still get drawn in order after second object is removed.
 		layer:removeObject(objs[2])
-		T.ok(not objs[2].drawIndex, "Remove object's drawIndex has been made falsy")
+		T.ok(not objs[2].drawIndex, "Removed object's drawIndex has been made falsy")
 		_called = {}
 		layer:draw()
 		T.has(_called, {1,3,4,5}, "Removed 2nd object and others are still drawn in order")
@@ -154,7 +154,7 @@ return {
 		local objs = makeObjects(1, 4)
 		local function ySort(a, b)
 			if not a or not b then  return a  end
-			local objA, objB = a[2], b[2]
+			local objA, objB = a.obj, b.obj
 			return objA.name < objB.name
 		end
 		local layer = Layer()

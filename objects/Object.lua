@@ -27,6 +27,18 @@ end
 
 Object.updateTransform = Object.TRANSFORM_REGULAR
 
+local _tempTransform = love.math.newTransform()
+
+function Object.applyTransform(self)
+	local t = matrix.toTransform(self._toWorld, _tempTransform)
+	love.graphics.push()
+	love.graphics.applyTransform(t)
+end
+
+function Object.resetTransform(self)
+	love.graphics.pop()
+end
+
 function Object.toWorld(obj, x, y, w)
 	return matrix.x(obj._toWorld, x, y, w)
 end

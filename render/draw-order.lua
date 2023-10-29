@@ -67,9 +67,13 @@ function DrawOrder.removeLayer(self, name)
 	end
 end
 
-function DrawOrder.addFunction(self, layer, m, fn, ...)
-	local layer = self.layers[layer] -- Keep local, no need to mess with the layer stack.
-	layer:addFunction(m, fn, ...)
+function DrawOrder.getLayer(self, name)
+	return self.layers[name]
+end
+
+function DrawOrder.addFunction(self, layerName, ...)
+	local layer = self.layers[layerName] -- Keep local, no need to mess with the layer stack.
+	return layer:addFunction(...)
 end
 
 function DrawOrder.clear(self, layer)

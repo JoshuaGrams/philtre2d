@@ -45,7 +45,7 @@ return {
 		end
 		T.ok(pcall(scene.add, scene, Mask()), "Can add a mask node created using no arguments to a scene.")
 	end,
-	-- Add branches of children to Mask node (before init) and make sure 'maskObj' gets set on each one.
+	-- Add branches of children to Mask node (before init) and make sure '_mask' gets set on each one.
 	function(scene)
 		local m = mod(Mask(), { children = {
 			mod(Node(), { children = {
@@ -63,16 +63,16 @@ return {
 				Node()
 			}})
 		}})
-		local function childrenHaveMask(obj, maskObj)
+		local function childrenHaveMask(obj, mask)
 			local children = obj.children
 			if children then
 				for i=1,children.maxn or #children do
 					local child = children[i]
 					if child then
-						if not child.maskObj == maskObj then
+						if child._mask ~= mask then
 							return
 						end
-						if not childrenHaveMask(child, maskObj) then
+						if not childrenHaveMask(child, mask) then
 							return
 						end
 					end
@@ -84,7 +84,7 @@ return {
 		T.ok(childrenHaveMask(m, m), "All descendants of mask have mask set after init.")
 		local new = mod(Node(), { children = { Node() } })
 		scene:add(new, m.children[2])
-		m:setMaskOnChildren()
+		m:setMaskOnChildren(m.children, true)
 		T.ok(childrenHaveMask(m, m), "After adding branch at runtime and calling setMaskOnChildren(), all descendants of mask have mask set.")
 	end,
 	-- Test mask drawing.
