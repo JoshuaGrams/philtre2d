@@ -12,6 +12,53 @@ Other than that, all you need to use the scene tree are `scene:add(object, [pare
 
 Each scene tree creates its own draw order, which can be accessed at `scene.drawOrder`.
 
+Iterating Over Children
+-----------------------
+
+To simplify the creation of short unique paths for all objects, the child lists of objects can have "holes" (nil values) in them if objects have been deleted. This means that iteration over the list with ipairs may not find all (or any) of the children. Two global helper functions, `everychild` and `forchildin` are included with Philtre to make iteration easier.
+
+Once the object is added to a scene-tree, the index of its last child is stored on the children list as the property `maxn`.
+
+### everychild( children )
+An iterator function that can be used in place of ipairs. Note that the indices it returns may not be consecutive.
+
+> If the `maxn` property does not exist on `children`, this function will set it to ``#children`.
+
+```lua
+for i,child in everychild(self.children) do
+   -- do stuff
+end
+```
+
+### forchildin( children, fn )
+A function that takes a function (`fn`) as an argument, which it will call once for each child in the list (`children`). The index and child object will be passed to the function.
+
+```lua
+local function do_stuff(i, child)
+   -- do stuff
+end
+
+function M.init(self) -- Or wherever...
+   forchildin(self.children, do_stuff)
+
+   -- Or, with an anonymous function:
+   forchildin(self.children, function(i, child)  print(i, child)  end)
+end
+```
+
+### Manual Iteration
+If you are very concerned about performance optimization, you can use `maxn` to iterate with a numeric `for` loop.
+
+```lua
+-- Need to use #children if not added to the tree yet.
+for i=1,children.maxn or #children do
+   local child = children[i]
+   if child then -- May be a 'hole'/nil, so you must check it.
+      -- do stuff
+   end
+end
+```
+
 Functions
 ---------
 

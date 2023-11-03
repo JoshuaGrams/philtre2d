@@ -3,6 +3,7 @@ testCoverage = require 'coverage-config'
 local T = require(base .. 'lib.simple-test')
 
 T.check(require(base .. 'test.scene-tree'))
+T.check(require(base .. 'test.child-iterators'))
 T.check(require(base .. 'test.layer'))
 T.check(require(base .. 'test.scene-tree-draw-order'))
 T.check(require(base .. 'test.random'))
