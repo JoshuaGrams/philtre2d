@@ -45,30 +45,11 @@ local function initObject(tree, obj, parent, index, objList)
 end
 
 local function updatePath(self, obj, basePath)
-	local uniqueNamePath = basePath .. obj.name
-	if obj.path ~= uniqueNamePath then
+	local pathIfNameIsUnique = basePath .. obj.name
+	if obj.path ~= pathIfNameIsUnique then
 		self.paths[obj.path] = nil
-		obj.path = uniqueNamePath .. obj._index
+		obj.path = pathIfNameIsUnique .. obj._index
 		self.paths[obj.path] = obj
-	end
-end
-
-function Tree.swap(self, parent, i1, i2)
-	local children = parent.children
-	local c1, c2 = children[i1], children[i2]
-	children[i1], children[i2] = c2, c1
-	local basePath = parent.path .. self.pathSeparator
-	if c1 then
-		c1._index = i2
-		updatePath(self, c1, basePath)
-	end
-	if c2 then
-		c2._index = i1
-		updatePath(self, c2, basePath)
-	end
-	-- Can swap out the last child with nil, so we should double-check `maxn`.
-	while not children[children.maxn] and children.maxn > 0 do
-		children.maxn = children.maxn - 1
 	end
 end
 
@@ -128,6 +109,25 @@ function Tree.remove(self, obj)
 	obj.parent = nil -- Don't unset parents on descendants, leave the branch intact.
 
 	finalizeObject(self, obj) -- Don't bother assembling an object list, it's too late for SceneTree to use it.
+end
+
+function Tree.swap(self, parent, i1, i2)
+	local children = parent.children
+	local c1, c2 = children[i1], children[i2]
+	children[i1], children[i2] = c2, c1
+	local basePath = parent.path .. self.pathSeparator
+	if c1 then
+		c1._index = i2
+		updatePath(self, c1, basePath)
+	end
+	if c2 then
+		c2._index = i1
+		updatePath(self, c2, basePath)
+	end
+	-- Can swap out the last child with nil, so we should double-check `maxn`.
+	while not children[children.maxn] and children.maxn > 0 do
+		children.maxn = children.maxn - 1
+	end
 end
 
 function Tree.get(self, path)
