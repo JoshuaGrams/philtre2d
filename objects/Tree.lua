@@ -4,6 +4,7 @@ local Object = require(base .. 'objects.Object')
 
 local Tree = Object:extend()
 
+local max = math.max
 Tree.pathSeparator = '/'
 
 function Tree.__tostring(self)
@@ -80,7 +81,7 @@ function Tree.add(self, obj, parent, atIndex)
 		end
 	end
 
-	children.maxn = math.max(children.maxn, index)
+	children.maxn = max(children.maxn, index)
 	table.insert(children, index, obj)
 
 	local objList = {}
@@ -119,10 +120,12 @@ function Tree.swap(self, parent, i1, i2)
 	if c1 then
 		c1._index = i2
 		updatePath(self, c1, basePath)
+		children.maxn = max(children.maxn, i2) -- May swap to index past maxn
 	end
 	if c2 then
 		c2._index = i1
 		updatePath(self, c2, basePath)
+		children.maxn = max(children.maxn, i1) -- May swap to index past maxn
 	end
 	-- Can swap out the last child with nil, so we should double-check `maxn`.
 	while not children[children.maxn] and children.maxn > 0 do

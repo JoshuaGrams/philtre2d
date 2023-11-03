@@ -23,7 +23,7 @@ return {
 		local a = mod(Object(0, 0), {name = 'a'})
 		local b = mod(Object(10, 0), {name = 'b', init = init})
 		local c = mod(Object(20, 0), {name = 'c', init = init})
-		container = mod(Object(0, 0), {init = init, children = {a, b}})
+		local container = mod(Object(0, 0), {init = init, children = {a, b}})
 
 		a.init = function(obj)
 			init(obj)
@@ -97,6 +97,14 @@ return {
 
 		scene:swap(p, 3, 2) -- Swap child[3] into nil space at [2]
 		T.is(p.children.maxn, 2, 'Swapping last child with nil shifts children.maxn.')
+	end,
+
+	function(scene)
+		-- Swap object to a slot past the end of the child list.
+		local o = Object()
+		scene:add(o)
+		scene:swap(scene, 1, 2)
+		T.is(scene.children.maxn, 2, 'Swapping child to a slot past the end of the child list works.')
 	end,
 
 	function(scene)
