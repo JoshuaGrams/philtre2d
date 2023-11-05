@@ -37,9 +37,11 @@ local function implements(class, interface, policy)
 	end
 end
 
+local strformat = string.format
+
 local function extend(parent, policy)
 	local class = {}
-	class.id = tostring(class):sub(1 + ("table: "):len())
+	class.id = strformat("%p", class) -- Pointer address string.
 	implements(class, parent, policy)
 	-- Use the same table for metamethods and normal methods.
 	class.__index = class
@@ -58,7 +60,7 @@ end
 
 local function new(class, ...)
 	local obj = {}
-	obj.id = tostring(obj):sub(1 + ("table: "):len())
+	obj.id = strformat("%p", obj) -- Pointer address string.
 	setmetatable(obj, class)
 	obj:set(...)
 	return obj
