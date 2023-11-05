@@ -168,5 +168,19 @@ return {
 			local c = child[i]
 			if c then  T.is(c._index, i, '   Index of child['..i..'] is correct.')  end
 		end
+	end,
+
+	function(scene)
+		scene:add(Object())
+		scene:add(Object())
+		local IS_TOPDOWN = true
+		local list = scene:getObjList(IS_TOPDOWN)
+		T.is(#list, 3, "getObjList returns a list that's the correct length")
+		T.is(list[1], scene, "getObjList - first in topdown list is the parent.")
+
+		local uplist = scene:getObjList(not IS_TOPDOWN)
+		T.is(#uplist, 3, "getObjList bottom-up returns a list that's the correct length")
+		T.ok(uplist[1] ~= scene, "getObjList bottom-up - first in list is NOT the parent.")
+		T.is(uplist[3], scene, "getObjList bottom-up - last in list is the parent.")
 	end
 }

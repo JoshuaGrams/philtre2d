@@ -13,15 +13,18 @@ function SceneTree.set(self, groups, default)
 	self.drawOrder = DrawOrder(groups, default)
 end
 
-local function fillList(list, children, topDown)
+local function listDescendants(children, topDown, list, j)
+	list = list or {}
+	j = j or 0 -- Managing our own index is 10-15x faster than using table.insert.
 	for i=1,children.maxn do
 		local obj = children[i]
 		if obj then
-			if topDown then  table.insert(list, obj)  end
-			if obj.children then  fillList(list, obj.children, topDown)  end
-			if not topDown then  table.insert(list, obj)  end
+			if topDown then  j = j + 1;  list[j] = obj  end
+			if obj.children then  list, j = listDescendants(obj.children, topDown, list, j)  end
+			if not topDown then  j = j + 1;  list[j] = obj  end
 		end
 	end
+	return list, j
 end
 
 -- `Parent` can be the tree or any object.
@@ -30,7 +33,7 @@ function SceneTree.getObjList(parent, topDown)
 
 	local list = { topDown and parent or nil }
 
-	fillList(list, parent.children, topDown)
+	listDescendants(parent.children, topDown, list, topDown and 1) -- Be sure to start with correct index.
 	if not topDown then  table.insert(list, parent)  end
 	return list
 end
@@ -122,23 +125,27 @@ function SceneTree._call(self, callbackName, topDown, ...)
 	end
 end
 
-local function fillUpdateLists(objects, dt, objList, dtList)
+-- Recurse down the tree storing a flat list of objects and each object's effective dt.
+local function fillUpdateLists(objects, dt, objList, dtList, j)
+	j = j or 0
 	for i=1,objects.maxn do
 		local obj = objects[i]
 		if obj and obj.timeScale ~= 0 then
 			local _dt = dt
 			if obj.timeScale then  _dt = dt * obj.timeScale  end
-			if obj.children then  fillUpdateLists(obj.children, _dt, objList, dtList)  end
-			table.insert(objList, obj)
-			table.insert(dtList, _dt)
+			if obj.children then  j = fillUpdateLists(obj.children, _dt, objList, dtList, j)  end
+			j = j + 1
+			objList[j] = obj
+			dtList[j] = _dt
 		end
 	end
+	return j
 end
 
 function SceneTree.update(self, dt)
 	local objList, dtList = {}, {}
-	fillUpdateLists(self.children, dt, objList, dtList)
-	for i=1,#objList do
+	local count = fillUpdateLists(self.children, dt, objList, dtList)
+	for i=1,count do
 		local obj = objList[i]
 		if obj.path then
 			obj:call('update', dtList[i])
