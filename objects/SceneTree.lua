@@ -87,14 +87,15 @@ end
 
 local function locked_add()  error("SceneTree.add: Can't modify tree while it is locked.")  end
 local function locked_remove()  error("SceneTree.remove: Can't modify tree while it is locked.")  end
+local function locked_swap()  error("SceneTree.swap: Can't modify tree while it is locked.")  end
 local function locked_setParent()  error("SceneTree.setParent: Can't modify tree while it is locked.")  end
 
 function SceneTree.lock(self)
-	self.add, self.remove, self.setParent = locked_add, locked_remove, locked_setParent
+	self.add, self.remove, self.swap, self.setParent = locked_add, locked_remove, locked_swap, locked_setParent
 end
 
 function SceneTree.unlock(self)
-	self.add, self.remove, self.setParent = nil, nil, nil -- Go back to Tree methods in metatable.
+	self.add, self.remove, self.swap, self.setParent = nil, nil, nil, nil -- Go back to Tree methods in metatable.
 end
 
 -- By definition, transforms must be updated in top-down tree order, parent -> child.
@@ -110,9 +111,9 @@ local function updateTransforms(children)
 end
 
 function SceneTree.updateTransforms(self)
-	SceneTree.lock(self)
+	self:lock()
 	updateTransforms(self.children)
-	SceneTree.unlock(self)
+	self:unlock()
 end
 
 function SceneTree._call(self, callbackName, topDown, ...)
