@@ -1,8 +1,8 @@
 local base = (...):gsub('objects%.Tree$', '')
 local M = require(base .. 'core.matrix')
-local Object = require(base .. 'objects.Object')
+local Class = require(base .. 'core.base-class')
 
-local Tree = Object:extend()
+local Tree = Class:extend()
 
 local max = math.max
 Tree.pathSeparator = '/'

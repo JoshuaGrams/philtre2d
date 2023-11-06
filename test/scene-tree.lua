@@ -182,5 +182,11 @@ return {
 		T.is(#uplist, 3, "getObjList bottom-up returns a list that's the correct length")
 		T.ok(uplist[1] ~= scene, "getObjList bottom-up - first in list is NOT the parent.")
 		T.is(uplist[3], scene, "getObjList bottom-up - last in list is the parent.")
+	end,
+
+	function(scene)
+		local success, errMsg = pcall(scene._call, scene, "callback name")
+		T.ok(success, "SceneTree._call works on the tree itself.")
+		if not success then  print(errMsg)  end
 	end
 }

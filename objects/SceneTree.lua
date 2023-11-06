@@ -126,6 +126,8 @@ function SceneTree._call(self, callbackName, topDown, ...)
 	end
 end
 
+SceneTree.call = Object.call -- So _call works on the SceneTree itself.
+
 -- Recurse down the tree storing a flat list of objects and each object's effective dt.
 local function fillUpdateLists(objects, dt, objList, dtList, j)
 	j = j or 0
