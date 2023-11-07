@@ -59,7 +59,7 @@ function SceneTree.add(self, obj, parent, atIndex)
 end
 
 function SceneTree.remove(self, obj)
-	assert(obj:is(Object), 'SceneTree.remove: obj: '..tostring(obj)..'is not an Object.')
+	assert(obj.is and obj:is(Object), 'SceneTree.remove: obj: '..tostring(obj)..'is not an Object.')
 	assert(obj.path, 'SceneTree.remove: obj: '..tostring(obj)..'is not in the tree.')
 
 	SceneTree._call(obj, 'final')
