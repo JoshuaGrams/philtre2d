@@ -1,8 +1,8 @@
 local base = (...):gsub('objects%.SceneTree$', '')
 local Tree = require(base .. 'objects.Tree')
-local Object = require(base .. 'objects.Object')
 local DrawOrder = require(base .. 'render.draw-order')
 local matrix = require(base .. 'core.matrix')
+local OBJECT_TRANSFORM_REGULAR = require(base .. 'objects.Object').TRANSFORM_REGULAR
 
 local SceneTree = Tree:extend()
 
@@ -11,6 +11,11 @@ function SceneTree.set(self, groups, default)
 	groups = groups or {'default'}
 	default = default or 'default'
 	self.drawOrder = DrawOrder(groups, default)
+end
+
+local function isObject(obj) -- This should be all we require to use an object in the tree.
+	return type(obj) == "table" and obj.call and obj.updateTransform
+	-- NOTE: Though obj.visible must be truthy for the object to be drawn.
 end
 
 local function listDescendants(children, topDown, list, j)
@@ -39,12 +44,12 @@ function SceneTree.getObjList(parent, topDown)
 end
 
 function SceneTree.add(self, obj, parent, atIndex)
-	assert(obj.is and obj:is(Object), 'SceneTree.add: obj: '..tostring(obj)..' is not an Object.')
+	assert(isObject(obj), 'SceneTree.add: obj: '..tostring(obj)..' is not an object.')
 	assert(not obj.path, 'SceneTree.add: obj: '..tostring(obj)..' is already in the tree.')
 	if atIndex then assert(atIndex % 1 == 0, 'SceneTree.add: atIndex: '..tostring(atIndex)..' is not an integer.')  end
 	parent = parent or self
 	if parent ~= self then
-		assert(parent.is and parent:is(Object), 'SceneTree.add: parent: '..tostring(parent)..' is not an Object.')
+		assert(isObject(parent), 'SceneTree.add: parent: '..tostring(parent)..' is not an object.')
 	end
 
 	local objList = SceneTree.super.add(self, obj, parent, atIndex)
@@ -59,7 +64,7 @@ function SceneTree.add(self, obj, parent, atIndex)
 end
 
 function SceneTree.remove(self, obj)
-	assert(obj.is and obj:is(Object), 'SceneTree.remove: obj: '..tostring(obj)..'is not an Object.')
+	assert(isObject(obj), 'SceneTree.remove: obj: '..tostring(obj)..'is not an object.')
 	assert(obj.path, 'SceneTree.remove: obj: '..tostring(obj)..'is not in the tree.')
 
 	SceneTree._call(obj, 'final')
@@ -68,12 +73,12 @@ function SceneTree.remove(self, obj)
 end
 
 function SceneTree.setParent(self, obj, parent, keepWorldTransform)
-	assert(obj.is and obj:is(Object), 'SceneTree.add: obj: '..tostring(obj)..' is not an Object.')
+	assert(isObject(obj), 'SceneTree.add: obj: '..tostring(obj)..' is not an object.')
 	parent = parent or self
 	if parent ~= self then
-		assert(parent.is and parent:is(Object), 'SceneTree.add: parent: '..tostring(parent)..' is not an Object.')
+		assert(isObject(parent), 'SceneTree.add: parent: '..tostring(parent)..' is not an object.')
 	end
-	if keepWorldTransform and obj.updateTransform == Object.TRANSFORM_REGULAR then
+	if keepWorldTransform and obj.updateTransform == OBJECT_TRANSFORM_REGULAR then
 		local m = {}
 		matrix.xM(obj._toWorld, matrix.invert(parent._toWorld, m), m)
 		obj.pos.x, obj.pos.y = m.x, m.y
@@ -126,7 +131,15 @@ function SceneTree._call(self, callbackName, topDown, ...)
 	end
 end
 
-SceneTree.call = Object.call -- So _call works on the SceneTree itself.
+-- Same as Object.call - Needed for _call to work on the SceneTree itself.
+function SceneTree.call(self, fnName, ...)
+	if self[fnName] then self[fnName](self, ...) end
+	if self.scripts then
+		for _,script in ipairs(self.scripts) do
+			if script[fnName] then  script[fnName](self, ...)  end
+		end
+	end
+end
 
 -- Recurse down the tree storing a flat list of objects and each object's effective dt.
 local function fillUpdateLists(objects, dt, objList, dtList, j)
