@@ -43,8 +43,8 @@ Will show or hide the object. Invisible objects and their children will not be d
 ### Object.call(self, fnName, ...)
 Attempts to call the named function on the object and any scripts that object may have.
 
-### Object.callRecursive(self, fnName, ...)
-Recursively calls `Object.call` on the object and all of its descendants. Works from the bottom up (children are called before self).
+### Object.callRecursive(self, isTopDown, fnName, ...)
+Recursively calls `Object.call` on the object and all of its descendants. If `isTopDown` is true then parents are always called before children, otherwise it is from the bottom up—children are called before their parents (with self being last).
 
 ### Object.debugDraw(self, layer)
 Unused by default. Uses `tree.drawOrder:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`. The debugDraw function will _not_ be automatically removed from the layer later, so you probably want to clear your debug layer every frame.

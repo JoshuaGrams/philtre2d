@@ -12,7 +12,7 @@ local function mod(obj, props)
 end
 
 local function obj_call(self, fnName, ...)
-	if self[fnName] then self[fnName](self, ...) end
+	if self[fnName] then  self[fnName](self, ...)  end
 end
 local function obj_updateTransform(self)  end
 local function Dummy()
@@ -191,8 +191,8 @@ return {
 	end,
 
 	function(scene)
-		local success, errMsg = pcall(scene._call, scene, "callback name")
-		T.ok(success, "SceneTree._call works on the tree itself.")
+		local success, errMsg = pcall(scene.callRecursive, scene, "callback name")
+		T.ok(success, "SceneTree.callRecursive works on the tree itself.")
 		if not success then  print(errMsg)  end
 	end,
 

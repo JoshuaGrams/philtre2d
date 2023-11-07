@@ -18,35 +18,35 @@ local function isObject(obj) -- This should be all we require to use an object i
 	-- NOTE: Though obj.visible must be truthy for the object to be drawn.
 end
 
-local function listDescendants(children, topDown, list, j)
+local function listDescendants(children, isTopDown, list, j)
 	list = list or {}
 	j = j or 0 -- Managing our own index is 10-15x faster than using table.insert.
 	for i=1,children.maxn do
 		local obj = children[i]
 		if obj then
-			if topDown then  j = j + 1;  list[j] = obj  end
-			if obj.children then  list, j = listDescendants(obj.children, topDown, list, j)  end
-			if not topDown then  j = j + 1;  list[j] = obj  end
+			if isTopDown then  j = j + 1;  list[j] = obj  end
+			if obj.children then  list, j = listDescendants(obj.children, isTopDown, list, j)  end
+			if not isTopDown then  j = j + 1;  list[j] = obj  end
 		end
 	end
 	return list, j
 end
 
 -- `Parent` can be the tree or any object.
-function SceneTree.getObjList(parent, topDown)
+function SceneTree.getObjList(parent, isTopDown)
 	if not parent.children then  return { parent }  end
 
-	local list = { topDown and parent or nil }
+	local list = { isTopDown and parent or nil }
 
-	listDescendants(parent.children, topDown, list, topDown and 1) -- Be sure to start with correct index.
-	if not topDown then  table.insert(list, parent)  end
+	listDescendants(parent.children, isTopDown, list, isTopDown and 1) -- Be sure to start with correct index.
+	if not isTopDown then  table.insert(list, parent)  end
 	return list
 end
 
 function SceneTree.add(self, obj, parent, atIndex)
 	assert(isObject(obj), 'SceneTree.add: obj: '..tostring(obj)..' is not an object.')
 	assert(not obj.path, 'SceneTree.add: obj: '..tostring(obj)..' is already in the tree.')
-	if atIndex then assert(atIndex % 1 == 0, 'SceneTree.add: atIndex: '..tostring(atIndex)..' is not an integer.')  end
+	if atIndex then  assert(atIndex % 1 == 0, 'SceneTree.add: atIndex: '..tostring(atIndex)..' is not an integer.')  end
 	parent = parent or self
 	if parent ~= self then
 		assert(isObject(parent), 'SceneTree.add: parent: '..tostring(parent)..' is not an object.')
@@ -67,7 +67,7 @@ function SceneTree.remove(self, obj)
 	assert(isObject(obj), 'SceneTree.remove: obj: '..tostring(obj)..'is not an object.')
 	assert(obj.path, 'SceneTree.remove: obj: '..tostring(obj)..'is not in the tree.')
 
-	SceneTree._call(obj, 'final')
+	SceneTree.callRecursive(obj, false, 'final')
 	self.drawOrder:removeObject(obj)
 	SceneTree.super.remove(self, obj)
 end
@@ -121,8 +121,9 @@ function SceneTree.updateTransforms(self)
 	self:unlock()
 end
 
-function SceneTree._call(self, callbackName, topDown, ...)
-	local list = SceneTree.getObjList(self, topDown)
+-- Can freely modify the tree during this call.
+function SceneTree.callRecursive(self, isTopDown, callbackName, ...)
+	local list = SceneTree.getObjList(self, isTopDown)
 	for i=1,#list do
 		local obj = list[i]
 		if obj.path then -- Is still in tree.
@@ -131,9 +132,9 @@ function SceneTree._call(self, callbackName, topDown, ...)
 	end
 end
 
--- Same as Object.call - Needed for _call to work on the SceneTree itself.
+-- Same as Object.call - Needed for callRecursive to work on the SceneTree itself.
 function SceneTree.call(self, fnName, ...)
-	if self[fnName] then self[fnName](self, ...) end
+	if self[fnName] then  self[fnName](self, ...)  end
 	if self.scripts then
 		for _,script in ipairs(self.scripts) do
 			if script[fnName] then  script[fnName](self, ...)  end

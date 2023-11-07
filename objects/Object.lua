@@ -82,15 +82,16 @@ function Object.call(self, fnName, ...)
 	end
 end
 
--- Bottom-up: calls method on self AFTER children.
-function Object.callRecursive(self, fnName, ...)
+-- Is bottom-up by default: calls method on self AFTER children.
+function Object.callRecursive(self, isTopDown, fnName, ...)
+	if isTopDown then  self:call(fnName, ...)  end
 	if self.children then
 		for i=1,self.children.maxn or #self.children do
 			local child = self.children[i]
-			if child then  child:callRecursive(fnName, ...)  end
+			if child then  child:callRecursive(isTopDown, fnName, ...)  end
 		end
 	end
-	self:call(fnName, ...)
+	if not isTopDown then  self:call(fnName, ...)  end
 end
 
 function Object.drawDebug(self)
