@@ -1,7 +1,26 @@
 Philtre 2D
 ==========
 
-Download and install [Löve2D](https://love2d.org/). See also: [Löve2D Getting Started](https://love2d.org/wiki/Getting_Started).
+__Table of Contents:__
+
+- [Prerequisites](#prerequisites)
+- [Downloading with Git](#downloading-philtre-with-git)
+	- [Updating](#updating)
+- [Downloading Manually](#downloading-philtre-manually)
+- [Minimal Usage Example](#minimal-usage-example)
+- [Intended Usage Overview](#intended-usage-overview)
+- [Engine](#engine)
+- [Objects](#objects)
+- [Libraries](#libraries)
+
+Prerequisites
+-------------
+
+Download and install [Löve2D](https://love2d.org/). See also: [Löve2D Getting Started](https://love2d.org/wiki/Getting_Started). It is assumed that you have a basic understanding of Lua and Löve2D, these docs won't cover them.
+
+Downloading with Git
+--------------------
+_(Assumes Git is installed and you are using Git Bash or another capable terminal emulator.)_
 
 In your desired project folder, create a git repository:
 
@@ -9,39 +28,72 @@ In your desired project folder, create a git repository:
 
 Add to your git project as a submodule:
 
-	git submodule add -b master https://github.com/JoshuaGrams/philtre2d.git philtre
+	git submodule add https://github.com/JoshuaGrams/philtre2d.git philtre
+
+Or, with SSH:
+
+	git submodule add git@github.com:JoshuaGrams/philtre2d.git philtre
 
 This will produce a .gitmodules file (if you didn't already have one) and a `philtre` directory (whose SHA-1 hash won't be a hash of the directory, but will point to Philtre's HEAD).  Commit these two entries to your project repository.
+
+### Updating
 
 Fetch upstream engine changes with:
 
 	git submodule update --remote --merge
 
-This will update `philtre` to point to the new upstream HEAD, and you'll need to commit that change to your project.
+This will update `philtre` to point to the new upstream HEAD, and you'll need to commit that change to your project. Alternatively, you can open the philtre folder and pull changes there like a normal git repository, and then go back up and commit the changed `philtre` file to your project.
 
------
+Downloading Manually
+--------------------
 
-Minimal usage / "hello world" example:
+Go to the [main page](https://github.com/JoshuaGrams/philtre2d) of this repository, click the "Code" dropdown button and click "Download Zip". Extract the zip file into your game directory and rename the extracted folder to "philtre".
+
+Minimal Usage Example
+---------------------
 
 ```lua
-	require 'philtre.init'  -- Load all engine components into global variables.
-	local scene
+-- "Hello World Example"
+require 'philtre.init'  -- Load all engine components into global variables.
+local scene
 
-	function love.load()
-		scene = SceneTree()
-		local t = Text("hello world", love.graphics.newFont())
-		scene:add(t)
-	end
+function love.load()
+	scene = SceneTree()
+	local t = Text("hello world", love.graphics.newFont())
+	scene:add(t)
+end
 
-	function love.update(dt)
-		scene:update(dt)
-	end
+function love.update(dt)
+	scene:update(dt)
+end
 
-	function love.draw()
-		scene:updateTransforms()
-		scene:draw()
-	end
+function love.draw()
+	scene:updateTransforms()
+	scene:draw()
+end
 ```
+Intended Usage Overview
+-----------------------
+
+The scene tree is the core of Philtre, almost everything else depends on that. Your main.lua will handle setup and the high-level "game loop", and you will make your game features by extending the basic [object classes](#objects) (or using [scripts](engine/scripts.md)) and adding them to the scene tree.
+
+One good setup is to have three objects at the root of your scene tree: a root object for your GUI, a game manager, and then a Physics World object to contain your level:
+
+	SceneTree
+	  ├─ GUI
+	  │    └─ Menu
+	  ├─ Game Manager
+	  └─ Physics World / Level
+	        ├─ Player
+	        ├─ Camera
+	        └─ Other game entities...
+
+
+You would define separate GUI and game-world layer groups, so the game world can be drawn inside the camera view and the GUI drawn in screen-space on top.
+
+The "game manager" would handle adding, removing, pausing, and un-pausing the [World](objects/World.md)/level object (since the world can't un-pause itself, and it's simpler to remove _one_ object rather than all of its children). Likewise, the GUI root object would add and remove menu objects (as children or as root-level objects).
+
+The Player object would enable [input](engine/input.md) on itself and handle gameplay controls. It might inherit [Body](objects/Body.md) to have collision.
 
 Engine
 ------
@@ -63,6 +115,8 @@ Engine
 Objects
 -------
 _Required arguments in **bold-italic**._
+
+> TODO: Doc about the base-class module. Inheritance in general.
 
 * [Body](objects/Body.md) - Physics body object.
 	* **Body(** **_type_**, x, y, angle, **_shapes_**, bodyProps **)**
@@ -108,7 +162,5 @@ Todo
 ----
 
 * Improve coverage of automated tests.
-* Work on editor: https://github.com/rgrams/editor.
 * Particle Emitter.
-* Finish and test box-model GUI system?
-* Physics Joint object?
+* Rewrite GUI system (again).
