@@ -8,6 +8,23 @@ Constructor
 
 ### Object(x, y, angle, sx, sy, kx, ky)
 
+Inheriting Object
+-----------------
+
+```lua
+-- `Object` is defined globally in philtre.init.
+local MyClass = Object:extend()
+```
+
+Object does not have most of the "lifecycle" methods (init, final, update, and draw), only updateTransform and set. So for most purposes, the only 'super' method you may want to call is 'set'.
+
+```lua
+function MyClass.set(self, x, y, myArg1, myArg2)
+   MyClass.super.set(self, x, y)
+   -- Do MyClass constructor stuff.
+end
+```
+
 Properties
 ----------
 
@@ -51,7 +68,7 @@ Unused by default. Uses `tree.drawOrder:addFunction` to draw debug stuff to the 
 ```lua
 -- Inside love.draw():
 scene.drawOrder:clear("physics debug")
-scene:callRecursive("debugDraw", "physics debug")
+scene:callRecursive("debugDraw", false, "physics debug")
 -- scene:draw("world") etc...
 ```
 

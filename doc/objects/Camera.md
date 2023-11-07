@@ -1,6 +1,13 @@
 Camera
 ======
 
+__Table of Contents:__
+
+- [Basic Usage](#basic-usage)
+- [Constructor](#constructor)
+- [Methods](#methods)
+- [Properties](#properties)
+
 Basic Usage
 -----------
 

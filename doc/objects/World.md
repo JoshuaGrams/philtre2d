@@ -1,6 +1,10 @@
 World
 =====
 
+An object representing a Box2D physics world. Having a World in the scene-tree is required for using [Bodies](objects/Body.md), and every Body must be a descendant of a World (it is recommended that any dynamic bodies are direct children of the World).
+
+Worlds dispense collision event callbacks to the relevant objects, and can do debug drawing of contacts.
+
 ### World(xg, yg, sleep, disableBegin, disableEnd, disablePre, disablePost)
 Creates a new object for passing updates to the physics world as part of the scene-tree. Each World object has its own physics world and its own callbacks. By default all callbacks are enabled.
 
@@ -32,7 +36,7 @@ Collision Callbacks
 
 If enabled, these functions will get called on both objects involved in the collision and any scripts they have, if any of them have these function names defined.
 
-The callbacks happen _during_ the physics world update, so you can't modify the physics world during a callback. Use World:delay() to delay a method call until just after the world finishes updating.
+> :warning: The callbacks happen _during_ the physics world update, so you can't modify the physics world during a callback. Use World:delay() to delay a method call until just after the world finishes updating.
 
 > NOTE: The contact normal points away from self when `isMyContact` is true.
 

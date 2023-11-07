@@ -1,7 +1,7 @@
 Body
 ====
 
-Game Objects linked to a physics body. They can be dynamic, static, or kinematic, and have any number of fixtures with different properties.
+Bodies are game objects linked to a Box2D physics body. They can be dynamic, static, or kinematic, and have any number of fixtures with different properties.
 
 Bodies _must_ be descendants of a World object in the scene tree. On init they will search up the tree for the closest World object and create their physics body within that World's Box2D physics world (or report an error if no World is found).
 
@@ -11,6 +11,18 @@ The actual Box2d 'body' is not created until `init`. After it has init, you can 
 -- For example: (in a script on a Body)
 local vx, vy = self.body:getLinearVelocity()
 ```
+
+__Table of Contents:__
+
+- [Constructor](#constructor)
+   - [Trigger Bodies](#trigger-bodies)
+   - [Shape Types](#shape-types)
+   - [Shape Properties](#shape-properties)
+   - [Body Properties](#body-properties)
+- [Inheriting Body](#inheriting-body)
+   - [Accessing Physics Methods](#accessing-physics-methods)
+
+_See Also: [Collision Callbacks](objects/World.md#collision-callbacks)_
 
 Constructor
 -----------
@@ -46,8 +58,7 @@ _PARAMETERS_
 * __bodyProps__ <kbd>table</kbd> - Any non-default properties for the body.
 	* Available body properties are: 'linDamp', 'angDamp', 'bullet', 'fixedRot', and 'gScale'.
 
-Trigger Bodies
---------------
+### Trigger Bodies
 
 Bodies with the type 'trigger' are a sort of custom preset. The are:
 
@@ -55,8 +66,8 @@ Bodies with the type 'trigger' are a sort of custom preset. The are:
 * Sensors - All of their fixtures get set to 'sensor' mode, so they get `beginContact` and `endContact` callbacks, but pass through other objects without 'hitting' them.
 * Transform like regular Objects - Though technically dynamic bodies, they behave more like kinematic bodies, or any normal child Object in the scene-tree. When their parent or any ancestor moves or rotates around, they do too (like all Bodies, they still don't change scale).
 
-Shape Types
------------
+### Shape Types
+
 The names and different parameter options you can use to define shapes.
 
 * __'circle'__
@@ -78,8 +89,8 @@ The names and different parameter options you can use to define shapes.
 	1. `{ loop, x1, y1, x2, y2, ... }` _loop = If the end of the chain should loop around to the first point._
 	2. `{ loop, sequence }` _sequence = { x1, y1, x2, y2, x3, y3, ... }_
 
-Shape Properties
-----------------
+### Shape Properties
+
 The optional properties that you can specify for each shape, in the constructor.
 
 * __'density'__ - <kbd>number</kbd> - The density of the shape (default 1).
@@ -96,8 +107,8 @@ The optional properties that you can specify for each shape, in the constructor.
 
 * __'restitution'__ - <kbd>number</kbd> - The restitution or 'bounciness' of the shape.
 
-Body Properties
----------------
+### Body Properties
+
 The optional properties you can specify in the constructor that affect the entire Body.
 
 * __'linDamp'__ - <kbd>number</kbd> - The linear damping of the body, from 0 to infinity. Controls how quickly the body's linear velocity will decrease over time. It is zero by default, meaning a moving body will continue moving indefinitely.
@@ -109,3 +120,36 @@ The optional properties you can specify in the constructor that affect the entir
 * __'fixedRot'__ - <kbd>bool</kbd> - If the body's rotation should be fixed, or if it should rotate as normal. Defaults to `false`.
 
 * __'gScale'__ - <kbd>number</kbd> - The gravity scale of the body—a multiplier for how much this body is affected by the world's gravity.
+
+Inheriting Body
+---------------
+
+```lua
+-- `Body` is defined globally in philtre.init.
+local MyClass = Body:extend()
+```
+
+If redefining .set(), .init(), or .final() on a Body subclass, you will definitely want to call the super methods. Since a physics body can't be created until the Body is in the tree as the child of a World object, most of the initialization is in Body.init(). The actual physics body is destroyed in Body.final(), so if that method is not called, you may get an undetectable, rogue physics body bouncing around.
+
+The Body.updateTransform function is also quite important, for updating position and rotation to or from the object and its associated physics body (depending on whether it's dynamic or kinematic). Don't overwrite them unless you know what you're doing.
+
+```lua
+function MyClass.set(self, type, x, y, angle, shapes, bodyProps)
+   MyClass.super.set(self, type, x, y, angle, shapes, bodyProps)
+   -- Do my set stuff.
+end
+
+function MyClass.init(self)
+   MyClass.super.init(self) -- Physics body, shapes, and fixtures are created here.
+   -- Do my init stuff.
+end
+
+function MyClass.final(self)
+   MyClass.super.final(self) -- Physics body is destroyed here.
+   -- Do my final stuff.
+end
+```
+
+#### Accessing Physics Methods
+
+The Löve2D [Body](https://love2d.org/wiki/Body) object is stored on the Philtre2d Body at `self.body`. Use this to apply forces and impulses, get velocities, get inertia and mass, get the list of fixtures, etc.

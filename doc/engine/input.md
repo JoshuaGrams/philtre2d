@@ -6,6 +6,7 @@ Converts "raw" inputs to bound "actions" and lets you handle keyboard and mouse 
 Philtre automatically requires the module into the global: `Input`.
 
 __Table of Contents:__
+
 - [Quick Start](#quick-start)
 - [Subscribing to Input](#subscribing-to-input)
 - [Binding](#binding)
