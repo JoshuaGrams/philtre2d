@@ -1,7 +1,7 @@
 World
 =====
 
-An object representing a Box2D physics world. Having a World in the scene-tree is required for using [Bodies](objects/Body.md), and every Body must be a descendant of a World (it is recommended that any dynamic bodies are direct children of the World).
+An object representing a Box2D physics world. Having a World in the scene-tree is required for using [Bodies](Body.md), and every Body must be a descendant of a World (it is recommended that any dynamic bodies are direct children of the World).
 
 Worlds dispense collision event callbacks to the relevant objects, and can do debug drawing of contacts.
 

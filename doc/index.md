@@ -4,9 +4,9 @@ Philtre 2D
 __Table of Contents:__
 
 - [Prerequisites](#prerequisites)
-- [Downloading with Git](#downloading-philtre-with-git)
+- [Downloading with Git](#downloading-with-git)
 	- [Updating](#updating)
-- [Downloading Manually](#downloading-philtre-manually)
+- [Downloading Manually](#downloading-manually)
 - [Minimal Usage Example](#minimal-usage-example)
 - [Intended Usage Overview](#intended-usage-overview)
 - [Engine](#engine)

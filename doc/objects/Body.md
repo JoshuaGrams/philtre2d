@@ -22,7 +22,7 @@ __Table of Contents:__
 - [Inheriting Body](#inheriting-body)
    - [Accessing Physics Methods](#accessing-physics-methods)
 
-_See Also: [Collision Callbacks](objects/World.md#collision-callbacks)_
+_See Also: [Collision Callbacks](World.md#collision-callbacks)_
 
 Constructor
 -----------
