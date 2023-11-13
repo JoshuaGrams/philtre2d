@@ -4,7 +4,7 @@ local base = (...):gsub('%.init$', '.')
 
 matrix = require(base .. 'core.matrix')
 new = require(base .. 'core.new')
-require(base .. 'core.iterators')
+require(base .. 'core.child-iterators')
 
 SceneTree = require(base .. 'objects.SceneTree')
 DrawOrder = require(base .. 'render.draw-order')
