@@ -57,8 +57,8 @@ function SliceNode.updateScale(self, x, y, w, h, scale)
 	end
 end
 
-function SliceNode.updateInnerSize(self, x, y, w, h, scale)
-	local isDirty = SliceNode.super.updateInnerSize(self, x, y, w, h, scale)
+function SliceNode.updateContentSize(self, x, y, w, h, scale)
+	local isDirty = SliceNode.super.updateContentSize(self, x, y, w, h, scale)
 	local m = self.margins
 	local innerSliceW = self.w - m.lt - m.rt
 	local innerSliceH = self.h - m.top - m.bot

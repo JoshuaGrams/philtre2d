@@ -118,7 +118,7 @@ end
 function Node.updateScale(self, x, y, w, h, scale)
 	if scale ~= self.lastAlloc.scale then
 		self.contentAlloc.scale = scale -- Also pass on scale to children.
-		-- NOTE: Padding is stored in un-scaled coords, but it's effect will be scaled in updateInnerSize.
+		-- NOTE: Padding is stored in un-scaled coords, but it's effect will be scaled in updateContentSize.
 		return true
 	end
 end
@@ -129,7 +129,7 @@ function Node.updateOffset(self, x, y, w, h, scale)
 	return isDirty
 end
 
-function Node.updateInnerSize(self, x, y, w, h, scale)
+function Node.updateContentSize(self, x, y, w, h, scale)
 	local content = self.contentAlloc
 	local oldX, oldY, oldW, oldH = content.x, content.y, content.w, content.h
 	local newX = self._scrollX + self.padX*scale
@@ -165,7 +165,7 @@ function Node.allocate(self, x, y, w, h, scale)
 	isDirty = self:updateScale(x, y, w, h, scale) or isDirty
 	isDirty = self:updateOffset(x, y, w, h, scale) or isDirty
 	isDirty = self:updateSize(x, y, w, h, scale) or isDirty
-	isDirty = self:updateInnerSize(x, y, w, h, scale) or isDirty
+	isDirty = self:updateContentSize(x, y, w, h, scale) or isDirty
 
 	self.lastAlloc:pack(x, y, w, h, scale)
 
@@ -182,7 +182,7 @@ function Node.setSize(self, w, h)
 
 	local isDirty = self:updateSize(self.lastAlloc:unpack())
 	if isDirty then
-		self:updateInnerSize(self.lastAlloc:unpack())
+		self:updateContentSize(self.lastAlloc:unpack())
 		if self.tree then
 			self:updateTransform()
 			self:allocateChildren()
@@ -217,7 +217,7 @@ function Node.setAngle(self, a)
 	return self
 end
 
-function Node.setOffset(self, x, y, isRelative)
+function Node.setScroll(self, x, y, isRelative)
 	if isRelative then
 		if x then  self._scrollX = self._scrollX + x  end
 		if y then  self._scrollY = self._scrollY + y  end
@@ -225,7 +225,7 @@ function Node.setOffset(self, x, y, isRelative)
 		if x then  self._scrollX = x  end
 		if y then  self._scrollY = y  end
 	end
-	local isDirty = self:updateInnerSize(self.lastAlloc:unpack())
+	local isDirty = self:updateContentSize(self.lastAlloc:unpack())
 	if isDirty and self.tree then
 		self:updateTransform()
 		self:allocateChildren()
@@ -265,7 +265,7 @@ end
 function Node.setPad(self, x, y)
 	if x then  self.padX = x  end
 	if y then  self.padY = y  end
-	local isDirty = self:updateInnerSize(self.lastAlloc:unpack())
+	local isDirty = self:updateContentSize(self.lastAlloc:unpack())
 	if isDirty and self.tree then
 		self:updateTransform()
 		self:allocateChildren()
@@ -291,7 +291,7 @@ function Node.setMode(self, x, y)
 	setMode(self, x, y)
 	local isDirty = self:updateSize(self.lastAlloc:unpack())
 	if isDirty then
-		self:updateInnerSize(self.lastAlloc:unpack())
+		self:updateContentSize(self.lastAlloc:unpack())
 		if self.tree then
 			self:updateTransform()
 			self:allocateChildren()

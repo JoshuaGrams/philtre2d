@@ -10,8 +10,8 @@ function SpriteNode.draw(self)
 	love.graphics.draw(self.image, 0, 0, 0, self.sx, self.sy, self.imgOX, self.imgOY)
 end
 
-function SpriteNode.updateInnerSize(self, x, y, w, h, scale)
-	local isDirty = SpriteNode.super.updateInnerSize(self, x, y, w, h, scale)
+function SpriteNode.updateContentSize(self, x, y, w, h, scale)
+	local isDirty = SpriteNode.super.updateContentSize(self, x, y, w, h, scale)
 	self.sx, self.sy = self.w / self.imgW, self.h / self.imgH
 	return isDirty
 end

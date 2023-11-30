@@ -287,30 +287,30 @@ return {
 		end
 		T.ok(pcall(testDebugDraw), "Debug draw runs without errors (just running to fill coverage).")
 	end,
-	function(scene) -- setOffset - check that children get offset
+	function(scene) -- setScroll - check that children get offset
 		local parent = scene:add(Node(100, "px", 100, "px"))
-		parent:setOffset(5, 7)
+		parent:setScroll(5, 7)
 		local child1 = scene:add(Node(10, "px", 10, "px"), parent)
 		local child2 = scene:add(Node(10, "px", 10, "px"):setPos(10, 10), parent)
 		local halfParentSize = 50
 		local halfChildSize = 5
 		local baseWPos = halfParentSize - halfChildSize
-		T.has(child1._toWorld, {x=5+baseWPos,y=7+baseWPos}, "setOffset - first child gets offset when added.")
-		T.has(child2._toWorld, {x=5+baseWPos+10,y=7+baseWPos+10}, "setOffset - second child with pos gets offset when added.")
-		parent:setOffset(3, -1)
-		T.has(child1._toWorld, {x=3+baseWPos,y=-1+baseWPos}, "setOffset - first child gets updated offset.")
-		T.has(child2._toWorld, {x=3+baseWPos+10,y=-1+baseWPos+10}, "setOffset - second child with pos gets updated offset.")
+		T.has(child1._toWorld, {x=5+baseWPos,y=7+baseWPos}, "setScroll - first child gets offset when added.")
+		T.has(child2._toWorld, {x=5+baseWPos+10,y=7+baseWPos+10}, "setScroll - second child with pos gets offset when added.")
+		parent:setScroll(3, -1)
+		T.has(child1._toWorld, {x=3+baseWPos,y=-1+baseWPos}, "setScroll - first child gets updated offset.")
+		T.has(child2._toWorld, {x=3+baseWPos+10,y=-1+baseWPos+10}, "setScroll - second child with pos gets updated offset.")
 	end,
-	function(scene) -- setOffset - relative
+	function(scene) -- setScroll - relative
 		local parent = scene:add(Node(100, "px", 100, "px"))
-		parent:setOffset(-5, -7)
+		parent:setScroll(-5, -7)
 		parent:allocate(0, 0, 100, 100, 2)
 		local child = scene:add(Node(10, "px", 10, "px"), parent)
-		parent:setOffset(-10, -10, true)
+		parent:setScroll(-10, -10, true)
 		local halfParentSize = 50
 		local halfChildSize = 5
 		local baseWPos = halfParentSize - halfChildSize
-		T.has(child._toWorld, {x=-15+baseWPos,y=-17+baseWPos}, "setOffset - setting offset relative while scaled works.")
+		T.has(child._toWorld, {x=-15+baseWPos,y=-17+baseWPos}, "setScroll - setting offset relative while scaled works.")
 	end,
 	function(scene) -- setMode
 		local parent = scene:add(Node(100, "%", 100, "%"))

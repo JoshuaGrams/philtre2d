@@ -15,7 +15,7 @@ function TextNode.updateScale(self, x, y, w, h, scale)
 	end
 end
 
-function TextNode.updateInnerSize(self, x, y, w, h, scale)
+function TextNode.updateContentSize(self, x, y, w, h, scale)
 	local fontHeight = self.font:getHeight()
 	local lineCount = 1
 	if self.isWrapping or self.hAlign == "justify" then
@@ -23,7 +23,7 @@ function TextNode.updateInnerSize(self, x, y, w, h, scale)
 		lineCount = math.max(1, #lines) -- Don't let line-count be zero. (as it would be with an empty string.)
 	end
 	self.h = fontHeight * lineCount
-	return TextNode.super.updateInnerSize(self, x, y, w, h, scale)
+	return TextNode.super.updateContentSize(self, x, y, w, h, scale)
 end
 
 function TextNode.drawDebug(self)
@@ -64,7 +64,7 @@ end
 function TextNode.setWrap(self, isWrapping)
 	local isDirty = isWrapping ~= self.isWrapping
 	self.isWrapping = isWrapping
-	if isDirty then  self:updateInnerSize(self.lastAlloc:unpack())  end
+	if isDirty then  self:updateContentSize(self.lastAlloc:unpack())  end
 	return self
 end
 
