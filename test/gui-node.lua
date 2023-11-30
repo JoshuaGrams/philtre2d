@@ -357,5 +357,62 @@ return {
 		n:setGreedy(false)
 		T.is(n.isGreedy, false, "setGreedy(false) sets greedy flag.")
 	end,
-
+	function(scene) -- Test if setters update things correctly.
+		local n = Node()
+		local ch = Node()
+		n.children = { ch }
+		scene:add(n) -- Must be in tree to test if updateTransform fires.
+		local updated
+		local function clear()
+			updated = { trans=false, alloc=false, size=false, content=false }
+		end
+		clear()
+		n.updateTransform = function(self, ...)
+			Node.updateTransform(self, ...)
+			updated.trans = true
+		end
+		n.allocateChildren = function(self, ...)
+			local r = Node.allocateChildren(self, ...)
+			updated.alloc = true
+			return r
+		end
+		n.updateSize = function(self, ...)
+			local r = Node.updateSize(self, ...)
+			updated.size = true
+			return r
+		end
+		n.updateContentSize = function(self, ...)
+			local r = Node.updateContentSize(self, ...)
+			updated.content = true
+			return r
+		end
+		n:setSize(50, 50)
+		T.has(updated, {trans=true,alloc=true,size=true,content=true}, 'Things update correctly on setSize().')
+		clear()
+		n:setPos(10, 5)
+		T.has(updated, {trans=true}, 'Things update correctly on setPos().')
+		clear()
+		n:setCenterPos(200, 150)
+		T.has(updated, {trans=true}, 'Things update correctly on setCenterPos().')
+		clear()
+		n:setAngle(1)
+		T.has(updated, {trans=true}, 'Things update correctly on setAngle().')
+		clear()
+		n:setScroll(-5, -7)
+		T.has(updated, {trans=true,content=true,alloc=true}, 'Things update correctly on setScroll().')
+		clear()
+		n:setAnchor("SE")
+		T.has(updated, {trans=true}, 'Things update correctly on setAnchor().')
+		clear()
+		n:setPivot("W")
+		T.has(updated, {trans=true}, 'Things update correctly on setPivot().')
+		clear()
+		n:setPad(7, 6.5)
+		T.has(updated, {trans=true,content=true,alloc=true}, 'Things update correctly on setPad().')
+		clear()
+		n._debug = true
+		n:setMode('rel', 'rel') -- Need to use modes that will actually change its size.
+		T.has(updated, {trans=true,alloc=true,size=true,content=true}, 'Things update correctly on setMode().')
+		clear()
+	end,
 }

@@ -111,6 +111,25 @@ function Node.allocateChildren(self)
 	end
 end
 
+function Node.onTransformChanged(self)
+	if self.tree then  self:updateTransform()  end
+end
+
+function Node.onContentAllocChanged(self)
+	self:onTransformChanged()
+	self:allocateChildren()
+end
+
+function Node.onSizeParamsChanged(self)
+	local isDirty = self:updateSize(self.lastAlloc:unpack())
+	if isDirty then  self:onContentParamsChanged(true)  end
+end
+
+function Node.onContentParamsChanged(self, isDirty)
+	isDirty = self:updateContentSize(self.lastAlloc:unpack()) or isDirty
+	if isDirty then  self:onContentAllocChanged()  end
+end
+
 -- ----------  Allocation Sub-Methods  ----------
 -- Node.allocate is split up into pieces so inheriting objects won't have to rewrite the whole thing.
 -- Each should return true if anything actually changed.
@@ -124,7 +143,7 @@ function Node.updateScale(self, x, y, w, h, scale)
 end
 
 function Node.updateOffset(self, x, y, w, h, scale)
-	-- Mark as dirty if offset changes so our transform will be correct.
+	-- Mark as dirty if offset changes so our transform will be updated.
 	local isDirty = x ~= self.lastAlloc.x or y ~= self.lastAlloc.y
 	return isDirty
 end
@@ -170,8 +189,7 @@ function Node.allocate(self, x, y, w, h, scale)
 	self.lastAlloc:pack(x, y, w, h, scale)
 
 	if isDirty then
-		self:updateTransform() -- So scripts get a correct transform on .allocate().
-		self:allocateChildren()
+		self:onContentAllocChanged()
 	end
 end
 
@@ -180,14 +198,7 @@ function Node.setSize(self, w, h)
 	if w then  self.xParam = w  end
 	if h then  self.yParam = h  end
 
-	local isDirty = self:updateSize(self.lastAlloc:unpack())
-	if isDirty then
-		self:updateContentSize(self.lastAlloc:unpack())
-		if self.tree then
-			self:updateTransform()
-			self:allocateChildren()
-		end
-	end
+	self:onSizeParamsChanged()
 	return self
 end
 
@@ -200,6 +211,7 @@ function Node.setPos(self, x, y, isRelative)
 		if x then  pos.x = x  end
 		if y then  pos.y = y  end
 	end
+	self:onTransformChanged()
 	return self
 end
 
@@ -209,11 +221,13 @@ function Node.setCenterPos(self, x, y)
 	px, py = rotate(px, py, self.angle)
 	if x then  self.pos.x = x - self.anchorPosX + px  end
 	if y then  self.pos.y = y - self.anchorPosY + py  end
+	self:onTransformChanged()
 	return self
 end
 
 function Node.setAngle(self, a)
 	self.angle = a
+	self:onTransformChanged()
 	return self
 end
 
@@ -225,11 +239,7 @@ function Node.setScroll(self, x, y, isRelative)
 		if x then  self._scrollX = x  end
 		if y then  self._scrollY = y  end
 	end
-	local isDirty = self:updateContentSize(self.lastAlloc:unpack())
-	if isDirty and self.tree then
-		self:updateTransform()
-		self:allocateChildren()
-	end
+	self:onContentParamsChanged()
 	return self
 end
 
@@ -246,6 +256,7 @@ function Node.setAnchor(self, x, y)
 
 	self.anchorPosX = self.lastAlloc.w * self.ax
 	self.anchorPosY = self.lastAlloc.h * self.ay
+	self:onTransformChanged()
 	return self
 end
 
@@ -259,17 +270,14 @@ function Node.setPivot(self, x, y)
 		if x then  self.px = x  end
 		if y then  self.py = y  end
 	end
+	self:onTransformChanged()
 	return self
 end
 
 function Node.setPad(self, x, y)
 	if x then  self.padX = x  end
 	if y then  self.padY = y  end
-	local isDirty = self:updateContentSize(self.lastAlloc:unpack())
-	if isDirty and self.tree then
-		self:updateTransform()
-		self:allocateChildren()
-	end
+	self:onContentParamsChanged()
 	return self
 end
 
@@ -289,14 +297,7 @@ end
 
 function Node.setMode(self, x, y)
 	setMode(self, x, y)
-	local isDirty = self:updateSize(self.lastAlloc:unpack())
-	if isDirty then
-		self:updateContentSize(self.lastAlloc:unpack())
-		if self.tree then
-			self:updateTransform()
-			self:allocateChildren()
-		end
-	end
+	self:onSizeParamsChanged()
 	return self
 end
 
