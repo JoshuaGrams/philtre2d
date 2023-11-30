@@ -183,7 +183,7 @@ function Node.setSize(self, w, h)
 		self:updateInnerSize(self.lastAlloc:unpack())
 		if self.tree then
 			self:updateTransform()
-			self:allocateChildren(E)
+			self:allocateChildren()
 		end
 	end
 	return self
