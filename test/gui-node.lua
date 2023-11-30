@@ -117,7 +117,7 @@ return {
 		T.is(n.w, 100, "Setting size (w) when already resized works correctly.")
 		T.is(n.h, 100, "Setting size (h) when already resized works correctly.")
 	end,
-	function(scene) -- Check padding stuff.
+	function(scene) -- Check width/height with padding.
 		local n = scene:add(Node(100, "%", 100, "%", nil, nil, 10, 10))
 		local child = scene:add(Node(100, "%", 100, "%"), n)
 		T.is(child.w, 80, "Child w correct with parent padding (in set()).")
@@ -128,6 +128,13 @@ return {
 		n:allocate(0, 0, 100, 100, 0.5)
 		T.is(child.w, 80, "Child w correct with parent padding (in set()) after allocating with scale.")
 		T.is(child.h, 80, "Child h correct with parent padding (in set()) after allocating with scale.")
+	end,
+	function(scene) -- Check x/y with padding
+		local p = scene:add(Node():setPad(15, 4))
+		local child = scene:add(Node(100, "%", 100, "%"), p)
+		T.has(child._toWorld, {x=15, y=4}, "Child of padded parent has correct offset.")
+		p:setPad(5, 7)
+		T.has(child._toWorld, {x=5, y=7}, "Child has correct offset after parent padding changed.")
 	end,
 	function(scene) -- setAnchor & Pivot - make sure table and separate arg versions work.
 		-- Test using constructor:
@@ -350,4 +357,5 @@ return {
 		n:setGreedy(false)
 		T.is(n.isGreedy, false, "setGreedy(false) sets greedy flag.")
 	end,
+
 }

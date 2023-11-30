@@ -130,12 +130,14 @@ function Node.updateOffset(self, x, y, w, h, scale)
 end
 
 function Node.updateInnerSize(self, x, y, w, h, scale)
-	local contentAlloc = self.contentAlloc
-	local oldW, oldH = contentAlloc.w, contentAlloc.h
+	local content = self.contentAlloc
+	local oldX, oldY, oldW, oldH = content.x, content.y, content.w, content.h
+	local newX = self._scrollX + self.padX*scale
+	local newY = self._scrollY + self.padY*scale
 	local newW = max(0, self.w - self.padX*2*scale)
 	local newH = max(0, self.h - self.padY*2*scale)
-	contentAlloc.w, contentAlloc.h = newW, newH
-	local isDirty = newW ~= oldW or newH ~= oldH
+	content.x, content.y, content.w, content.h = newX, newY, newW, newH
+	local isDirty = newW ~= oldW or newH ~= oldH or oldX ~= newX or oldY ~= newY
 	return isDirty
 end
 
@@ -216,15 +218,18 @@ function Node.setAngle(self, a)
 end
 
 function Node.setOffset(self, x, y, isRelative)
-	local r = self.contentAlloc
 	if isRelative then
-		if x then  r.x = r.x + x  end
-		if y then  r.y = r.y + y  end
+		if x then  self._scrollX = self._scrollX + x  end
+		if y then  self._scrollY = self._scrollY + y  end
 	else
-		if x then  r.x = x  end
-		if y then  r.y = y  end
+		if x then  self._scrollX = x  end
+		if y then  self._scrollY = y  end
 	end
-	self:allocateChildren()
+	local isDirty = self:updateInnerSize(self.lastAlloc:unpack())
+	if isDirty and self.tree then
+		self:updateTransform()
+		self:allocateChildren()
+	end
 	return self
 end
 
@@ -314,8 +319,8 @@ function Node.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	w, h = w or 100, h or w or 100
 	modeX, modeY = modeX or DEFAULT_MODE, modeY or modeX or DEFAULT_MODE
 	setMode(self, modeX, modeY)
-	self.padX = padX or 0
-	self.padY = padY or padX or 0
+	padX, padY = padX or 0, padY or padX or 0
+	self.padX, self.padY = padX, padY
 
 	self.xParam, self.yParam = w, h
 	self.w, self.h = w, h -- Doesn't make much sense, but we need something here.
@@ -323,7 +328,8 @@ function Node.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	if self.modeX == 'pixels' then  self.desiredW = w  end
 	if self.modeY == 'pixels' then  self.desiredH = h  end
 
-	self.contentAlloc = Alloc(0, 0, w - self.padX*2, h - self.padY*2)
+	self._scrollX, self._scrollY = 0, 0
+	self.contentAlloc = Alloc(padX, padY, w - padX*2, h - padY*2)
 	self.lastAlloc = Alloc(0, 0, w, h) -- Need to save for when we modify things between allocations.
 
 	pivot = pivot or 'C'
