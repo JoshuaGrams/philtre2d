@@ -3,98 +3,103 @@ local Node = require(base .. 'Node')
 
 local Column = Node:extend()
 Column.className = "Column"
-Column.__axis = "y"
 
-function Column.getChildDesire(self, child)
-	local desiredW, desiredH = child:request()
-	if self.__axis == "y" then  return desiredH  else  return desiredW  end -- Either could be nil so can't use ternary operator.
+function Column._getChildDesire(self, child)
+	local _, desiredH = child:request()
+	return desiredH
+end
+
+function Column._getMainDistances(self, x, y, w, h, scale)
+	return y + (self.isReversed and h or 0), h
+end
+
+function Column._getCrossDistances(self, x, y, w, h, scale)
+	return x, w
+end
+
+function Column._alloc(child, mainDist, mainLen, crossDist, crossLen, scale)
+	-- Column cross axis is X, main axis is Y.
+	child:call('allocate', crossDist, mainDist, crossLen, mainLen, scale)
 end
 
 function Column.allocateChild(self, child)
-	if not self:getChildDesire(child) then -- We can't place it, so just allocate it our full size.
+	if not self:_getChildDesire(child) then -- We can't place it, so just allocate it our full size.
 		child:call('allocate', self.contentAlloc:unpack())
 	else
 		self:allocateChildren() -- Columns can't just recalculate a single child, need to redo them all.
 	end
 end
 
-function Column.getChildDimensionTotals(self)
-	local dim1, dim2 = 0, 0
+function Column.getChildData(self)
+	-- Only iterate through children once and collect everything we need.
+	local childCount, sumLen, sumGreedyLen = 0, 0, 0
+	local childData = {}
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local val = self:getChildDesire(child)
-			if val then
-				dim1 = dim1 + (val or 0)
-				if child.isGreedy then
-					dim2 = dim2 + (val or 0)
-				end
+			local len = self:_getChildDesire(child)
+			if len then
+				childCount = childCount + 1
+				sumLen = sumLen + len
+				if child.isGreedy then  sumGreedyLen = sumGreedyLen + len  end
+				table.insert(childData, { child = child, len = len })
+			else
+				table.insert(childData, { child = child, excludedFromLayout = true })
 			end
 		end
 	end
-	return dim1, dim2
-end
-
-function Column.countChildren(self)
-	local count = 0
-	for i=1,self.children.maxn do
-		local child = self.children[i]
-		if child and self:getChildDesire(child) then  count = count + 1  end
-	end
-	return count
+	return childCount, sumLen, sumGreedyLen, childData
 end
 
 function Column.allocateHomogeneous(self, x, y, w, h, scale)
-	if not self.children then  return  end
-	local childCount = self:countChildren()
+	if not self.children or self.children.maxn == 0 then  return  end
+	local childCount, _, _, childData = self:getChildData()
 	if childCount == 0 then  return  end
 
+	local dist, totalLen = self:_getMainDistances(x, y, w, h, scale)
+	local crossDist, crossLen = self:_getCrossDistances(x, y, w, h, scale)
+
 	local spacing = self.spacing * scale
-	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = h - spacingSpace
-	local hEach = math.max(0, availableSpace / childCount)
+	local spacingLen = spacing * (childCount - 1)
+	local availableLen = totalLen - spacingLen
+	local len = math.max(0, availableLen / childCount)
+	local increment = (len + spacing) * (self.isReversed and -1 or 1)
 
-	local dir = self.isReversed and -1 or 1
-	local increment = (hEach + spacing) * dir
-	local nextY = y
-	if self.isReversed then  nextY = y + h + increment  end
-
-	for i=1,self.children.maxn do
-		local child = self.children[i]
-		if child and self:getChildDesire(child) then
-			child:call('allocate', x, nextY, w, hEach, scale)
-			nextY = nextY + increment
+	for i,data in ipairs(childData) do
+		if data.excludedFromLayout then
+			data.child:call('allocate', self.contentAlloc:unpack())
+		else
+			self._alloc(data.child, dist, len, crossDist, crossLen, scale)
+			dist = dist + increment
 		end
 	end
 end
 
 function Column.allocateHeterogeneous(self, x, y, w, h, scale)
-	if not self.children then  return  end
-	local childCount = self:countChildren()
+	if not self.children or self.children.maxn == 0 then  return  end
+	local childCount, totalChildLen, totalGreedyChildLen, childData = self:getChildData()
 	if childCount == 0 then  return  end
 
+	local dist, totalLen = self:_getMainDistances(x, y, w, h, scale)
+	local crossDist, crossLen = self:_getCrossDistances(x, y, w, h, scale)
+
 	local spacing = self.spacing * scale
-	local spacingSpace = spacing * (childCount - 1)
-	local availableSpace = h - spacingSpace
-	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals()
-	local squashFactor = math.min(1, availableSpace / totalChildH)
-	local extraH = math.max(0, availableSpace - totalChildH)
-	local greedFactor = extraH / totalGreedyChildH
+	local spacingLen = spacing * (childCount - 1)
+	local availableLen = totalLen - spacingLen
+	local squashFactor = math.min(1, availableLen / totalChildLen)
+	local extraLen = math.max(0, availableLen - totalChildLen)
+	local greedFactor = extraLen / totalGreedyChildLen
 
-	local dir = self.isReversed and -1 or 1
-	local nextY = y + (self.isReversed and h or 0)
-
-	for i=1,self.children.maxn do
-		local child = self.children[i]
-		if child then
-			local childH = self:getChildDesire(child)
-			if childH then
-				local thisH = childH * squashFactor
-				if child.isGreedy then  thisH = thisH + childH * greedFactor  end
-				if self.isReversed then  nextY = nextY + (thisH + spacing)*dir  end
-				child:call('allocate', x, nextY, w, thisH, scale)
-				if not self.isReversed then  nextY = nextY + (thisH + spacing)*dir  end
-			end
+	for i,data in ipairs(childData) do
+		if data.excludedFromLayout then
+			data.child:call('allocate', self.contentAlloc:unpack())
+		else
+			local child, childLen = data.child, data.len
+			local len = childLen * squashFactor
+			if child.isGreedy then  len = len + childLen * greedFactor  end
+			if self.isReversed then  dist = dist - (len + spacing)  end -- First child must start at far end minus its size.
+			self._alloc(child, dist, len, crossDist, crossLen, scale)
+			if not self.isReversed then  dist = dist + (len + spacing)  end -- First child must start at 0 and count up for the next.
 		end
 	end
 end
