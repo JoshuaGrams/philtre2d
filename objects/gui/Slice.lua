@@ -27,7 +27,7 @@ end
 
 function SliceNode.drawDebug(self)
 	love.graphics.setColor(self.debugColor)
-	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
+	local pivotPosx, pivotPosy = self.w*self.px, self.h*self.py
 	local s = self.lastAlloc.scale
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 4*s, 8)
 	love.graphics.line(-8*s, 0, 8*s, 0)
@@ -36,10 +36,10 @@ function SliceNode.drawDebug(self)
 		local iw, ih = self.contentAlloc.w, self.contentAlloc.h
 		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
 	end
-	love.graphics.rectangle('line', -self.w/2, -self.h/2, self.w, self.h)
-
 	local w2, h2 = self.w/2, self.h/2
 	local m = self.margins
+
+	love.graphics.rectangle('line', -w2, -h2, self.w, self.h)
 
 	love.graphics.line(-w2+m.lt, -h2, -w2+m.lt, h2)
 	love.graphics.line(w2-m.rt, -h2, w2-m.rt, h2)
@@ -47,8 +47,8 @@ function SliceNode.drawDebug(self)
 	love.graphics.line(-w2, h2-m.bot, w2, h2-m.bot)
 end
 
-function SliceNode.updateScale(self, x, y, w, h, designW, designH, scale)
-	local isDirty = SliceNode.super.updateScale(self, x, y, w, h, designW, designH, scale)
+function SliceNode.updateScale(self, x, y, w, h, scale)
+	local isDirty = SliceNode.super.updateScale(self, x, y, w, h, scale)
 	if isDirty then
 		for k,designSize in pairs(self.designMargins) do
 			self.margins[k] = designSize * scale
@@ -57,8 +57,8 @@ function SliceNode.updateScale(self, x, y, w, h, designW, designH, scale)
 	end
 end
 
-function SliceNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
-	local isDirty = SliceNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+function SliceNode.updateInnerSize(self, x, y, w, h, scale)
+	local isDirty = SliceNode.super.updateInnerSize(self, x, y, w, h, scale)
 	local m = self.margins
 	local innerSliceW = self.w - m.lt - m.rt
 	local innerSliceH = self.h - m.top - m.bot
@@ -67,7 +67,7 @@ function SliceNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 	return isDirty
 end
 
-function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, modeY, padX, padY)
+function SliceNode.set(self, image, quad, margins, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	w, h = w or 100, h or 100
 	local mCount = #margins
 	local m
@@ -82,7 +82,7 @@ function SliceNode.set(self, image, quad, margins, w, h, pivot, anchor, modeX, m
 	self.designMargins = { lt=m.lt, rt=m.rt, top=m.top, bot=m.bot }
 	padX = padX or (m.lt + m.rt)/2 -- Use slice margins for default padding.
 	padY = padY or padX or (m.top + m.bot)/2
-	SliceNode.super.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
+	SliceNode.super.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	-- super.set sets self.innerW/H, designInnerW/H.
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

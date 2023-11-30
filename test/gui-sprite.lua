@@ -4,7 +4,6 @@ local T = require(base .. 'lib.simple-test')
 local SceneTree = require(base .. 'objects.SceneTree')
 matrix = require(base .. 'core.matrix')
 local gui = require(base .. 'objects.gui.all')
-local Node = gui.Node
 local Sprite = gui.Sprite
 
 local img
@@ -46,7 +45,7 @@ return {
 	function(scene)
 		local scene = SceneTree()
 		-- NW corner at 0, 0.
-		local sprite = scene:add(Sprite(img, nil, nil, nil, "NW", "C", "stretch", "stretch"))
+		local sprite = scene:add(Sprite(img, nil, 100, "%", 100, "%", "NW", "C"))
 		local canvas = love.graphics.newCanvas(200, 200)
 		love.graphics.setCanvas(canvas)
 		scene:draw()
@@ -59,7 +58,7 @@ return {
 		checkPixel(100, 50, drawn, noCol, "Pixel off right side is correct.")
 		checkPixel(50, 100, drawn, noCol, "Pixel off bottom sides is correct.")
 
-		sprite:allocate(0, 0, 50, 75, 100, 100, 1)
+		sprite:allocate(0, 0, 50, 75, 1)
 		T.has(sprite, {sx=0.5,sy=0.75}, "Allocated SpriteNode has correct image scale.")
 
 		love.graphics.setCanvas(canvas)

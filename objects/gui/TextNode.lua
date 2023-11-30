@@ -6,8 +6,8 @@ TextNode.className = 'TextNode'
 
 local validHAlign = { center = true, left = true, right = true, justify = true }
 
-function TextNode.updateScale(self, x, y, w, h, designW, designH, scale)
-	local isDirty = TextNode.super.updateScale(self, x, y, w, h, designW, designH, scale)
+function TextNode.updateScale(self, x, y, w, h, scale)
+	local isDirty = TextNode.super.updateScale(self, x, y, w, h, scale)
 	if isDirty then
 		local size, file = self.fontSize * scale, self.fontFilename
 		self.font = file and new.font(file, size) or new.font(size)
@@ -15,7 +15,7 @@ function TextNode.updateScale(self, x, y, w, h, designW, designH, scale)
 	end
 end
 
-function TextNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+function TextNode.updateInnerSize(self, x, y, w, h, scale)
 	local fontHeight = self.font:getHeight()
 	local lineCount = 1
 	if self.isWrapping or self.hAlign == "justify" then
@@ -23,13 +23,12 @@ function TextNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
 		lineCount = math.max(1, #lines) -- Don't let line-count be zero. (as it would be with an empty string.)
 	end
 	self.h = fontHeight * lineCount
-	self.designRect.h = self.h
-	TextNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+	return TextNode.super.updateInnerSize(self, x, y, w, h, scale)
 end
 
 function TextNode.drawDebug(self)
 	love.graphics.setColor(self.debugColor)
-	local pivotPosx, pivotPosy = self.w*self.px/2, self.h*self.py/2
+	local pivotPosx, pivotPosy = self.w*self.px, self.h*self.py
 	love.graphics.rectangle('line', -5+pivotPosx, -5+pivotPosy, 10, 10)
 	love.graphics.circle('fill', pivotPosx, pivotPosy, 5, 4)
 	love.graphics.rectangle('fill', -self.w*0.5, -self.h*0.5, self.w, self.h)
@@ -69,10 +68,10 @@ function TextNode.setWrap(self, isWrapping)
 	return self
 end
 
-function TextNode.set(self, text, font, w, pivot, anchor, hAlign, modeX, isWrapping)
+function TextNode.set(self, text, font, w, modeX, pivot, anchor, hAlign, isWrapping)
 	w = w or 100
 	self.isWrapping = isWrapping
-	local modeY = 'none' -- Height will adjust to fit wrapped text.
+	local modeY = 'pixels' -- Height will adjust to fit wrapped text.
 	self.text = text or ''
 	if type(font) == 'table' then -- {filename, size}
 		local filename, size = font[1], font[2]
@@ -90,7 +89,7 @@ function TextNode.set(self, text, font, w, pivot, anchor, hAlign, modeX, isWrapp
 	end
 	local h = fontHeight * lineCount
 
-	TextNode.super.set(self, w, h, pivot, anchor, modeX, modeY)
+	TextNode.super.set(self, w, modeX, h, modeY, pivot, anchor)
 	self.hAlign = validHAlign[hAlign] and hAlign or 'left'
 	self.blendMode = 'alpha'
 	self.color = {1, 1, 1, 1}

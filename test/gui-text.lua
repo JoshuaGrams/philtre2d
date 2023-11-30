@@ -61,7 +61,7 @@ return {
 		T.ok(t2.h >= h*3, "Creating wrapping node increases node height roughly appropriately.")
 	end,
 	function(scene)
-		local t = scene:add(Text("hi", {nil, 12}, 100, "NW", "C", "left"))
+		local t = scene:add(Text("hi", {nil, 12}, 100, "px", "NW", "C", "left"))
 		local drawn = getDrawnImage(scene, 100, 20)
 		T.ok(isAnythingDrawnInLine(1, 20, 8, drawn), "Left-aligned text is drawn on the LEFT.")
 		T.ok(not isAnythingDrawnInLine(80, 100, 8, drawn), "Left-aligned text is NOT drawn on the right.")
@@ -80,11 +80,11 @@ return {
 	function(scene)
 		local t = scene:add(Text("hi", {nil, 12}))
 		local originalFont = t.font
-		t:allocate(0, 0, 100, 100, 100, 100, 2)
+		t:allocate(0, 0, 100, 100, 2)
 		T.ok(t.font ~= originalFont, "Font changes when allocated with scale.")
 		local size = new.paramsFor[t.font][1]
 		T.is(size, 24, "Font size scales up directly with allocated scale.")
-		t:allocate(0, 0, 100, 100, 100, 100, 0.5)
+		t:allocate(0, 0, 100, 100, 0.5)
 		local size = new.paramsFor[t.font][1]
 		T.is(size, 6, "Font size scales down directly with allocated scale.")
 	end,

@@ -95,8 +95,8 @@ return {
 			love.graphics.setColor(childCol)
 			love.graphics.rectangle('fill', -self.w/2, -self.h/2, self.w, self.h)
 		end
-		local m = mod(Mask(nil, 10, 10, "NW", "C"):setPos(10, 10), {children = {
-			mod(Node(20, 20), {draw = nodeDraw})
+		local m = mod(Mask(nil, 10, "px", 10, "px", "NW", "C"):setPos(10, 10), {children = {
+			mod(Node(20, "px", 20, "px"), {draw = nodeDraw})
 		}})
 		scene:add(m)
 		scene:updateTransforms()
@@ -112,6 +112,4 @@ return {
 		verifyPixel(21, 15, drawn, noCol, "Oversized child is masked from right.")
 	end,
 	-- TODO: Test multiple overlapping masks.
-	function(scene)
-	end,
 }

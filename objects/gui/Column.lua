@@ -3,26 +3,32 @@ local Node = require(base .. 'Node')
 
 local Column = Node:extend()
 Column.className = "Column"
+Column.__axis = "y"
 
-function Column._allocateChild(self, child, x, y, w, h, scale)
-	local req = child:request()
-	child:call('allocate', x, y, w, h, req.w, req.h, scale)
+function Column.getChildDesire(self, child)
+	local desiredW, desiredH = child:request()
+	if self.__axis == "y" then  return desiredH  else  return desiredW  end -- Either could be nil so can't use ternary operator.
 end
 
 function Column.allocateChild(self, child)
-	-- Columns can't just recalculate a single child, need to redo them all.
-	self:allocateChildren()
+	if not self:getChildDesire(child) then -- We can't place it, so just allocate it our full size.
+		child:call('allocate', self.contentAlloc:unpack())
+	else
+		self:allocateChildren() -- Columns can't just recalculate a single child, need to redo them all.
+	end
 end
 
-function Column.getChildDimensionTotals(self, key)
+function Column.getChildDimensionTotals(self)
 	local dim1, dim2 = 0, 0
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local val = child:request()[key]
-			dim1 = dim1 + (val or 0)
-			if child.isGreedy then
-				dim2 = dim2 + (val or 0)
+			local val = self:getChildDesire(child)
+			if val then
+				dim1 = dim1 + (val or 0)
+				if child.isGreedy then
+					dim2 = dim2 + (val or 0)
+				end
 			end
 		end
 	end
@@ -32,12 +38,13 @@ end
 function Column.countChildren(self)
 	local count = 0
 	for i=1,self.children.maxn do
-		if self.children[i] then  count = count + 1  end
+		local child = self.children[i]
+		if child and self:getChildDesire(child) then  count = count + 1  end
 	end
 	return count
 end
 
-function Column.allocateHomogeneous(self, x, y, w, h, designW, designH, scale)
+function Column.allocateHomogeneous(self, x, y, w, h, scale)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
@@ -47,21 +54,21 @@ function Column.allocateHomogeneous(self, x, y, w, h, designW, designH, scale)
 	local availableSpace = h - spacingSpace
 	local hEach = math.max(0, availableSpace / childCount)
 
-	local startY = y + h/2 * self.dir
-	local increment = (hEach + spacing) * -self.dir
-	local percent = math.abs(self.dir)
+	local dir = self.isReversed and -1 or 1
+	local increment = (hEach + spacing) * dir
+	local nextY = y
+	if self.isReversed then  nextY = y + h + increment  end
 
 	for i=1,self.children.maxn do
 		local child = self.children[i]
-		if child then
-			local thisY = startY - hEach/2 * self.dir
-			self:_allocateChild(child, x, thisY, w, hEach*percent, scale)
-			startY = startY + increment
+		if child and self:getChildDesire(child) then
+			child:call('allocate', x, nextY, w, hEach, scale)
+			nextY = nextY + increment
 		end
 	end
 end
 
-function Column.allocateHeterogeneous(self, x, y, w, h, designW, designH, scale)
+function Column.allocateHeterogeneous(self, x, y, w, h, scale)
 	if not self.children then  return  end
 	local childCount = self:countChildren()
 	if childCount == 0 then  return  end
@@ -69,24 +76,25 @@ function Column.allocateHeterogeneous(self, x, y, w, h, designW, designH, scale)
 	local spacing = self.spacing * scale
 	local spacingSpace = spacing * (childCount - 1)
 	local availableSpace = h - spacingSpace
-	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals("h")
-	totalChildH, totalGreedyChildH = totalChildH*scale, totalGreedyChildH*scale
+	local totalChildH, totalGreedyChildH = self:getChildDimensionTotals()
 	local squashFactor = math.min(1, availableSpace / totalChildH)
 	local extraH = math.max(0, availableSpace - totalChildH)
 	local greedFactor = extraH / totalGreedyChildH
 
-	local startY = y + h/2 * self.dir
-	local percent = math.abs(self.dir)
+	local dir = self.isReversed and -1 or 1
+	local nextY = y + (self.isReversed and h or 0)
 
 	for i=1,self.children.maxn do
 		local child = self.children[i]
 		if child then
-			local childH = child:request().h * scale
-			local thisH = childH * squashFactor
-			if child.isGreedy then  thisH = thisH + childH * greedFactor  end
-			local thisY = startY - thisH/2 * self.dir
-			self:_allocateChild(child, x, thisY, w, thisH*percent, scale)
-			startY = startY - (thisH + spacing) * self.dir
+			local childH = self:getChildDesire(child)
+			if childH then
+				local thisH = childH * squashFactor
+				if child.isGreedy then  thisH = thisH + childH * greedFactor  end
+				if self.isReversed then  nextY = nextY + (thisH + spacing)*dir  end
+				child:call('allocate', x, nextY, w, thisH, scale)
+				if not self.isReversed then  nextY = nextY + (thisH + spacing)*dir  end
+			end
 		end
 	end
 end
@@ -101,11 +109,11 @@ end
 
 Column.refresh = Column.allocateChildren
 
-function Column.set(self, spacing, homogeneous, dir, w, h, pivot, anchor, modeX, modeY, padX, padY)
-	Column.super.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
+function Column.set(self, spacing, homogeneous, isReversed, w, modeX, h, modeY, pivot, anchor, padX, padY)
+	Column.super.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	self.spacing = spacing or 0
 	self.homogeneous = homogeneous or false
-	self.dir = dir or -1
+	self.isReversed = isReversed
 end
 
 return Column

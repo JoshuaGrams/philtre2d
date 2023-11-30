@@ -10,12 +10,13 @@ function SpriteNode.draw(self)
 	love.graphics.draw(self.image, 0, 0, 0, self.sx, self.sy, self.imgOX, self.imgOY)
 end
 
-function SpriteNode.updateInnerSize(self, x, y, w, h, designW, designH, scale)
-	SpriteNode.super.updateInnerSize(self, x, y, w, h, designW, designH, scale)
+function SpriteNode.updateInnerSize(self, x, y, w, h, scale)
+	local isDirty = SpriteNode.super.updateInnerSize(self, x, y, w, h, scale)
 	self.sx, self.sy = self.w / self.imgW, self.h / self.imgH
+	return isDirty
 end
 
-function SpriteNode.set(self, image, sx, sy, color, pivot, anchor, modeX, modeY)
+function SpriteNode.set(self, image, color, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	local imgType = type(image)
 	if imgType == 'string' then
 		image = new.image(image)
@@ -24,9 +25,8 @@ function SpriteNode.set(self, image, sx, sy, color, pivot, anchor, modeX, modeY)
 	end
 	self.image = image
 	self.imgW, self.imgH = image:getDimensions()
-	sx, sy = sx or 1, sy or 1
-	local w, h = self.imgW * sx, self.imgH * sy
-	SpriteNode.super.set(self, w, h, pivot, anchor, modeX, modeY)
+	self:desire(self.imgW, self.imgH)
+	SpriteNode.super.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 
 	self.imgOX, self.imgOY = self.imgW/2, self.imgH/2
 	self.sx, self.sy = self.w / self.imgW, self.h / self.imgH

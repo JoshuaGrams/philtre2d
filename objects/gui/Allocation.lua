@@ -1,11 +1,10 @@
 
-local function pack(self, x, y, w, h, designW, designH, scale)
-	self.x, self.y, self.w, self.h = x, y, w, h
-	self.designW, self.designH, self.scale = designW, designH, scale
+local function pack(self, x, y, w, h, scale)
+	self.x, self.y, self.w, self.h, self.scale = x, y, w, h, scale
 end
 
 local function unpack(self)
-	return self.x, self.y, self.w, self.h, self.designW, self.designH, self.scale
+	return self.x, self.y, self.w, self.h, self.scale
 end
 
 local function Allocation(x, y, w, h, scale)
@@ -14,8 +13,6 @@ local function Allocation(x, y, w, h, scale)
 		x = x,
 		w = w,
 		h = h,
-		designW = w,
-		designH = h,
 		scale = scale or 1,
 		pack = pack,
 		unpack = unpack

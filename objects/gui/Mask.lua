@@ -56,8 +56,8 @@ function Mask.final(self)
 	self:setMaskOnChildren(self.children, false)
 end
 
-function Mask.set(self, stencilFunc, w, h, pivot, anchor, modeX, modeY, padX, padY)
-	Mask.super.set(self, w, h, pivot, anchor, modeX, modeY, padX, padY)
+function Mask.set(self, stencilFunc, w, modeX, h, modeY, pivot, anchor, padX, padY)
+	Mask.super.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	stencilFunc = stencilFunc or defaultStencilFunc
 	self.stencilFunc = function()  stencilFunc(self)  end
 end
