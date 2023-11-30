@@ -51,68 +51,50 @@ function Column.getChildData(self)
 	return childCount, sumLen, sumGreedyLen, childData
 end
 
-function Column.allocateHomogeneous(self, x, y, w, h, scale)
-	if not self.children or self.children.maxn == 0 then  return  end
-	local childCount, _, _, childData = self:getChildData()
-	if childCount == 0 then  return  end
-
-	local dist, totalLen = self:_getMainDistances(x, y, w, h, scale)
-	local crossDist, crossLen = self:_getCrossDistances(x, y, w, h, scale)
-
-	local spacing = self.spacing * scale
-	local spacingLen = spacing * (childCount - 1)
-	local availableLen = totalLen - spacingLen
-	local len = math.max(0, availableLen / childCount)
-	local increment = (len + spacing) * (self.isReversed and -1 or 1)
-
-	for i,data in ipairs(childData) do
-		if data.excludedFromLayout then
-			data.child:call('allocate', self.contentAlloc:unpack())
-		else
-			self._alloc(data.child, dist, len, crossDist, crossLen, scale)
-			dist = dist + increment
-		end
-	end
-end
-
-function Column.allocateHeterogeneous(self, x, y, w, h, scale)
+function Column.allocateChildren(self)
 	if not self.children or self.children.maxn == 0 then  return  end
 	local childCount, totalChildLen, totalGreedyChildLen, childData = self:getChildData()
 	if childCount == 0 then  return  end
 
+	local x, y, w, h, scale = self.contentAlloc:unpack()
 	local dist, totalLen = self:_getMainDistances(x, y, w, h, scale)
 	local crossDist, crossLen = self:_getCrossDistances(x, y, w, h, scale)
 
 	local spacing = self.spacing * scale
 	local spacingLen = spacing * (childCount - 1)
 	local availableLen = totalLen - spacingLen
-	local squashFactor = math.min(1, availableLen / totalChildLen)
-	local extraLen = math.max(0, availableLen - totalChildLen)
-	local greedFactor = extraLen / totalGreedyChildLen
 
-	for i,data in ipairs(childData) do
-		if data.excludedFromLayout then
-			data.child:call('allocate', self.contentAlloc:unpack())
-		else
-			local child, childLen = data.child, data.len
-			local len = childLen * squashFactor
-			if child.isGreedy then  len = len + childLen * greedFactor  end
-			if self.isReversed then  dist = dist - (len + spacing)  end -- First child must start at far end minus its size.
-			self._alloc(child, dist, len, crossDist, crossLen, scale)
-			if not self.isReversed then  dist = dist + (len + spacing)  end -- First child must start at 0 and count up for the next.
+	if self.homogeneous then
+		local len = math.max(0, availableLen / childCount)
+		local increment = (len + spacing) * (self.isReversed and -1 or 1)
+
+		for _,data in ipairs(childData) do
+			if data.excludedFromLayout then
+				data.child:call('allocate', x, y, w, h, scale)
+			else
+				self._alloc(data.child, dist, len, crossDist, crossLen, scale)
+				dist = dist + increment
+			end
+		end
+	else -- Heterogeneous
+		local squashFactor = math.min(1, availableLen / totalChildLen)
+		local extraLen = math.max(0, availableLen - totalChildLen)
+		local greedFactor = extraLen / totalGreedyChildLen
+
+		for _,data in ipairs(childData) do
+			if data.excludedFromLayout then
+				data.child:call('allocate', x, y, w, h, scale)
+			else
+				local child, childLen = data.child, data.len
+				local len = childLen * squashFactor
+				if child.isGreedy then  len = len + childLen * greedFactor  end
+				if self.isReversed then  dist = dist - (len + spacing)  end -- First child must start at far end minus its size.
+				self._alloc(child, dist, len, crossDist, crossLen, scale)
+				if not self.isReversed then  dist = dist + (len + spacing)  end -- First child must start at 0 and count up for the next.
+			end
 		end
 	end
 end
-
-function Column.allocateChildren(self)
-	if self.homogeneous then
-		self:allocateHomogeneous(self.contentAlloc:unpack())
-	else
-		self:allocateHeterogeneous(self.contentAlloc:unpack())
-	end
-end
-
-Column.refresh = Column.allocateChildren
 
 function Column.set(self, spacing, homogeneous, isReversed, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	Column.super.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
