@@ -343,4 +343,11 @@ return {
 		T.is(xFn.relative(self, 0, 0, 100, 200, 1), 100-15, "X Scale function 'relative' works.")
 		T.is(yFn.relative(self, 0, 0, 100, 200, 1), 200+2.5, "Y Scale function 'relative' works.")
 	end,
+	function(scene) -- Test setGreedy()
+		local n = Node()
+		n:setGreedy(true)
+		T.is(n.isGreedy, true, "setGreedy(true) sets greedy flag.")
+		n:setGreedy(false)
+		T.is(n.isGreedy, false, "setGreedy(false) sets greedy flag.")
+	end,
 }

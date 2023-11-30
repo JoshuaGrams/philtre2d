@@ -72,6 +72,17 @@ return {
 		col:allocateChildren() -- Needed after setting isGreedy.
 		T.has(ch2, {h=50}, "Greedy child gets allocated all extra height.")
 	end,
+	function(scene) -- Make sure setGreedy re-allocates.
+		local col = scene:add(Col(0, false, false, 100, "px", 100, "px"))
+		local ch1 = scene:add(Node(10, "px", 10, "px"), col)
+		local ch2 = scene:add(Node(10, "px", 100, "%"):desire(nil, 10):setGreedy(true), col)
+		local ch3 = scene:add(Node(10, "px", 10, "px"), col)
+		T.is(ch2.h, 80, "Greedy child gets allocated all extra height.")
+		ch2:setGreedy(false)
+		T.is(ch2.h, 10, "setGreedy(false) correctly re-allocates formerly-greedy child.")
+	end,
+
+
 	"GUI Row",
 	function(scene) -- Homogeneous Row
 		local row = scene:add(Row(0, true, nil, 100, "px", 100, "px"))
@@ -136,5 +147,14 @@ return {
 		ch2.isGreedy = true
 		row:allocateChildren() -- Needed after setting isGreedy.
 		T.has(ch2, {w=50}, "Greedy child gets allocated all extra width.")
+	end,
+	function(scene) -- Make sure setGreedy re-allocates.
+		local row = scene:add(Row(0, false, nil, 100, "px", 100, "px"))
+		local ch1 = scene:add(Node(10, "px", 10, "px"), row)
+		local ch2 = scene:add(Node(100, "%", 10, "px"):desire(10, nil):setGreedy(true), row)
+		local ch3 = scene:add(Node(10, "px", 10, "px"), row)
+		T.is(ch2.w, 80, "Greedy child gets allocated all extra height.")
+		ch2:setGreedy(false)
+		T.is(ch2.w, 10, "setGreedy(false) correctly re-allocates formerly-greedy child.")
 	end,
 }

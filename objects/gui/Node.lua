@@ -295,6 +295,12 @@ function Node.setMode(self, x, y)
 	return self
 end
 
+function Node.setGreedy(self, isGreedy)
+	self.isGreedy = isGreedy
+	if self.tree and self.parent.allocateChild then  self.parent:allocateChild(self)  end
+	return self
+end
+
 local function isValidAnchor(a)
 	if CARDINALS[a] then
 		return true
