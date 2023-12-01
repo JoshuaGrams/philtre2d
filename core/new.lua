@@ -48,9 +48,9 @@ function new.release(asset)
 	end
 end
 
-function new.custom(assetType, loaderFn, ...)
+function new.addLoader(assetType, loaderFn)
 	new.loaded[assetType] = new.loaded[assetType] or {}
-	return create(assetType, loaderFn, ...)
+	new[assetType] = function(...)  return create(assetType, loaderFn, ...)  end
 end
 
 function new.image(filename)
