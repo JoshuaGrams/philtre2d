@@ -64,7 +64,7 @@ function Column.allocateChildren(self)
 	local spacingLen = spacing * (childCount - 1)
 	local availableLen = totalLen - spacingLen
 
-	if self.homogeneous then
+	if self.isEven then
 		local len = math.max(0, availableLen / childCount)
 		local increment = (len + spacing) * (self.isReversed and -1 or 1)
 
@@ -76,7 +76,7 @@ function Column.allocateChildren(self)
 				dist = dist + increment
 			end
 		end
-	else -- Heterogeneous
+	else -- Uneven
 		local squashFactor = math.min(1, availableLen / totalChildLen)
 		local extraLen = math.max(0, availableLen - totalChildLen)
 		local greedFactor = extraLen / totalGreedyChildLen
@@ -96,10 +96,28 @@ function Column.allocateChildren(self)
 	end
 end
 
-function Column.set(self, spacing, homogeneous, isReversed, w, modeX, h, modeY, pivot, anchor, padX, padY)
+function Column.setSpacing(self, spacing)
+	self.spacing = spacing or 0
+	self:onContentAllocChanged()
+	return self
+end
+
+function Column.setEven(self, isEven)
+	self.isEven = isEven
+	self:onContentAllocChanged()
+	return self
+end
+
+function Column.setReversed(self, isReversed)
+	self.isReversed = isReversed
+	self:onContentAllocChanged()
+	return self
+end
+
+function Column.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY, spacing, isEven, isReversed)
 	Column.super.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	self.spacing = spacing or 0
-	self.homogeneous = homogeneous or false
+	self.isEven = isEven
 	self.isReversed = isReversed
 end
 
