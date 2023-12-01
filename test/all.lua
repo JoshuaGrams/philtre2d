@@ -17,5 +17,6 @@ T.check(require(base .. 'test.gui-sprite'))
 T.check(require(base .. 'test.gui-slice'))
 T.check(require(base .. 'test.gui-mask'))
 T.check(require(base .. 'test.gui-text'))
+T.check(require(base .. 'test.new'))
 
 T.plan()

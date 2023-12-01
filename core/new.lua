@@ -1,6 +1,7 @@
 local new = {
 	loaded = { image = {}, quad = {}, font = {}, audio = {} },
-	paramsFor = {} -- Keys: loaded assets, Values: The original parameters used to load them.
+	paramsFor = {}, -- Keys: loaded assets, Values: The original parameters used to load them.
+	refCount = {}
 }
 
 local function create(assetType, fn, ...)
@@ -15,9 +16,36 @@ local function create(assetType, fn, ...)
 	if not existing[finalKey] then
 		local asset = fn(...)
 		existing[finalKey] = asset
+		keys.assetType = assetType
 		new.paramsFor[asset] = keys
 	end
-	return existing[finalKey]
+	local asset = existing[finalKey]
+	new.refCount[asset] = (new.refCount[asset] or 0) + 1
+	return asset
+end
+
+function new.unload(asset)
+	local keys = new.paramsFor[asset]
+	local keyCount = #keys
+	local existing = new.loaded[keys.assetType]
+	for i=1,keyCount-1 do
+		existing = existing[keys[i]]
+	end
+	existing[keys[keyCount]] = nil
+	new.paramsFor[asset] = nil
+	new.refCount[asset] = nil
+end
+
+function new.release(asset)
+	local refCount = new.refCount[asset]
+	if refCount then
+		refCount = refCount - 1
+		if refCount <= 0 then
+			new.unload(asset)
+		else
+			new.refCount[asset] = refCount
+		end
+	end
 end
 
 function new.custom(assetType, loaderFn, ...)
