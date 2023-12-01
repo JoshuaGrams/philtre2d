@@ -196,6 +196,30 @@ return {
 		if not success then  print(errMsg)  end
 	end,
 
+	function(scene) -- Check scene.updateTransforms().
+		local pathsOfUpdated = ""
+		local function ut(self)
+			Object.updateTransform(self)
+			pathsOfUpdated = pathsOfUpdated .. self.path .. ", "
+		end
+		local function Obj()
+			local o = Object()
+			o.updateTransform = ut
+			return o
+		end
+		scene:add(Obj())
+		local p = scene:add(Obj())
+		scene:add(Obj(), p)
+		scene:add(Obj())
+		pathsOfUpdated = "" -- Objects' transforms are updated when they are added.
+		scene:updateTransforms()
+		-- Top-down order.
+		T.is(pathsOfUpdated, "/Object, /Object2, /Object2/Object, /Object3, ", "scene:updateTransforms() updates the transforms of all descendants.")
+		pathsOfUpdated = ""
+		scene:updateTransforms(p)
+		T.is(pathsOfUpdated, "/Object2, /Object2/Object, ", "scene:updateTransforms(obj) updates 'obj' and its children.")
+	end,
+
 	-- ##########  RUN DUPLICATE TESTS WITH DUMMY OBJECT  ##########
 	'SceneTree with minimal Dummy object',
 
@@ -375,5 +399,29 @@ return {
 		T.is(#uplist, 3, "getObjList bottom-up returns a list that's the correct length")
 		T.ok(uplist[1] ~= scene, "getObjList bottom-up - first in list is NOT the parent.")
 		T.is(uplist[3], scene, "getObjList bottom-up - last in list is the parent.")
+	end,
+
+	function(scene) -- Check scene.updateTransforms().
+		local pathsOfUpdated = ""
+		local function ut(self)
+			pathsOfUpdated = pathsOfUpdated .. self.path .. ", "
+		end
+		local function Obj()
+			local o = Dummy()
+			o.name = "Object"
+			o.updateTransform = ut
+			return o
+		end
+		scene:add(Obj())
+		local p = scene:add(Obj())
+		scene:add(Obj(), p)
+		scene:add(Obj())
+		pathsOfUpdated = "" -- Objects' transforms are updated when they are added.
+		scene:updateTransforms()
+		-- Top-down order.
+		T.is(pathsOfUpdated, "/Object, /Object2, /Object2/Object, /Object3, ", "scene:updateTransforms() updates the transforms of all descendants.")
+		pathsOfUpdated = ""
+		scene:updateTransforms(p)
+		T.is(pathsOfUpdated, "/Object2, /Object2/Object, ", "scene:updateTransforms(obj) updates 'obj' and its children.")
 	end,
 }

@@ -115,9 +115,10 @@ local function updateTransforms(children)
 	end
 end
 
-function SceneTree.updateTransforms(self)
+function SceneTree.updateTransforms(self, obj)
 	self:lock()
-	updateTransforms(self.children)
+	if obj then  obj:updateTransform()  end
+	updateTransforms((obj or self).children)
 	self:unlock()
 end
 
