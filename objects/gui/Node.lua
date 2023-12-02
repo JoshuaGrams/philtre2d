@@ -181,9 +181,8 @@ function Node.updateSize(self, x, y, w, h, scale)
 end
 
 function Node.allocate(self, x, y, w, h, scale)
-	if not x then
-		x, y, w, h, scale = self.lastAlloc:unpack()
-	end
+	if self.lastAlloc:equals(x, y, w, h, scale) then  return  end
+
 	local isDirty = false
 	isDirty = self:updateScale(x, y, w, h, scale) or isDirty
 	isDirty = self:updateOffset(x, y, w, h, scale) or isDirty
@@ -191,7 +190,6 @@ function Node.allocate(self, x, y, w, h, scale)
 	isDirty = self:updateContentSize(x, y, w, h, scale) or isDirty
 
 	self.lastAlloc:pack(x, y, w, h, scale)
-
 	if isDirty then
 		self:onContentAllocChanged()
 	end
