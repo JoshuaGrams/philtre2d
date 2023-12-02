@@ -43,6 +43,8 @@ for k,v in pairs(xModeMap) do  yModeMap[k] = v  end
 xModeMap['%'], yModeMap['%'] = 'percentw', 'percenth'
 Node.xModeMap, Node.yModeMap = xModeMap, yModeMap
 
+Node.modeSetsDesire = { pixels = true, units = true, aspect = true }
+
 local function rotate(x, y, angle)
 	local c, s = cos(angle), sin(angle)
 	return c * x - s * y, s * x + c * y
@@ -170,6 +172,8 @@ function Node.updateSize(self, x, y, w, h, scale)
 		self.w = xScaleFuncs[self.modeX](self, x, y, w, h, scale)
 		self.h = yScaleFuncs[self.modeY](self, x, y, w, h, scale)
 	end
+	if self.modeSetsDesire[self.modeX] then  self.desiredW = self.w  end
+	if self.modeSetsDesire[self.modeY] then  self.desiredH = self.h  end
 	self.anchorPosX, self.anchorPosY = w * self.ax, h * self.ay
 	local isDirty = self.w ~= oldW or self.h ~= oldH
 	isDirty = isDirty or self.anchorPosX ~= oldAnchorX or self.anchorPosY ~= oldAnchorY
@@ -323,12 +327,6 @@ function Node.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	padX, padY = padX or 0, padY or padX or 0
 	self.padX, self.padY = padX, padY
 
-	self.xParam, self.yParam = w, h
-	self.w, self.h = w, h -- Doesn't make much sense, but we need something here.
-	-- Desired W/H are Nil by default. Can inherit from Class.desiredW/.desiredH.
-	if self.modeX == 'pixels' then  self.desiredW = w  end
-	if self.modeY == 'pixels' then  self.desiredH = h  end
-
 	self._scrollX, self._scrollY = 0, 0
 	self.contentAlloc = Alloc(padX, padY, w - padX*2, h - padY*2)
 	self.lastAlloc = Alloc(0, 0, w, h) -- Need to save for when we modify things between allocations.
@@ -339,6 +337,9 @@ function Node.set(self, w, modeX, h, modeY, pivot, anchor, padX, padY)
 	assert(isValidAnchor(anchor), 'Node.set: Invalid anchor "'  .. tostring(anchor) .. '". Must be a cardinal direction string or a table: { [1]=x, [2]=y }.')
 	self:setPivot(pivot)
 	self:setAnchor(anchor)
+
+	self.xParam, self.yParam = w, h
+	self:updateSize(0, 0, w, h, 1) -- Sets self.w/h, desiredW/H, and anchorPosX/Y.
 
 	self.debugColor = { math.random()*0.8+0.4, math.random()*0.8+0.4, math.random()*0.8+0.4, 0.5 }
 end
