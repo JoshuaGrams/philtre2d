@@ -140,9 +140,9 @@ Example:
 scene:draw() -- draws all layers
 
 -- With layerGroups 'game' and 'gui', changing state in between:
-Camera.current:applyTransform()
+Camera.current:apply()
 scene.drawOrder:draw('game')
-Camera.current:resetTransform()
+Camera.current:reset()
 scene.drawOrder:draw('gui')
 
 -- With layerGroups 'game' and 'gui', drawing both at once:

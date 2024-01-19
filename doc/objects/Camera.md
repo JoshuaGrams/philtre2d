@@ -13,7 +13,7 @@ Basic Usage
 
 First, add a camera to your scene tree. It can be the child of another object if you want.
 
-Second, in `love.draw()`, add `Camera.current:applyTransform()` before you draw world-space objects, and `Camera.current:resetTransform()` afterward.
+Second, in `love.draw()`, add `Camera.current:apply()` before you draw world-space objects, and `Camera.current:reset()` afterward.
 
 Lastly, in `love.resize(w, h)`, call `Camera.setAllViewports(0, 0, w, h)`.
 
@@ -27,9 +27,9 @@ end
 
 function love.draw()
 	scene:updateTransforms()
-	Camera.current:applyTransform()
+	Camera.current:apply()
 	scene:draw()
-	Camera.current:resetTransform()
+	Camera.current:reset()
 end
 
 function love.resize(w, h)
@@ -75,10 +75,10 @@ _PARAMETERS_
 * __w__ <kbd>number</kbd> - The new width of the window.
 * __h__ <kbd>number</kbd> - The new height of the window.
 
-### Camera.applyTransform(self)
+### Camera.apply(self)
 Adds this camera's view transform (position, rotation, and zoom) to Löve's render transform stack.
 
-### Camera.resetTransform(self)
+### Camera.reset(self)
 Resets to the last render transform (`love.graphics.pop()`)
 
 ### Camera.activate(self)

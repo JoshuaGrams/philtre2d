@@ -200,7 +200,7 @@ function Camera.update(self, dt)
 	end
 end
 
-function Camera.applyTransform(self)
+function Camera.apply(self)
 	love.graphics.push()
 	love.graphics.origin()
 
@@ -220,7 +220,7 @@ function Camera.applyTransform(self)
 	end
 end
 
-function Camera.resetTransform(self)
+function Camera.reset(self)
 	love.graphics.pop()
 	if self.oldScissor then
 		love.graphics.setScissor(unpack(self.oldScissor))
