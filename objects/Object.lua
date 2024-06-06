@@ -101,10 +101,11 @@ function Object.drawDebug(self)
 	love.graphics.circle('line', 0, 0, 0.5, 4)
 end
 
-function Object.debugDraw(self, layer)
+function Object.debugDraw(self)
 	if self.tree and self.drawIndex then
-		local layer = self.tree.drawOrder:getLayer(layer)
-		layer:addObject(self, self.drawDebug)
+		self:applyTransform()
+		self:drawDebug()
+		self:resetTransform()
 	end
 end
 

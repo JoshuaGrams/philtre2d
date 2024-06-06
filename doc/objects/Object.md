@@ -63,13 +63,12 @@ Attempts to call the named function on the object and any scripts that object ma
 ### Object.callRecursive(self, isTopDown, fnName, ...)
 Recursively calls `Object.call` on the object and all of its descendants. If `isTopDown` is true then parents are always called before children, otherwise it is from the bottom up—children are called before their parents (with self being last).
 
-### Object.debugDraw(self, layer)
-Unused by default. Uses `tree.drawOrder:addFunction` to draw debug stuff to the specified layer. Can be used on the whole scene-tree with `Object.callRecursive`. The debugDraw function will _not_ be automatically removed from the layer later, so you probably want to clear your debug layer every frame.
+### Object.debugDraw(self)
+Unused by default. Immediately calls self:applyTransform(), self:drawDebug() and self:resetTransform() if self is in the tree and visible. Can be used on the whole scene-tree with `Object.callRecursive`.
 ```lua
 -- Inside love.draw():
-scene.drawOrder:clear("physics debug")
-scene:callRecursive("debugDraw", false, "physics debug")
--- scene:draw("world") etc...
+scene:draw("world")
+scene:callRecursive(true, "debugDraw")
 ```
 
 ### Object.toWorld(obj, x, y, [w])

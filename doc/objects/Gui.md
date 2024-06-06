@@ -17,7 +17,7 @@ local gui = require "philtre.objects.gui.all"
 -- Node, Slice, Text, Sprite, Row, Column, and Mask.
 
 local layers = {
-	debug = { "debug", "default" },
+	gui = { "gui" },
 }
 local debugLayer = "debug"
 
@@ -25,7 +25,7 @@ local scene
 local guiRoot
 
 function love.load()
-	scene = SceneTree(layers, "default")
+	scene = SceneTree(layers, "gui")
 	-- Add a node that will fill the window:
 	guiRoot = scene:add( gui.Node(100, "%", 100, "%") )
 	local w, h = love.graphics.getDimensions()
@@ -37,9 +37,8 @@ function love.resize(w, h)
 end
 
 function love.draw()
-	scene:callRecursive(true, "debugDraw", debugLayer)
-	scene:draw("debug")
-	scene.drawOrder:clear(debugLayer)
+	scene:draw("gui")
+	guiRoot:callRecursive(true, "debugDraw")
 end
 ```
 
