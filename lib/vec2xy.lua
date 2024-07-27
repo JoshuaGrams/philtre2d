@@ -34,12 +34,15 @@ function vec2.sub(ax, ay, bx, by)
 	return ax - bx, ay - by
 end
 
--- Multiply a vector by a scalar or another vector.
-function vec2.mul(ax, ay, bx, by)
-	if by then
-		return ax * bx, ay * by -- vector
-	end
-	return ax * bx, ay * bx -- scalar
+-- Multiply a vector by a scalar
+-- Vector args second so they can be returned by another vec2 function.
+function vec2.mul(s, ax, ay)
+	return s * ax, s * ay
+end
+
+-- Multiply a vector by another vector (same as dot product)
+function vec2.vmul(ax, ay, bx, by)
+	return ax * bx + ay * by
 end
 
 -- Divide a vector by another vector.
