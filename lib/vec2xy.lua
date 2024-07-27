@@ -4,13 +4,10 @@
 local vec2    = {}
 local vec2_mt = {} -- only used for __call = new
 
-local acos    = math.acos
 local atan2   = math.atan2
 local sqrt    = math.sqrt
 local cos     = math.cos
 local sin     = math.sin
-local PI = math.pi
-local TWO_PI = math.pi*2
 
 -- Make a new table with `x` and `y` elements.
 --		This is the one outlier, just here for occasional convenience.
@@ -21,6 +18,10 @@ end
 
 function vec2.from_polar(r, th)
 	return r * cos(th), r * sin(th)
+end
+
+function vec2.from_angle(th)
+	return cos(th), sin(th)
 end
 
 -- Add a vector to another vector.
