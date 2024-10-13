@@ -8,43 +8,33 @@ function SliceNode.draw(self)
 	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setColor(self.color)
 
-	local w2, h2 = self.w/2, self.h/2
+	local lt, top = 0, 0
+	local rt, bot = self.w, self.h
 	local m = self.margins
 	local s = self.lastAlloc.scale
 	-- Draw corners
-	love.graphics.draw(self.image, self.quadTl, -w2, -h2, 0, s, s) -- Top Left
-	love.graphics.draw(self.image, self.quadTr, w2-m.rt, -h2, 0, s, s) -- Top Right
-	love.graphics.draw(self.image, self.quadBl, -w2, h2-m.bot, 0, s, s) -- Bottom Left
-	love.graphics.draw(self.image, self.quadBr, w2-m.rt, h2-m.bot, 0, s, s) -- Bottom Right
+	love.graphics.draw(self.image, self.quadTl, -lt, -top, 0, s, s) -- Top Left
+	love.graphics.draw(self.image, self.quadTr, rt-m.rt, -top, 0, s, s) -- Top Right
+	love.graphics.draw(self.image, self.quadBl, -lt, bot-m.bot, 0, s, s) -- Bottom Left
+	love.graphics.draw(self.image, self.quadBr, rt-m.rt, bot-m.bot, 0, s, s) -- Bottom Right
 	-- Draw sides
-	love.graphics.draw(self.image, self.quadTop, -w2+m.lt, -h2, 0, self.sliceSX, s) -- Top
-	love.graphics.draw(self.image, self.quadBot, -w2+m.lt, h2-m.bot, 0, self.sliceSX, s) -- Bottom
-	love.graphics.draw(self.image, self.quadLt, -w2, -h2+m.top, 0, s, self.sliceSY) -- Left
-	love.graphics.draw(self.image, self.quadRt, w2-m.rt, -h2+m.top, 0, s, self.sliceSY) -- Right
+	love.graphics.draw(self.image, self.quadTop, -lt+m.lt, -top, 0, self.sliceSX, s) -- Top
+	love.graphics.draw(self.image, self.quadBot, -lt+m.lt, bot-m.bot, 0, self.sliceSX, s) -- Bottom
+	love.graphics.draw(self.image, self.quadLt, -lt, -top+m.top, 0, s, self.sliceSY) -- Left
+	love.graphics.draw(self.image, self.quadRt, rt-m.rt, -top+m.top, 0, s, self.sliceSY) -- Right
 	-- Draw center
-	love.graphics.draw(self.image, self.quadC, -w2+m.lt, -h2+m.top, 0, self.sliceSX, self.sliceSY) -- Center
+	love.graphics.draw(self.image, self.quadC, -lt+m.lt, -top+m.top, 0, self.sliceSX, self.sliceSY) -- Center
 end
 
 function SliceNode.drawDebug(self)
-	love.graphics.setColor(self.debugColor)
-	local pivotPosx, pivotPosy = self.w*self.px, self.h*self.py
-	local s = self.lastAlloc.scale
-	love.graphics.circle('fill', pivotPosx, pivotPosy, 4*s, 8)
-	love.graphics.line(-8*s, 0, 8*s, 0)
-	love.graphics.line(0, -8*s, 0, 8*s)
-	if self.padX ~= 0 or self.padY ~= 0 then
-		local iw, ih = self.contentAlloc.w, self.contentAlloc.h
-		love.graphics.rectangle('line', -iw/2, -ih/2, iw, ih)
-	end
-	local w2, h2 = self.w/2, self.h/2
+	SliceNode.super.drawDebug(self)
+	local lt, top = 0, 0
+	local rt, bot = self.w, self.h
 	local m = self.margins
-
-	love.graphics.rectangle('line', -w2, -h2, self.w, self.h)
-
-	love.graphics.line(-w2+m.lt, -h2, -w2+m.lt, h2)
-	love.graphics.line(w2-m.rt, -h2, w2-m.rt, h2)
-	love.graphics.line(-w2, -h2+m.top, w2, -h2+m.top)
-	love.graphics.line(-w2, h2-m.bot, w2, h2-m.bot)
+	love.graphics.line(lt+m.lt, top, lt+m.lt, bot)
+	love.graphics.line(rt-m.rt, top, rt-m.rt, bot)
+	love.graphics.line(lt, top+m.top, rt, top+m.top)
+	love.graphics.line(lt, bot-m.bot, rt, bot-m.bot)
 end
 
 function SliceNode.updateScale(self, x, y, w, h, scale)

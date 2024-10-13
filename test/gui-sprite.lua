@@ -45,7 +45,7 @@ return {
 	function(scene)
 		local scene = SceneTree()
 		-- NW corner at 0, 0.
-		local sprite = scene:add(Sprite(img, nil, 100, "%", 100, "%", "NW", "C"))
+		local sprite = scene:add(Sprite(img, nil, 100, "%", 100, "%"))
 		local canvas = love.graphics.newCanvas(200, 200)
 		love.graphics.setCanvas(canvas)
 		scene:draw()

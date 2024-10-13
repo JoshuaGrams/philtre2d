@@ -64,7 +64,7 @@ return {
 	"GUI Slice",
 	function(scene)
 		local img = makeSliceImg(20, 20, 1, 2, 3, 4)
-		local s = scene:add(Slice(img, nil, {1, 2, 3, 4}, 20, "px", 20, "px", "NW", "C")) -- lt, rt, top, bot
+		local s = scene:add(Slice(img, nil, {1, 2, 3, 4}, 20, "px", 20, "px")) -- lt, rt, top, bot
 		local drawn = getDrawnImage(scene, 25, 25)
 		local lt, rt = 1, 20-2+1
 		local top, bot = 3, 20-4+1
@@ -101,7 +101,7 @@ return {
 		-- Check that margins scale.
 		love.graphics.setDefaultFilter("nearest")
 		local img = makeSliceImg(20, 20, 2, 2, 2, 2)
-		local s = scene:add(Slice(img, nil, {2}, 100, "%", 100, "%", "NW", "C")) -- lt, rt, top, bot
+		local s = scene:add(Slice(img, nil, {2}, 100, "%", 100, "%")) -- lt, rt, top, bot
 		s:allocate(0, 0, 20, 20, 2)
 		local drawn = getDrawnImage(scene, 22, 22)
 		local lt, rt = 4, 20-4+1

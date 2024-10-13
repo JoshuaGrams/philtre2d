@@ -6,7 +6,7 @@ Mask.className = "Mask"
 
 local function defaultStencilFunc(self)
 	local w, h = self.contentAlloc.w, self.contentAlloc.h
-	love.graphics.rectangle("fill", -w/2, -h/2, w, h)
+	love.graphics.rectangle("fill", 0, 0, w, h)
 end
 
 function Mask.enableMask(self)
