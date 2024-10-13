@@ -35,20 +35,21 @@ return {
 		T.ok(not isSuccess, 'Creating a Node with "aspect" mode on both axes causes an error')
 	end,
 	function(scene) -- Check mode short name remapping.
-		T.is(Node(100, "px"           ).modeX, "pixels", '"px" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "px" ).modeY, "pixels", '"px" short Y mode name remapping works.')
-		T.is(Node(100, "u"            ).modeX, "units", '"u" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "u"  ).modeY, "units", '"u" short Y mode name remapping works.')
-		T.is(Node(100, "%w"           ).modeX, "percentw", '"%w" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "%w" ).modeY, "percentw", '"%w" short Y mode name remapping works.')
-		T.is(Node(100, "%h"           ).modeX, "percenth", '"%h" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "%h" ).modeY, "percenth", '"%h" short Y mode name remapping works.')
-		T.is(Node(100, "rel"          ).modeX, "relative", '"rel" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "rel").modeY, "relative", '"rel" short Y mode name remapping works.')
-		T.is(Node(100, "+"            ).modeX, "relative", '"+" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "+"  ).modeY, "relative", '"+" short Y mode name remapping works.')
-		T.is(Node(100, "%"            ).modeX, "percentw", '"%" short X mode name remapping works.')
-		T.is(Node(nil, nil, 100, "%"  ).modeY, "percenth", '"%" short Y mode name remapping works.')
+		local xFns, yFns = Node.xScaleFuncs, Node.yScaleFuncs
+		T.is(xFns[Node(100, "px"           ).modeX], xFns["pixels"], '"px" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "px" ).modeY], yFns["pixels"], '"px" short Y mode name remapping works.')
+		T.is(xFns[Node(100, "u"            ).modeX], xFns["units"], '"u" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "u"  ).modeY], yFns["units"], '"u" short Y mode name remapping works.')
+		T.is(xFns[Node(100, "%w"           ).modeX], xFns["percentw"], '"%w" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "%w" ).modeY], yFns["percentw"], '"%w" short Y mode name remapping works.')
+		T.is(xFns[Node(100, "%h"           ).modeX], xFns["percenth"], '"%h" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "%h" ).modeY], yFns["percenth"], '"%h" short Y mode name remapping works.')
+		T.is(xFns[Node(100, "rel"          ).modeX], xFns["relative"], '"rel" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "rel").modeY], yFns["relative"], '"rel" short Y mode name remapping works.')
+		T.is(xFns[Node(100, "+"            ).modeX], xFns["relative"], '"+" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "+"  ).modeY], yFns["relative"], '"+" short Y mode name remapping works.')
+		T.is(xFns[Node(100, "%"            ).modeX], xFns["percentw"], '"%" short X mode name remapping works.')
+		T.is(yFns[Node(nil, nil, 100, "%"  ).modeY], yFns["percenth"], '"%" short Y mode name remapping works.')
 	end,
 	function(scene) -- Node should not allocate itself in constructor.
 		local _Node = Node:extend() -- Create a subclass so we don't modify Node for other tests.

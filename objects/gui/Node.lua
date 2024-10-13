@@ -33,17 +33,19 @@ local yScaleFuncs = {
 	relative = function(self, x, y, w, h, scale)  return h + self.yParam       end
 }
 Node.xScaleFuncs, Node.yScaleFuncs = xScaleFuncs, yScaleFuncs
-
-local xModeMap = {
+local _modeShorthands = {
 	px = 'pixels', u = 'units', ['%w'] = 'percentw', ['%h'] = 'percenth', rel = 'relative', ['+'] = 'relative'
 }
-for k,_ in pairs(xScaleFuncs) do  xModeMap[k] = k  end
-local yModeMap = {}
-for k,v in pairs(xModeMap) do  yModeMap[k] = v  end
-xModeMap['%'], yModeMap['%'] = 'percentw', 'percenth'
-Node.xModeMap, Node.yModeMap = xModeMap, yModeMap
+for abbrev,full in pairs(_modeShorthands) do
+	xScaleFuncs[abbrev] = xScaleFuncs[full]
+	yScaleFuncs[abbrev] = yScaleFuncs[full]
+end
+xScaleFuncs['%'] = xScaleFuncs['percentw']
+yScaleFuncs['%'] = yScaleFuncs['percenth']
+-- For setMode() error messages:
+local _allModesStr = '"pixels", "units", "percentw", "percenth", "aspect", "relative", "px", "u", "%", "%w", "%h", "rel", or "+"'
 
-Node.modeSetsDesire = { pixels = true, units = true, aspect = true }
+Node.modeSetsDesire = { pixels = true, px = true, units = true, u = true, aspect = true }
 
 local function rotate(x, y, angle)
 	local c, s = cos(angle), sin(angle)
@@ -286,13 +288,11 @@ end
 local function setMode(self, x, y)
 	assert((x or self.modeX) ~= 'aspect' or (y or self.modeY) ~= 'aspect',  'Can\'t set both modes to "aspect".')
 	if x then
-		x = xModeMap[x]
-		assert(xScaleFuncs[x], 'Invalid X mode "' .. tostring(x) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
+		assert(xScaleFuncs[x], 'Invalid X mode "' .. tostring(x) .. '". Should be ' .. _allModesStr .. '.')
 		self.modeX = x
 	end
 	if y then
-		y = yModeMap[y]
-		assert(yScaleFuncs[y], 'Invalid Y mode "' .. tostring(y) .. '". Should be: "none", "fit", "cover", "stretch", or "fill".')
+		assert(yScaleFuncs[y], 'Invalid Y mode "' .. tostring(y) .. '". Should be ' .. _allModesStr .. '.')
 		self.modeY = y
 	end
 end

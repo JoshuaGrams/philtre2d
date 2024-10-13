@@ -49,7 +49,7 @@ end
 A basic, invisible, layout node.
 
 _PARAMETERS_
-* __w__ <kbd>number</kbd> - The paramater to determine the node's width.
+* __w__ <kbd>number</kbd> - The parameter to determine the node's width.
 * __modeX__ <kbd>string</kbd> - The resize mode for the node's width. Defaults to 'pixels'. The available modes are:
 	* 'pixels' - `w` is a fixed number of pixels.
 	* 'units' - `w` is multiplied by the allocation `scale`.
@@ -69,7 +69,7 @@ _PARAMETERS_
 	* '+' = 'relative'
 
 	Nodes with sizes that are based on parent sizes (percentw/h and relative modes) will need to have a 'desired' size set (with Node:desire()) for the relevant axis before they can be controlled by Row and Column nodes. If not, they will simply be allocated the full size of the Row or Column. With other modes, the desired width and height will be set to match (though Node:desire() can still be used to set a separate desired size).
-* __h__ <kbd>number</kbd> - The paramater to determine the node's height.
+* __h__ <kbd>number</kbd> - The parameter to determine the node's height.
 * __modeY__ <kbd>string</kbd> - The resize mode for the node's height. Defaults to `modeX` or 'pixels'.
 * __pivot__ <kbd>string | table</kbd> - A cardinal direction signifying the node's origin/pivot point. "N", "NE", "E" "SE", "S", "SW", "W", "NW", or "C" (centered). Can be uppercase or lowercase (but not a mixture). Defaults to "C". Or, to set an arbitrary pivot, can be a table with two elements.
 * __anchor__ <kbd>string | table</kbd> - A cardinal direction signifying the node's anchor point inside its allocated area. Defaults to "C". Or, to set an arbitrary anchor, can be a table with two elements..
