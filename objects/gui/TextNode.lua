@@ -26,32 +26,35 @@ function TextNode.updateContentSize(self, x, y, w, h, scale)
 	return TextNode.super.updateContentSize(self, x, y, w, h, scale)
 end
 
-function TextNode.drawDebug(self)
-	love.graphics.setColor(self.debugColor)
-	local pivotPosx, pivotPosy = self.w*self.px, self.h*self.py
-	love.graphics.rectangle('line', -5+pivotPosx, -5+pivotPosy, 10, 10)
-	love.graphics.circle('fill', pivotPosx, pivotPosy, 5, 4)
-	love.graphics.rectangle('fill', -self.w*0.5, -self.h*0.5, self.w, self.h)
+function TextNode.drawDebug(self) -- Normal Node.drawDebug, plus transparently filled rect.
+	TextNode.super.drawDebug(self)
+	local c = self.debugColor
+	love.graphics.setColor(c[1], c[2], c[3], c[4]*0.2)
+	love.graphics.rectangle('fill', 0.5, 0.5, self.w-1, self.h-1)
 end
 
 function TextNode.draw(self)
 	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setFont(self.font)
 	love.graphics.setColor(self.color)
-	local w = self.w
-	local ox, oy = w/2, self.h/2
+	local wrapW, ox = self.w, 0
+	-- Justified text without wrapping doesn't make sense, so it always wraps with justify mode.
 	if not self.isWrapping and self.hAlign ~= "justify" then
-		w = 1000000
-		ox = w/2
+		-- With wrapping disabled, set huge wrap limit and manually re-align.
+		-- Otherwise we would need to get the text width to align it.
+		wrapW = 1000000
 		if self.hAlign == "left" then
-			ox = ox - (w - self.w)/2
+			ox = 0
 		elseif self.hAlign == "right" then
-			ox = ox + (w - self.w)/2
+			ox = self.w - wrapW
+		else -- "center"
+			ox = self.w/2 - wrapW/2
 		end
 	end
+	-- If wrapping is enabled, then printf handles alignment as intended within our width.
 	love.graphics.printf(
-		self.text, 0, 0, w, self.hAlign,
-		0, 1, 1, ox, oy, self.kx, self.ky
+		self.text, ox, 0, wrapW, self.hAlign,
+		0, 1, 1, 0, 0, self.kx, self.ky
 	)
 end
 
