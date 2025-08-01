@@ -8,8 +8,8 @@ local SceneTree = Tree:extend()
 
 function SceneTree.set(self, groups, default)
 	SceneTree.super.set(self)
-	groups = groups or {'default'}
 	default = default or 'default'
+	groups = groups or { default }
 	self.drawOrder = DrawOrder(groups, default)
 end
 

@@ -136,6 +136,14 @@ return {
 		draw(scene, "a")
 		T.is(drawn, string.rep("Object", 6), "re-adding parent with deleted middle children re-adds all children correctly")
 	end,
+	function()
+		local scene = SceneTree()
+		T.ok(scene.drawOrder.groups.all, "drawOrder for SceneTree made with no args has default named group")
+		T.has(scene.drawOrder.groups.all[1], { name = "default" }, "...default group has default named layer")
+		scene = SceneTree(nil, "test")
+		T.ok(scene.drawOrder.groups.all, "drawOrder for SceneTree made with only default layer name has default named group")
+		T.has(scene.drawOrder.groups.all[1], { name = "test" }, "...default group has appropriately named layer")
+	end,
 	function(scene)
 		local l = scene.drawOrder:getLayerNames("nonexistent group")
 		T.is(l, nil, "drawOrder.getLayerNames returns nil for nonexistent group.")
