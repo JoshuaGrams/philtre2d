@@ -135,5 +135,22 @@ return {
 		scene:add(parent)
 		draw(scene, "a")
 		T.is(drawn, string.rep("Object", 6), "re-adding parent with deleted middle children re-adds all children correctly")
+	end,
+	function(scene)
+		local l = scene.drawOrder:getLayerNames("nonexistent group")
+		T.is(l, nil, "drawOrder.getLayerNames returns nil for nonexistent group.")
+		l = scene.drawOrder:getLayerNames("a")
+		T.is(type(l), "table", "drawOrder.getLayerNames returns a table for existing group.")
+		T.has(l, {"a"}, "drawOrder.getLayerNames has the right layer name.")
+
+		scene = SceneTree()
+		l = scene.drawOrder:getLayerNames()
+		T.has(l, {"default"}, "drawOrder.getLayerNames with no args return default layer name")
+
+		scene = SceneTree({ one = { "a", "b", "c" }, two = { "d", "e" }}, "a")
+		l = scene.drawOrder:getLayerNames("one")
+		T.has(l, {"a", "b", "c"}, "drawOrder.getLayerNames with multiple layers in group returns correct result.")
+		l = scene.drawOrder:getLayerNames("two")
+		T.has(l, {"d", "e"}, "drawOrder.getLayerNames with multiple layers in group (2) returns correct result.")
 	end
 }

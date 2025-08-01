@@ -9,8 +9,9 @@ function Layer.__tostring(self)
 	return "Layer: " .. self.id
 end
 
-function Layer.set(self)
+function Layer.set(self, name)
 	self.count = 0
+	self.name = name
 end
 Layer.clear = Layer.set
 

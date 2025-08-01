@@ -21,7 +21,7 @@ function DrawOrder.set(self, groups, default)
 		self.groups[groupName] = group
 		for _,layerName in ipairs(layerNames) do
 			if layerName == default then  containsDefaultLayer = true  end
-			local layer = Layer()
+			local layer = Layer(layerName)
 			self.layers[layerName] = layer
 			if not self.layer then self.layer = layer end -- Set layer to the first one in the first group in case there is no default.
 			table.insert(group, layer)
@@ -69,6 +69,15 @@ end
 
 function DrawOrder.getLayer(self, name)
 	return self.layers[name]
+end
+
+function DrawOrder.getLayerNames(self, groupName)
+	local layers = self.groups[groupName or onlyGroup]
+	if layers then
+		local names = {}
+		for i=1,#layers do  names[i] = layers[i].name  end
+		return names
+	end
 end
 
 function DrawOrder.addFunction(self, layerName, ...)
