@@ -5,6 +5,10 @@ local Row = Column:extend()
 Row.className = "Row"
 
 function Row._getChildDesire(self, child)
+	-- Row allocates based on child desire, but child desire can change based on
+	-- the alloc that it hasn't gotten yet (like scale). Desire is only set in
+	-- .updateSize(), so call that with our full alloc (an imperfect workaround).
+	if child.modeSetsDesire[child.modeX] then child:call('updateSize', self.lastAlloc:unpack()) end
 	local desiredW, _ = child:request()
 	return desiredW
 end
