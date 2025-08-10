@@ -5,11 +5,6 @@ local Column = Node:extend()
 Column.className = "Column"
 
 function Column._getChildDesire(self, child)
-	-- Column allocates based on child desire, but child desire can change based
-	-- on the alloc that it hasn't gotten yet (like scale). Desire is only set in
-	-- .updateSize(), so call that with our full alloc (an imperfect workaround).
-	-- TODO: May cause problems with 'aspect' mode children?
-	if child.modeSetsDesire[child.modeY] then child:call('updateSize', self.lastAlloc:unpack()) end
 	local _, desiredH = child:request()
 	return desiredH
 end
@@ -57,6 +52,14 @@ function Column.getChildData(self)
 end
 
 function Column.allocateChildren(self)
+	-- Column allocates based on child desire, but child desire can change based
+	-- on the alloc that it hasn't gotten yet. Just do it twice to be sure (the
+	-- second alloc won't be passed down the tree if it's the same).
+	self:_allocateChildren()
+	self:_allocateChildren()
+end
+
+function Column._allocateChildren(self)
 	if not self.children or self.children.maxn == 0 then  return  end
 	local childCount, totalChildLen, totalGreedyChildLen, childData = self:getChildData()
 	if childCount == 0 then  return  end
