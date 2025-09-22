@@ -235,14 +235,14 @@ return {
 		T.has(n._toWorld, {x=25, y=35}, "setPos works")
 		n:allocate(0, 0, 200, 200, 1) -- Node uses "none" mode, won't resize.
 		T.has(n._toWorld, {x=25, y=35}, "Position not broken by allocation.")
-		n:allocate(0, 0, 100, 100, 2) -- With scale - Pos is unaffected by scale
-		T.has(n._toWorld, {x=25, y=35}, "Position unaffected by allocation scale.")
+		n:allocate(0, 0, 100, 100, 2) -- With scale - Pos is affected by scale
+		T.has(n._toWorld, {x=25*2, y=35*2}, "Position is affected by allocation scale.")
 		n:setPos(20, 30)
 		n:updateTransform()
-		T.has(n._toWorld, {x=20, y=30}, "setPos after scaled allocation correctly works.")
+		T.has(n._toWorld, {x=20*2, y=30*2}, "setPos after scaled allocation correctly works.")
 		n:setPos(-10, -10, true) -- Relative
 		n:updateTransform()
-		T.has(n._toWorld, {x=20-10, y=30-10}, "setPos (relative) after scaled allocation works.")
+		T.has(n._toWorld, {x=(20-10)*2, y=(30-10)*2}, "setPos (relative) after scaled allocation works.")
 	end,
 	function(scene) -- setCenterPos - test with different anchors and pivots.)
 		local w, h = 100, 100

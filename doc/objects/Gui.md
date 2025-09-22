@@ -2,7 +2,7 @@
 
 A set of objects for GUI layout. Uses a base 'Node' class that has a pivot point on itself, an anchor point on its parent, and resize modes for each axis to control how it changes to fit the area it is allocated. Nodes aren't constrained to fit inside their parent at all, they're just given a width and height (and an offset for Row/Column nodes).
 
-Nodes do not scale, they just change their width and height. A global scale factor can be passed down the tree, which will scale padding, row/column spacing, text size, and 9-Slice margin sizes.
+Nodes do not scale, they just change their width and height. A global scale factor can be passed down the tree, which will scale position (offset from anchor point), padding, row/column spacing, text size, and 9-Slice image scale.
 
 ## Basic Usage
 
