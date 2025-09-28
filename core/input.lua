@@ -274,20 +274,21 @@ local function revpairs(t)  return reverse_ipairs_iter, t, #t+1  end
 
 local function findAndRemoveAction(actionBindingList, actionName)
 	for i,binding in revpairs(actionBindingList) do
-		if binding.name == actionName then  return table.remove(actionBindingList, i)  end
+		if binding.name == actionName then  table.remove(actionBindingList, i)  end
 	end
 end
 
 local function findAndRemoveInput(inputList, device, id)
 	for i,input in revpairs(inputList) do
 		if input.device == device and input.id == id then
-			return table.remove(inputList, i)
+			table.remove(inputList, i)
 		end
 	end
 end
 
 -- Unbinds all raw inputs from this action.
 function Input.unbindAction(actionName)
+	if not actions[actionName] then  return  end
 	actions[actionName] = nil
 	for _,input in revpairs(inputsForAction[actionName]) do
 		findAndRemoveAction(actionsForInput[input.device][input.id], actionName)
@@ -309,6 +310,7 @@ end
 
 -- Unbinds only this raw input from this action.
 function Input.unbindFromAction(device, id, actionName)
+	if not actions[actionName] then  return  end
 	findAndRemoveAction(actionsForInput[device][id], actionName)
 	findAndRemoveInput(inputsForAction[actionName], device, id)
 	if #inputsForAction[actionName] == 0 then  actions[actionName] = nil  end

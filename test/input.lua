@@ -132,5 +132,59 @@ return {
 		Input.disable(obj)
 		love.mousemoved(101, 100, 1, 0)
 		T.has(obj, { count=0, last=false, scriptGotInput=false }, "Input.disable works.")
-	end
+
+		Input.unbindAction("move x")
+		Input.unbindAction("text input")
+		Input.unbindAction("mouse moved")
+
+		-- Ensure that trying to unbind a nonexistent action doesn't error/crash.
+		local isSuccess, errMsg = pcall(Input.unbindAction, "doesntExist")
+		T.ok(isSuccess, "unbindAction() works without errors on nonexistent action.")
+		if not isSuccess then  print("ERROR: "..errMsg)  end
+		local isSuccess, errMsg = pcall(Input.unbindFromAction, "scancode", "w", "doesntExist")
+		T.ok(isSuccess, "unbindFromAction() works without errors on nonexistent action.")
+		if not isSuccess then  print("ERROR: "..errMsg)  end
+	end,
+	function() -- Test unbinding only one half of an axis.
+		-- Input.init() -- WARNING: Can't call this twice.
+		Input.bind("axis", "w", "s", "myaxis")
+		local obj = newObj()
+		Input.enable(obj)
+		love.keypressed("w", "w", false)
+		love.keypressed("s", "s", false)
+		love.keyreleased("w", "w", false)
+		love.keyreleased("s", "s", false)
+		T.ok(obj.count == 4, "Press and release for both directions of an axis binding seems okay.")
+		T.is(obj.last.value, 0, "Axis value is back to zero after pressing and releasing both bindings.")
+		obj.count = 0
+		Input.unbindFromAction("scancode", "s", "myaxis")
+		love.keypressed("w", "w", false)
+		love.keypressed("s", "s", false)
+		T.ok(obj.count == 1, "Pressing both old keys after unbinding correctly results in only one input being processed.")
+		T.is(obj.last.value, -1, "Axis value is correct after pressing both old keys after unbinding half of an axis.")
+		-- Clean up:
+		Input.disable(obj)
+		Input.unbindAction("myaxis")
+		love.keyreleased("w", "w", false)
+		love.keyreleased("s", "s", false)
+	end,
+	function() -- Test axis binding where both sides are bound to the same input.
+		Input.bind("axis", "c", "c", "doubleAxis")
+		local obj = newObj()
+		Input.enable(obj)
+		love.keypressed("c", "c", false)
+		T.is(obj.count, 2, "Binding the same key to both sides of an axis makes two events when pressed.")
+		T.is(obj.last.value, 0, "Binding the same key to both sides of an axis results in a value of 0 when pressed.")
+		obj.count = 0
+		love.keyreleased("c", "c", false)
+		T.is(obj.count, 2, "Binding the same key to both sides of an axis makes two events when released.")
+		T.is(obj.last.value, 0, "Binding the same key to both sides of an axis results in a value of 0 when released.")
+		obj.count = 0
+		-- Test that unbinding removes it from both sides.
+		Input.unbindFromAction("scancode", "c", "doubleAxis")
+		love.keypressed("c", "c", false)
+		T.is(obj.count, 0, "Unbinding that key removes it from both sides of the axis, no events after it's pressed again.")
+		T.is(obj.last.value, 0, "Unbinding that key removes it from both sides of the axis, value still 0 after it's pressed again.")
+		Input.unbindAction("doubleAxis")
+	end,
 }
