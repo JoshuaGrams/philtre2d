@@ -14,7 +14,8 @@ local SENSOR_ALPHA_MULT = 0.35
 
 function Body.drawDebug(self)
 	-- We're modifying the alpha value multiple times, so separate these and do it non-destructively.
-	local r, g, b, alpha = self.color[1], self.color[2], self.color[3], self.color[4]
+	local col = self._debugColor
+	local r, g, b, alpha = col[1], col[2], col[3], col[4]
 	alpha = self.body:isAwake() and alpha or alpha * SLEEPING_ALPHA_MULT
 
 	local cx, cy = self.body:getLocalCenter()
@@ -161,7 +162,7 @@ end
 function Body.set(self, type, x, y, angle, shapes, bodyProps)
 	Body.super.set(self, x, y, angle)
 	local rand = love.math.random
-	self.color = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
+	self._debugColor = {rand()*0.8+0.4, rand()*0.8+0.4, rand()*0.8+0.4, 1}
 	self.type = type
 	if self.type == 'dynamic' or self.type == 'static' then
 		-- Doesn't have a body until init, so can't use the physics updateTransform.
