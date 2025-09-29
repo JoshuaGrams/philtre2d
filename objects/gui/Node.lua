@@ -8,7 +8,7 @@ local Alloc = require(base .. 'gui.Allocation')
 
 local DEFAULT_MODE = 'pixels'
 
-local max = math.max
+local min, max = math.min, math.max
 local sin, cos = math.sin, math.cos
 
 local CARDINALS = {
@@ -17,21 +17,63 @@ local CARDINALS = {
 }
 
 local xScaleFuncs = {
-	pixels   = function(self, x, y, w, h, scale)  return self.xParam           end,
-	units    = function(self, x, y, w, h, scale)  return self.xParam * scale   end,
-	percentw = function(self, x, y, w, h, scale)  return self.xParam/100 * w   end,
-	percenth = function(self, x, y, w, h, scale)  return self.xParam/100 * h   end,
-	aspect   = function(self, x, y, w, h, scale)  return self.h * self.xParam  end,
-	relative = function(self, x, y, w, h, scale)  return w + self.xParam       end
+	pixels   = function(self, x, y, w, h, scale, param)  return param           end,
+	units    = function(self, x, y, w, h, scale, param)  return param * scale   end,
+	percentw = function(self, x, y, w, h, scale, param)  return param/100 * w   end,
+	percenth = function(self, x, y, w, h, scale, param)  return param/100 * h   end,
+	xself    = function(self, x, y, w, h, scale, param)  return self.h * param  end,
+	relative = function(self, x, y, w, h, scale, param)  return w + param       end
 }
 local yScaleFuncs = {
-	pixels   = function(self, x, y, w, h, scale)  return self.yParam           end,
-	units    = function(self, x, y, w, h, scale)  return self.yParam * scale   end,
-	percentw = function(self, x, y, w, h, scale)  return self.yParam/100 * w   end,
-	percenth = function(self, x, y, w, h, scale)  return self.yParam/100 * h   end,
-	aspect   = function(self, x, y, w, h, scale)  return self.w / self.yParam  end,
-	relative = function(self, x, y, w, h, scale)  return h + self.yParam       end
+	pixels   = function(self, x, y, w, h, scale, param)  return param           end,
+	units    = function(self, x, y, w, h, scale, param)  return param * scale   end,
+	percentw = function(self, x, y, w, h, scale, param)  return param/100 * w   end,
+	percenth = function(self, x, y, w, h, scale, param)  return param/100 * h   end,
+	xself    = function(self, x, y, w, h, scale, param)  return self.w * param  end,
+	relative = function(self, x, y, w, h, scale, param)  return h + param       end
 }
+
+local function fit(w, h, aspect) -- aspect = width/height
+	local s = min(w/aspect, h*aspect)
+	return s*aspect, s
+end
+
+local function cover(w, h, aspect)
+	local s = max(w/aspect, h*aspect)
+	return s*aspect, s
+end
+
+-- Aspect ratio modes use the other axis's mode and size-param on it's own axis first,
+--  then calculates the aspect ratio within that rect, and finally sets both dimensions.
+-- The other axis will have already been calculated. Just need to repeat its use on ours.
+xScaleFuncs.fit = function(self, x, y, w, h, scale, param)
+	w = xScaleFuncs[self.modeY](self, x, y, w, h, scale, self.yParam)
+	local newW, newH = fit(w, self.h, param)
+	self.h = newH
+	return newW
+end
+
+yScaleFuncs.fit = function(self, x, y, w, h, scale, param)
+	h = yScaleFuncs[self.modeX](self, x, y, w, h, scale, self.xParam)
+	local newW, newH = fit(self.w, h, param)
+	self.w = newW
+	return newH
+end
+
+xScaleFuncs.cover = function(self, x, y, w, h, scale, param)
+	w = xScaleFuncs[self.modeY](self, x, y, w, h, scale, self.yParam)
+	local newW, newH = cover(w, self.h, param)
+	self.h = newH
+	return newW
+end
+
+yScaleFuncs.cover = function(self, x, y, w, h, scale, param)
+	h = yScaleFuncs[self.modeX](self, x, y, w, h, scale, self.xParam)
+	local newW, newH = cover(self.w, h, param)
+	self.w = newW
+	return newH
+end
+
 Node.xScaleFuncs, Node.yScaleFuncs = xScaleFuncs, yScaleFuncs
 local _modeShorthands = {
 	px = 'pixels', u = 'units', ['%w'] = 'percentw', ['%h'] = 'percenth', rel = 'relative', ['+'] = 'relative'
@@ -43,9 +85,10 @@ end
 xScaleFuncs['%'] = xScaleFuncs['percentw']
 yScaleFuncs['%'] = yScaleFuncs['percenth']
 -- For setMode() error messages:
-local _allModesStr = '"pixels", "units", "percentw", "percenth", "aspect", "relative", "px", "u", "%", "%w", "%h", "rel", or "+"'
+local _allModesStr = '"pixels", "units", "percentw", "percenth", "xself", "relative", "fit", "cover", px", "u", "%", "%w", "%h", "rel", or "+"'
 
-Node.modeSetsDesire = { pixels = true, px = true, units = true, u = true, aspect = true }
+Node.modeSetsDesire = { pixels = true, px = true, units = true, u = true, xself = true }
+Node.modeIsDependent = { xself = true, fit = true, cover = true }
 
 local function rotate(x, y, angle)
 	local c, s = cos(angle), sin(angle)
@@ -168,12 +211,12 @@ end
 function Node.updateSize(self, x, y, w, h, scale)
 	local oldW, oldH = self.w, self.h
 	local oldAnchorX, oldAnchorY = self.anchorPosX, self.anchorPosY
-	if self.modeX == 'aspect' then -- In this case, need to calc new height to use for width first.
-		self.h = yScaleFuncs[self.modeY](self, x, y, w, h, scale)
-		self.w = xScaleFuncs[self.modeX](self, x, y, w, h, scale)
+	if self.modeIsDependent[self.modeX] then -- Requires other axis to be calculated first.
+		self.h = yScaleFuncs[self.modeY](self, x, y, w, h, scale, self.yParam)
+		self.w = xScaleFuncs[self.modeX](self, x, y, w, h, scale, self.xParam)
 	else
-		self.w = xScaleFuncs[self.modeX](self, x, y, w, h, scale)
-		self.h = yScaleFuncs[self.modeY](self, x, y, w, h, scale)
+		self.w = xScaleFuncs[self.modeX](self, x, y, w, h, scale, self.xParam)
+		self.h = yScaleFuncs[self.modeY](self, x, y, w, h, scale, self.yParam)
 	end
 	if self.modeSetsDesire[self.modeX] then  self.desiredW = self.w  end
 	if self.modeSetsDesire[self.modeY] then  self.desiredH = self.h  end
@@ -287,13 +330,13 @@ function Node.setPad(self, x, y)
 end
 
 local function setMode(self, x, y)
-	assert((x or self.modeX) ~= 'aspect' or (y or self.modeY) ~= 'aspect',  'Can\'t set both modes to "aspect".')
+	assert(not (self.modeIsDependent[x or self.modeX] and self.modeIsDependent[y or self.modeY]),  'Both modes can\'t be other-axis-dependent ("xself", "fit", or "cover").')
 	if x then
-		assert(xScaleFuncs[x], 'Invalid X mode "' .. tostring(x) .. '". Should be ' .. _allModesStr .. '.')
+		assert(xScaleFuncs[x], 'Invalid X mode "'..tostring(x)..'". Should be '.._allModesStr..'.')
 		self.modeX = x
 	end
 	if y then
-		assert(yScaleFuncs[y], 'Invalid Y mode "' .. tostring(y) .. '". Should be ' .. _allModesStr .. '.')
+		assert(yScaleFuncs[y], 'Invalid Y mode "'..tostring(y)..'". Should be '.._allModesStr..'.')
 		self.modeY = y
 	end
 end
