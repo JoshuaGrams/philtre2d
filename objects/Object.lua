@@ -5,6 +5,7 @@ local matrix = require(base .. 'core.matrix')
 local Object = BaseClass:extend()
 Object.className = 'Object'
 
+Object.visible = true
 Object._COLORED_TOSTRING = true
 
 function Object.TRANSFORM_REGULAR(s) -- self * parent
@@ -137,7 +138,6 @@ function Object.set(self, x, y, angle, sx, sy, kx, ky)
 		self.pos.x, self.pos.y, self.angle,
 		self.sx, self.sy, self.kx, self.ky
 	)
-	self.visible = true
 end
 
 return Object
