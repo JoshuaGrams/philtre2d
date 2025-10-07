@@ -3,7 +3,7 @@ local Object = require(base .. 'objects.Object')
 
 local World = Object:extend()
 
-World.className = 'World'
+World.name = 'World'
 
 local COLOR_NORMAL_ENABLED = {0, 1, 1, 1}
 local COLOR_NORMAL_DISABLED = {1, 0, 0, 1}

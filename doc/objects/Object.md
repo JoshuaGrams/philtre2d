@@ -100,14 +100,14 @@ _RETURNS_
 Properties
 ----------
 
-### Object.className
-The string name of the class. It uses this as the default `name` of the Object, as well as in Object's `__tostring` metamethod.
+### Object.name
+The string name of the class, inherited by instances of course. Also used Object's `__tostring` metamethod as the 'class name'.
 
 Metamethods
 -----------
 
 ### Object.__tostring()
-Returns `'(' .. self.className .. '): path = ' .. tostring(self.path)`. New object classes should set their `.className` property so this will work nicely.
+Returns `'(' .. ([Class].name or '[Class]') .. '): path = ' .. tostring(self.path)`. New object classes can set their `.name` property if they want it to be used.
 
 Transform functions
 -------------------

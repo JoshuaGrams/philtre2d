@@ -3,8 +3,8 @@ local BaseClass = require(base .. 'core.base-class')
 local matrix = require(base .. 'core.matrix')
 
 local Object = BaseClass:extend()
-Object.className = 'Object'
 
+Object.name = 'Object'
 Object.visible = true
 Object._COLORED_TOSTRING = true
 
@@ -66,10 +66,11 @@ function Object.__tostring(self)
 	if path and #path > 25 then
 		path = '...'..path:sub(-22)
 	end
+	local className = getmetatable(self).name or "[Class]"
 	if self._COLORED_TOSTRING then
-		return _format:format(self.className, self.id:sub(-4), path)
+		return _format:format(className, self.id:sub(-4), path)
 	else
-		return '(' .. self.className .. ' ' .. self.id:sub(-4) .. ' path=' .. path .. ')'
+		return '(' .. className .. ' ' .. self.id:sub(-4) .. ' path=' .. path .. ')'
 	end
 end
 
@@ -127,7 +128,6 @@ function Object.setLayer(self, layer)
 end
 
 function Object.set(self, x, y, angle, sx, sy, kx, ky)
-	self.name = self.className
 	self.pos = { x = x or 0, y = y or 0 }
 	self.angle = angle or 0
 	self.sx = sx or 1

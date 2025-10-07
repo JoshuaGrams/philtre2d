@@ -1,7 +1,8 @@
 local base = (...):gsub('objects%.Text$', '')
 local Object = require(base .. 'objects.Object')
 local Text = Object:extend()
-Text.className = 'Text'
+
+Text.name = 'Text'
 
 local validAlignment = { center = true, left = true, right = true, justify = true }
 local hOffset = { left = 0, center = 0.5, right = 1, justify = 0 }

@@ -3,7 +3,7 @@ local Object = require(base .. 'objects.Object')
 
 local Sprite = Object:extend()
 
-Sprite.className = 'Sprite'
+Sprite.name = 'Sprite'
 
 local origins = {
 	top = 0, middle = 0.5, bottom = 1,

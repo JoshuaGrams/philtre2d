@@ -5,7 +5,7 @@ local Object = require(base .. 'objects.Object')
 
 local Body = Object:extend()
 
-Body.className = 'Body'
+Body.name = 'Body'
 
 local FULL_MASK_INT = 2^16 - 1
 local SLEEPING_ALPHA_MULT = 0.5

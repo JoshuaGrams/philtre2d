@@ -2,7 +2,7 @@ local base = (...):gsub('[^%.]+$', '')
 local Node = require(base .. 'Node')
 
 local SliceNode = Node:extend()
-SliceNode.className = 'SliceNode'
+SliceNode.name = 'SliceNode'
 
 function SliceNode.draw(self)
 	love.graphics.setBlendMode(self.blendMode)

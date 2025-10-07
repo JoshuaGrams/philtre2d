@@ -2,7 +2,7 @@ local base = (...):gsub('[^%.]+$', '')
 local Node = require(base .. 'Node')
 
 local Mask = Node:extend()
-Mask.className = "Mask"
+Mask.name = "Mask"
 
 local function defaultStencilFunc(self)
 	local w, h = self.contentAlloc.w, self.contentAlloc.h

@@ -3,7 +3,7 @@ local Object = require(base .. 'objects.Object')
 
 local Camera = Object:extend()
 
-Camera.className = 'Camera'
+Camera.name = 'Camera'
 
 local cameras = {}
 local fallbackCam

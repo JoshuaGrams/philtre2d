@@ -2,7 +2,7 @@ local base = (...):gsub('[^%.]+$', '')
 local Node = require(base .. 'Node')
 
 local TextNode = Node:extend()
-TextNode.className = 'TextNode'
+TextNode.name = 'TextNode'
 
 local validHAlign = { center = true, left = true, right = true, justify = true }
 

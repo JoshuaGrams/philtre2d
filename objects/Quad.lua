@@ -3,7 +3,7 @@ local Object = require(base .. 'objects.Object')
 
 local Quad = Object:extend()
 
-Quad.className = 'Quad'
+Quad.name = 'Quad'
 
 local origins = {
 	top = 0, middle = 0.5, bottom = 1,

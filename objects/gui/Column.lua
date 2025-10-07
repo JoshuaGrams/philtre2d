@@ -2,7 +2,7 @@ local base = (...):gsub('[^%.]+$', '')
 local Node = require(base .. 'Node')
 
 local Column = Node:extend()
-Column.className = "Column"
+Column.name = "Column"
 
 function Column._getChildDesire(self, child)
 	local _, desiredH = child:request()

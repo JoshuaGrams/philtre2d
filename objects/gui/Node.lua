@@ -2,7 +2,7 @@ local base = (...):gsub('[^%.]+%.[^%.]+$', '')
 local Object = require(base .. 'Object')
 
 local Node = Object:extend()
-Node.className = 'Node'
+Node.name = 'Node'
 
 local Alloc = require(base .. 'gui.Allocation')
 
