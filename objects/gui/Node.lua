@@ -126,7 +126,7 @@ function Node.drawDebug(self)
 	love.graphics.line(0.5, -6*s, 0.5, 6*s)
 	if self.padX ~= 0 or self.padY ~= 0 then
 		local iw, ih = self.contentAlloc.w, self.contentAlloc.h
-		love.graphics.rectangle('line', self.padX, self.padY, iw, ih)
+		love.graphics.rectangle('line', self.padX*s, self.padY*s, iw, ih)
 	end
 	love.graphics.rectangle('line', 0.5, 0.5, self.w-1, self.h-1)
 end
